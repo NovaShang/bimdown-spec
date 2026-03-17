@@ -1,0 +1,6 @@
+name: structure_slab
+bases:
+  - slab
+host_type: none
+
+fields: []

@@ -1,0 +1,6 @@
+name: structure_column
+bases:
+  - column
+host_type: none
+
+fields: []

@@ -1,0 +1,8 @@
+name: beam
+bases:
+  - line_element
+  - section_profile
+  - materialized
+host_type: none
+
+fields: []

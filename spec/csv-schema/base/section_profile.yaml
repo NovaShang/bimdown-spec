@@ -1,9 +1,5 @@
-name: column
-bases:
-  - point_element
-  - vertical_span
-  - materialized
-host_type: none
+name: section_profile
+abstract: true
 
 fields:
   - name: shape
