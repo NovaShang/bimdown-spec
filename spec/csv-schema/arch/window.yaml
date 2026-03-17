@@ -1,0 +1,13 @@
+name: window
+base: hosted_element
+host_type: wall
+
+fields:
+  - name: width
+    type: float
+
+  - name: height
+    type: float
+
+  - name: sill_height
+    type: float

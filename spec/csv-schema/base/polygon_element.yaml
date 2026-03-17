@@ -1,0 +1,13 @@
+name: polygon_element
+base: element
+abstract: true
+
+fields:
+  - name: points
+    type: string
+    required: true
+    
+  - name: area
+    type: float
+    computed: true
+

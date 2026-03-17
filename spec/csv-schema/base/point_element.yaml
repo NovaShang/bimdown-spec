@@ -1,0 +1,16 @@
+name: point_element
+base: element
+abstract: true
+
+fields:
+  - name: x
+    type: float
+    required: true
+
+  - name: y
+    type: float
+    required: true
+
+  - name: rotation
+    type: float
+    required: true

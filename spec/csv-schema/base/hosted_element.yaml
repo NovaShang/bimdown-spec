@@ -1,0 +1,12 @@
+name: hosted_element
+base: element
+abstract: true
+
+fields:
+  - name: host_id
+    type: int
+    required: true
+
+  - name: location_param
+    type: float
+    required: true

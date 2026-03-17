@@ -1,0 +1,16 @@
+name: wall
+base: line_element
+host_type: none
+
+fields:
+  - name: wall_type
+    type: string
+
+  - name: thickness
+    type: float
+
+  - name: height
+    type: float
+
+  - name: base_offset
+    type: float

@@ -1,0 +1,19 @@
+name: stair
+base: line_element
+host_type: none
+
+fields:
+  - name: top_level_id
+    type: int
+
+  - name: width
+    type: float
+
+  - name: tread_depth
+    type: float
+
+  - name: total_rise
+    type: float
+
+  - name: step_count
+    type: int

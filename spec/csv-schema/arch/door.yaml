@@ -1,0 +1,17 @@
+name: door
+base: hosted_element
+host_type: wall
+
+fields:
+  - name: width
+    type: float
+
+  - name: height
+    type: float
+
+  - name: operation
+    type: enum
+    values:
+      - swing
+      - sliding
+      - folding

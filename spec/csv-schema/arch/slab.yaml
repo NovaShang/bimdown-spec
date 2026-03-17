@@ -1,0 +1,13 @@
+name: slab
+base: polygon_element
+host_type: none
+
+fields:
+  - name: slab_type
+    type: string
+
+  - name: elevation_offset
+    type: float
+
+  - name: thickness
+    type: float

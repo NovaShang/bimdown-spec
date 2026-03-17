@@ -1,0 +1,46 @@
+name: element
+abstract: true
+
+fields:
+  - name: number
+    type: string
+
+  - name: level_id
+    type: reference
+    reference: level
+    required: true
+
+  - name: created_at
+    type: datetime
+
+  - name: updated_at
+    type: datetime
+
+  - name: volume
+    type: float
+    computed: true
+
+  - name: bbox_min_x
+    type: float
+    computed: true
+
+  - name: bbox_min_y
+    type: float
+    computed: true
+
+  - name: bbox_min_z
+    type: float
+    computed: true
+
+  - name: bbox_max_x
+    type: float
+    computed: true
+
+  - name: bbox_max_y
+    type: float
+    computed: true
+
+  - name: bbox_max_z
+    type: float
+    computed: true
+

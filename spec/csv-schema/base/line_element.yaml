@@ -1,0 +1,25 @@
+name: line_element
+base: element
+abstract: true
+
+fields:
+  - name: start_x
+    type: float
+    required: true
+
+  - name: start_y
+    type: float
+    required: true
+
+  - name: end_x
+    type: float
+    required: true
+
+  - name: end_y
+    type: float
+    required: true
+
+  - name: length
+    type: float
+    computed: true
+
