@@ -1,7 +1,6 @@
 name: space
 bases:
   - polygon_element
-host_type: none
 
 fields:
   - name: name

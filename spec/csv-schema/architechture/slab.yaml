@@ -2,7 +2,6 @@ name: slab
 bases:
   - polygon_element
   - materialized
-host_type: none
 
 fields:
   - name: function

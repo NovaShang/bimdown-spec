@@ -1,12 +1,11 @@
-name: beam
+name: strip_foundation
 bases:
   - line_element
-  - section_profile
   - materialized
 
 fields:
-  - name: start_z_offset
+  - name: width
     type: float
 
-  - name: end_z_offset
+  - name: thickness
     type: float

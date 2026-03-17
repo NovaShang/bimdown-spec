@@ -1,7 +1,6 @@
-name: wall
+name: raft_foundation
 bases:
-  - line_element
-  - vertical_span
+  - polygon_element
   - materialized
 
 fields:

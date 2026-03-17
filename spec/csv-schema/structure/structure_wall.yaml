@@ -1,6 +1,5 @@
 name: structure_wall
 bases:
   - wall
-host_type: none
 
 fields: []

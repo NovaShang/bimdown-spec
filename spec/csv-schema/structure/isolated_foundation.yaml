@@ -1,0 +1,14 @@
+name: isolated_foundation
+bases:
+  - point_element
+  - materialized
+
+fields:
+  - name: length
+    type: float
+
+  - name: width
+    type: float
+
+  - name: thickness
+    type: float

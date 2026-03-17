@@ -1,4 +1,4 @@
-name: beam
+name: brace
 bases:
   - line_element
   - section_profile
