@@ -1,5 +1,7 @@
 name: window
-base: hosted_element
+bases:
+  - hosted_element
+  - materialized
 host_type: wall
 
 fields:
@@ -7,7 +9,4 @@ fields:
     type: float
 
   - name: height
-    type: float
-
-  - name: sill_height
     type: float

@@ -1,22 +1,24 @@
 name: column
-base: point_element
+bases:
+  - point_element
+  - vertical_span
+  - materialized
 host_type: none
 
 fields:
-  - name: column_type
-    type: string
-
   - name: shape
     type: enum
     values:
       - rect
       - round
+      - l_shape
+      - t_shape
+      - cross
+      - i_shape
+      - c_shape
 
-  - name: height
+  - name: size_x
     type: float
 
-  - name: width
-    type: float
-
-  - name: depth
+  - name: size_y
     type: float

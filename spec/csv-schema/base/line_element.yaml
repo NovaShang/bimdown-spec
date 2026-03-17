@@ -1,5 +1,6 @@
 name: line_element
-base: element
+bases:
+  - element
 abstract: true
 
 fields:

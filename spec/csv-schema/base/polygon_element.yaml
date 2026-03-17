@@ -1,5 +1,6 @@
 name: polygon_element
-base: element
+bases:
+  - element
 abstract: true
 
 fields:

@@ -1,0 +1,6 @@
+name: materialized
+abstract: true
+
+fields:
+  - name: material
+    type: string

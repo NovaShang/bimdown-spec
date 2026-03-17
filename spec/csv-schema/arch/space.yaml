@@ -1,10 +1,8 @@
 name: space
-base: polygon_element
+bases:
+  - polygon_element
 host_type: none
 
 fields:
   - name: name
     type: string
-
-  - name: clear_height
-    type: float

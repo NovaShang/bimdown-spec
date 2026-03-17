@@ -1,0 +1,13 @@
+name: vertical_span
+abstract: true
+
+fields:
+  - name: top_level_id
+    type: int
+
+  - name: top_offset
+    type: float
+
+  - name: height
+    type: float
+    computed: true

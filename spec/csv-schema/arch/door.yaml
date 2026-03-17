@@ -1,5 +1,7 @@
 name: door
-base: hosted_element
+bases:
+  - hosted_element
+  - materialized
 host_type: wall
 
 fields:

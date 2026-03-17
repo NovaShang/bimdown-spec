@@ -16,6 +16,9 @@ fields:
   - name: updated_at
     type: datetime
 
+  - name: base_offset
+    type: float
+
   - name: volume
     type: float
     computed: true

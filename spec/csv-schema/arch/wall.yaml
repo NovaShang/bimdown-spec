@@ -1,16 +1,10 @@
 name: wall
-base: line_element
+bases:
+  - line_element
+  - vertical_span
+  - materialized
 host_type: none
 
 fields:
-  - name: wall_type
-    type: string
-
   - name: thickness
-    type: float
-
-  - name: height
-    type: float
-
-  - name: base_offset
     type: float
