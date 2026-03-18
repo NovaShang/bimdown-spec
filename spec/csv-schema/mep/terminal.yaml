@@ -1,0 +1,6 @@
+name: terminal
+bases:
+  - point_element
+  - mep_system
+
+fields: []

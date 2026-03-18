@@ -1,4 +1,4 @@
-name: section_profile
+name: structural_section_profile
 abstract: true
 
 fields:
@@ -7,6 +7,11 @@ fields:
     values:
       - rect
       - round
+      - l_shape
+      - t_shape
+      - cross
+      - i_shape
+      - c_shape
 
   - name: size_x
     type: float

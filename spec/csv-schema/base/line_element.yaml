@@ -24,3 +24,9 @@ fields:
     type: float
     computed: true
 
+
+  - name: start_z_offset
+    type: float
+
+  - name: end_z_offset
+    type: float

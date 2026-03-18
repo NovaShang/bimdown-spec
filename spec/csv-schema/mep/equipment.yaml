@@ -1,0 +1,6 @@
+name: equipment
+bases:
+  - point_element
+  - mep_system
+
+fields: []

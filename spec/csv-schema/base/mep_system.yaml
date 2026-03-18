@@ -1,0 +1,6 @@
+name: mep_system
+abstract: true
+
+fields:
+  - name: system_type
+    type: string

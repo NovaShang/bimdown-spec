@@ -1,12 +1,7 @@
 name: beam
 bases:
   - line_element
-  - section_profile
+  - structural_section_profile
   - materialized
 
-fields:
-  - name: start_z_offset
-    type: float
-
-  - name: end_z_offset
-    type: float
+fields: []

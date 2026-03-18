@@ -1,0 +1,7 @@
+name: duct
+bases:
+  - line_element
+  - section_profile
+  - mep_system
+
+fields: []
