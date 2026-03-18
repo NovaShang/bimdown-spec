@@ -9,7 +9,7 @@ public class HelloWorldCommand : IExternalCommand
 {
     public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
     {
-        TaskDialog.Show("BimDown", "Hello, World!");
+        Autodesk.Revit.UI.TaskDialog.Show("BimDown", "Hello, World!");
         return Result.Succeeded;
     }
 }

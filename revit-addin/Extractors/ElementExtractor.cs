@@ -1,0 +1,64 @@
+using Autodesk.Revit.DB;
+
+namespace BimDown.RevitAddin.Extractors;
+
+class ElementExtractor : IFieldExtractor
+{
+    public IReadOnlyList<string> FieldNames { get; } =
+    [
+        "id", "name", "number", "level_id", "created_at", "updated_at",
+        "base_offset", "volume",
+        "bbox_min_x", "bbox_min_y", "bbox_min_z",
+        "bbox_max_x", "bbox_max_y", "bbox_max_z"
+    ];
+
+    public Dictionary<string, string?> Extract(Element element)
+    {
+        var fields = new Dictionary<string, string?>
+        {
+            ["id"] = element.UniqueId,
+            ["name"] = element.Name,
+            ["number"] = element.get_Parameter(BuiltInParameter.ALL_MODEL_MARK)?.AsString(),
+            ["level_id"] = GetLevelUniqueId(element),
+            ["created_at"] = null,
+            ["updated_at"] = null,
+        };
+
+        var baseOffset = element.get_Parameter(BuiltInParameter.INSTANCE_FREE_HOST_OFFSET_PARAM)?.AsDouble()
+                      ?? element.get_Parameter(BuiltInParameter.FLOOR_HEIGHTABOVELEVEL_PARAM)?.AsDouble()
+                      ?? element.get_Parameter(BuiltInParameter.INSTANCE_ELEVATION_PARAM)?.AsDouble();
+        fields["base_offset"] = baseOffset is { } bo ? UnitConverter.FormatDouble(UnitConverter.Length(bo)) : null;
+
+        var volume = element.get_Parameter(BuiltInParameter.HOST_VOLUME_COMPUTED)?.AsDouble();
+        fields["volume"] = volume is { } v ? UnitConverter.FormatDouble(UnitConverter.Volume(v)) : null;
+
+        GeometryUtils.WriteBoundingBox(fields, element);
+
+        return fields;
+    }
+
+    static string? GetLevelUniqueId(Element element)
+    {
+        // Try LevelId property
+        if (element.LevelId is { } levelId && levelId != ElementId.InvalidElementId)
+        {
+            return element.Document.GetElement(levelId)?.UniqueId;
+        }
+
+        // Try INSTANCE_SCHEDULE_ONLY_LEVEL_PARAM
+        var levelParam = element.get_Parameter(BuiltInParameter.INSTANCE_SCHEDULE_ONLY_LEVEL_PARAM);
+        if (levelParam?.AsElementId() is { } schedLevelId && schedLevelId != ElementId.InvalidElementId)
+        {
+            return element.Document.GetElement(schedLevelId)?.UniqueId;
+        }
+
+        // Try SCHEDULE_LEVEL_PARAM
+        levelParam = element.get_Parameter(BuiltInParameter.SCHEDULE_LEVEL_PARAM);
+        if (levelParam?.AsElementId() is { } scheduleLevelId && scheduleLevelId != ElementId.InvalidElementId)
+        {
+            return element.Document.GetElement(scheduleLevelId)?.UniqueId;
+        }
+
+        return null;
+    }
+}
