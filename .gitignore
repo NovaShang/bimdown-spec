@@ -1,0 +1,15 @@
+# Revit API DLLs (copy locally via: cp from Revit install dir)
+libs/
+
+# .NET build outputs
+**/bin/
+**/obj/
+
+# VS / Rider
+.vs/
+.idea/
+*.user
+
+# OS
+.DS_Store
+Thumbs.db
