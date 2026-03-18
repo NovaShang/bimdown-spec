@@ -1,6 +1,6 @@
 name: beam
 bases:
-  - line_element
+  - spatial_line_element
   - structural_section_profile
   - materialized
 

@@ -1,0 +1,13 @@
+name: spatial_line_element
+bases:
+  - line_element
+abstract: true
+
+fields:
+  - name: start_z
+    type: float
+    required: true
+
+  - name: end_z
+    type: float
+    required: true

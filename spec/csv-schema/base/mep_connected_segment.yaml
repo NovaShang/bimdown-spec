@@ -1,0 +1,9 @@
+name: mep_connected_segment
+abstract: true
+
+fields:
+  - name: start_node_id
+    type: string
+
+  - name: end_node_id
+    type: string

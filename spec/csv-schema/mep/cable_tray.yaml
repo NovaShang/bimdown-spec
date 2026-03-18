@@ -1,6 +1,6 @@
 name: cable_tray
 bases:
-  - line_element
+  - spatial_line_element
   - section_profile
   - mep_system
 

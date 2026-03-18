@@ -3,15 +3,20 @@ name: grid
 fields:
   - name: number
     type: string
+    required: true
 
   - name: start_x
     type: float
+    required: true
 
   - name: start_y
     type: float
+    required: true
 
   - name: end_x
     type: float
+    required: true
 
   - name: end_y
     type: float
+    required: true
