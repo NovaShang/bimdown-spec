@@ -3,4 +3,17 @@ bases:
   - point_element
   - mep_system
 
-fields: []
+fields:
+  - name: terminal_type
+    type: enum
+    values:
+      - supply_air_diffuser
+      - return_air_grille
+      - exhaust_air_grille
+      - sprinkler_head
+      - fire_alarm_device
+      - light_fixture
+      - power_outlet
+      - data_outlet
+      - plumbing_fixture
+      - other

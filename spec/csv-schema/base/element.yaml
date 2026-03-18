@@ -2,6 +2,13 @@ name: element
 abstract: true
 
 fields:
+  - name: id
+    type: string
+    required: true
+
+  - name: name
+    type: string
+
   - name: number
     type: string
 

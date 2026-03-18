@@ -3,7 +3,8 @@ abstract: true
 
 fields:
   - name: top_level_id
-    type: int
+    type: reference
+    reference: level
 
   - name: top_offset
     type: float

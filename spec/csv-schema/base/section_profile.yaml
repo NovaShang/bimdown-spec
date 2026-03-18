@@ -4,6 +4,7 @@ abstract: true
 fields:
   - name: shape
     type: enum
+    required: true
     values:
       - rect
       - round

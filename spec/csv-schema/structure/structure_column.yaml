@@ -1,5 +1,8 @@
 name: structure_column
 bases:
-  - column
+  - point_element
+  - vertical_span
+  - materialized
+  - structural_section_profile
 
 fields: []
