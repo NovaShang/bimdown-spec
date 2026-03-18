@@ -3,4 +3,20 @@ bases:
   - point_element
   - mep_system
 
-fields: []
+fields:
+  - name: equipment_type
+    type: enum
+    values:
+      - ahu
+      - fcu
+      - chiller
+      - boiler
+      - cooling_tower
+      - fan
+      - pump
+      - transformer
+      - panelboard
+      - generator
+      - water_heater
+      - tank
+      - other
