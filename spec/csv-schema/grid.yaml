@@ -1,6 +1,10 @@
 name: grid
 
 fields:
+  - name: id
+    type: string
+    required: true
+
   - name: number
     type: string
     required: true

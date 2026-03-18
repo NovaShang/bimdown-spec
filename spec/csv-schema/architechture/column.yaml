@@ -3,6 +3,6 @@ bases:
   - point_element
   - vertical_span
   - materialized
-  - structural_section_profile
+  - section_profile
 
 fields: []

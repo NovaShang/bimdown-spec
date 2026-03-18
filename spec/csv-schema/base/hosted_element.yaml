@@ -5,7 +5,8 @@ abstract: true
 
 fields:
   - name: host_id
-    type: int
+    type: reference
+    reference: element
     required: true
 
   - name: location_param

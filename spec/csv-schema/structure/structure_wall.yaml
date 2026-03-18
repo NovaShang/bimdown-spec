@@ -1,5 +1,9 @@
 name: structure_wall
 bases:
-  - wall
+  - line_element
+  - vertical_span
+  - materialized
 
-fields: []
+fields:
+  - name: thickness
+    type: float

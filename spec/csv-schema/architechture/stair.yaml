@@ -1,6 +1,6 @@
 name: stair
 bases:
-  - line_element
+  - spatial_line_element
   - vertical_span
 
 fields:

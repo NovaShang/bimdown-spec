@@ -1,8 +1,17 @@
 name: level
 
 fields:
+  - name: id
+    type: string
+    required: true
+
   - name: number
+    type: string
+    required: true
+
+  - name: name
     type: string
 
   - name: elevation
     type: float
+    required: true

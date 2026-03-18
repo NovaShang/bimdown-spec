@@ -1,5 +1,14 @@
 name: structure_slab
 bases:
-  - slab
+  - polygon_element
+  - materialized
 
-fields: []
+fields:
+  - name: function
+    type: enum
+    values:
+      - floor
+      - roof
+
+  - name: thickness
+    type: float

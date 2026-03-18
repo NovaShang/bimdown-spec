@@ -3,4 +3,12 @@ abstract: true
 
 fields:
   - name: system_type
-    type: string
+    type: enum
+    values:
+      - hvac
+      - plumbing
+      - fire_protection
+      - electrical
+      - data_comm
+      - gas
+      - other

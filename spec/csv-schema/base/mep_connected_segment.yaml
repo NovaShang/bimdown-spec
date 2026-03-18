@@ -4,6 +4,8 @@ abstract: true
 fields:
   - name: start_node_id
     type: string
+    required: true
 
   - name: end_node_id
     type: string
+    required: true
