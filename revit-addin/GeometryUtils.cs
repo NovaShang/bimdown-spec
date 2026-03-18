@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json;
 using Autodesk.Revit.DB;
 
 namespace BimDown.RevitAddin;
@@ -109,6 +110,24 @@ static class GeometryUtils
         foreach (var curve in outerLoop)
         {
             points.Add(curve.GetEndPoint(0));
+        }
+        return points;
+    }
+
+    /// <summary>
+    /// Deserializes polygon JSON [[x1,y1],[x2,y2],...] to XYZ points.
+    /// Input coordinates are in meters, output is in feet.
+    /// </summary>
+    public static IList<XYZ> DeserializePolygon(string json)
+    {
+        var points = new List<XYZ>();
+        using var doc = JsonDocument.Parse(json);
+        foreach (var pair in doc.RootElement.EnumerateArray())
+        {
+            var coords = pair.EnumerateArray().ToArray();
+            var x = UnitConverter.LengthToFeet(coords[0].GetDouble());
+            var y = UnitConverter.LengthToFeet(coords[1].GetDouble());
+            points.Add(new XYZ(x, y, 0));
         }
         return points;
     }

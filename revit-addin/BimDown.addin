@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+  <AddIn Type="Application">
+    <Name>BimDown Batch Exporter</Name>
+    <Assembly>C:\Users\nova\dev\code\BimDown\revit-addin\bin\Debug\net8.0-windows\BimDown.RevitAddin.dll</Assembly>
+    <FullClassName>BimDown.RevitAddin.BatchExportApp</FullClassName>
+    <ClientId>b01d0000-ba7c-4e0f-a55e-7ab123456780</ClientId>
+    <VendorId>BIMX</VendorId>
+    <VendorDescription>BimDown</VendorDescription>
+  </AddIn>
+  <AddIn Type="Command">
+    <Name>BimDown Export</Name>
+    <Assembly>C:\Users\nova\dev\code\BimDown\revit-addin\bin\Debug\net8.0-windows\BimDown.RevitAddin.dll</Assembly>
+    <FullClassName>BimDown.RevitAddin.ExportCommand</FullClassName>
+    <ClientId>b01d0001-e490-4e0f-a55e-7ab123456781</ClientId>
+    <VendorId>BIMX</VendorId>
+    <VendorDescription>BimDown</VendorDescription>
+  </AddIn>
+  <AddIn Type="Command">
+    <Name>BimDown Import</Name>
+    <Assembly>C:\Users\nova\dev\code\BimDown\revit-addin\bin\Debug\net8.0-windows\BimDown.RevitAddin.dll</Assembly>
+    <FullClassName>BimDown.RevitAddin.ImportCommand</FullClassName>
+    <ClientId>b01d0002-1490-4e0f-a55e-7ab123456782</ClientId>
+    <VendorId>BIMX</VendorId>
+    <VendorDescription>BimDown</VendorDescription>
+  </AddIn>
+</RevitAddIns>
