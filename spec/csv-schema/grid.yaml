@@ -1,0 +1,17 @@
+name: grid
+
+fields:
+  - name: number
+    type: string
+
+  - name: start_x
+    type: float
+
+  - name: start_y
+    type: float
+
+  - name: end_x
+    type: float
+
+  - name: end_y
+    type: float

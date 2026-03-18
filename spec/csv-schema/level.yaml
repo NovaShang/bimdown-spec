@@ -1,0 +1,8 @@
+name: level
+
+fields:
+  - name: number
+    type: string
+
+  - name: elevation
+    type: float
