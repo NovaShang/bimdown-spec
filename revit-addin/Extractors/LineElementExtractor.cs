@@ -2,7 +2,7 @@ using Autodesk.Revit.DB;
 
 namespace BimDown.RevitAddin.Extractors;
 
-class LineElementExtractor : IFieldExtractor
+public class LineElementExtractor : IFieldExtractor
 {
     public IReadOnlyList<string> FieldNames { get; } = ["start_x", "start_y", "end_x", "end_y", "length"];
 

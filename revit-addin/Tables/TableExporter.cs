@@ -3,7 +3,7 @@ using BimDown.RevitAddin.Extractors;
 
 namespace BimDown.RevitAddin.Tables;
 
-class TableExporter(
+public class TableExporter(
     string tableName,
     BuiltInCategory[] categories,
     CompositeExtractor extractor,

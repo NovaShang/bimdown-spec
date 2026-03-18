@@ -2,7 +2,7 @@ using Autodesk.Revit.DB;
 
 namespace BimDown.RevitAddin.Tables;
 
-interface ITableExporter
+public interface ITableExporter
 {
     string TableName { get; }
     IReadOnlyList<string> Columns { get; }

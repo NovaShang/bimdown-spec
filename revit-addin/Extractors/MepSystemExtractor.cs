@@ -2,7 +2,7 @@ using Autodesk.Revit.DB;
 
 namespace BimDown.RevitAddin.Extractors;
 
-class MepSystemExtractor : IFieldExtractor
+public class MepSystemExtractor : IFieldExtractor
 {
     public IReadOnlyList<string> FieldNames { get; } = ["system_type"];
 

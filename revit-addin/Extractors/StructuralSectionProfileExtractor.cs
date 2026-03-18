@@ -2,7 +2,7 @@ using Autodesk.Revit.DB;
 
 namespace BimDown.RevitAddin.Extractors;
 
-class StructuralSectionProfileExtractor : IFieldExtractor
+public class StructuralSectionProfileExtractor : IFieldExtractor
 {
     public IReadOnlyList<string> FieldNames { get; } = ["shape", "size_x", "size_y"];
 

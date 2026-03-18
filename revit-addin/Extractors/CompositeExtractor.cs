@@ -2,7 +2,7 @@ using Autodesk.Revit.DB;
 
 namespace BimDown.RevitAddin.Extractors;
 
-class CompositeExtractor(IFieldExtractor[] extractors, string[]? inlineFieldNames = null, Func<Element, Dictionary<string, string?>>? inlineExtract = null)
+public class CompositeExtractor(IFieldExtractor[] extractors, string[]? inlineFieldNames = null, Func<Element, Dictionary<string, string?>>? inlineExtract = null)
 {
     public IReadOnlyList<string> FieldNames { get; } = BuildFieldNames(extractors, inlineFieldNames);
 

@@ -2,7 +2,7 @@ using Autodesk.Revit.DB;
 
 namespace BimDown.RevitAddin.Extractors;
 
-class VerticalSpanExtractor : IFieldExtractor
+public class VerticalSpanExtractor : IFieldExtractor
 {
     public IReadOnlyList<string> FieldNames { get; } = ["top_level_id", "top_offset", "height"];
 

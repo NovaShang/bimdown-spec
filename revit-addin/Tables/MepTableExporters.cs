@@ -3,7 +3,7 @@ using BimDown.RevitAddin.Extractors;
 
 namespace BimDown.RevitAddin.Tables;
 
-static class MepTableExporters
+public static class MepTableExporters
 {
     public static ITableExporter Duct() => new TableExporter(
         "duct",

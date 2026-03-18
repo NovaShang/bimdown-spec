@@ -2,7 +2,7 @@ using Autodesk.Revit.DB;
 
 namespace BimDown.RevitAddin.Tables;
 
-class LevelTableExporter : ITableExporter
+public class LevelTableExporter : ITableExporter
 {
     public string TableName => "level";
     public IReadOnlyList<string> Columns { get; } = ["id", "number", "name", "elevation"];
@@ -29,7 +29,7 @@ class LevelTableExporter : ITableExporter
     }
 }
 
-class GridTableExporter : ITableExporter
+public class GridTableExporter : ITableExporter
 {
     public string TableName => "grid";
     public IReadOnlyList<string> Columns { get; } = ["id", "number", "start_x", "start_y", "end_x", "end_y"];

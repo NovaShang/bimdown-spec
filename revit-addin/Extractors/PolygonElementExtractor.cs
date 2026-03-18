@@ -2,7 +2,7 @@ using Autodesk.Revit.DB;
 
 namespace BimDown.RevitAddin.Extractors;
 
-class PolygonElementExtractor : IFieldExtractor
+public class PolygonElementExtractor : IFieldExtractor
 {
     public IReadOnlyList<string> FieldNames { get; } = ["points", "area"];
 

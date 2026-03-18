@@ -4,7 +4,7 @@ using BimDown.RevitAddin.Extractors;
 
 namespace BimDown.RevitAddin.Tables;
 
-static class ArchitectureTableExporters
+public static class ArchitectureTableExporters
 {
     public static ITableExporter Wall() => new TableExporter(
         "wall",

@@ -2,7 +2,7 @@ using Autodesk.Revit.DB;
 
 namespace BimDown.RevitAddin.Extractors;
 
-class ElementExtractor : IFieldExtractor
+public class ElementExtractor : IFieldExtractor
 {
     public IReadOnlyList<string> FieldNames { get; } =
     [

@@ -2,7 +2,7 @@ using Autodesk.Revit.DB;
 
 namespace BimDown.RevitAddin.Extractors;
 
-class SpatialLineElementExtractor : IFieldExtractor
+public class SpatialLineElementExtractor : IFieldExtractor
 {
     public IReadOnlyList<string> FieldNames { get; } = ["start_z", "end_z"];
 

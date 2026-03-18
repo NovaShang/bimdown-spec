@@ -5,7 +5,7 @@ using Autodesk.Revit.DB.Electrical;
 
 namespace BimDown.RevitAddin.Extractors;
 
-class MepConnectedSegmentExtractor : IFieldExtractor
+public class MepConnectedSegmentExtractor : IFieldExtractor
 {
     public IReadOnlyList<string> FieldNames { get; } = ["start_node_id", "end_node_id"];
 

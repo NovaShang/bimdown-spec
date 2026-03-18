@@ -2,7 +2,7 @@ using Autodesk.Revit.DB;
 
 namespace BimDown.RevitAddin.Extractors;
 
-class HostedElementExtractor : IFieldExtractor
+public class HostedElementExtractor : IFieldExtractor
 {
     public IReadOnlyList<string> FieldNames { get; } = ["host_id", "location_param"];
 
