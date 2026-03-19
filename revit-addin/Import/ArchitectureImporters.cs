@@ -179,12 +179,15 @@ class ColumnImporter() : TableImporterBase("column", 10, [BuiltInCategory.OST_Co
     {
         if (element is not FamilyInstance fi) return;
 
-        // Update location
+        // Update location using MoveElement (lp.Point setter can misfire on level-hosted columns)
         if (fi.Location is LocationPoint lp)
         {
             var x = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["x"]!));
             var y = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["y"]!));
-            lp.Point = new XYZ(x, y, lp.Point.Z);
+            var target = new XYZ(x, y, lp.Point.Z);
+            var delta = target - lp.Point;
+            if (delta.GetLength() > 1e-10)
+                ElementTransformUtils.MoveElement(doc, fi.Id, delta);
         }
 
         // Update rotation
@@ -193,11 +196,11 @@ class ColumnImporter() : TableImporterBase("column", 10, [BuiltInCategory.OST_Co
         {
             var targetAngle = UnitConverter.AngleToRadians(UnitConverter.ParseDouble(rotationStr));
             var currentAngle = locPt.Rotation;
-            var delta = targetAngle - currentAngle;
-            if (Math.Abs(delta) > 1e-10)
+            var angleDelta = targetAngle - currentAngle;
+            if (Math.Abs(angleDelta) > 1e-10)
             {
                 var axis = Line.CreateBound(locPt.Point, locPt.Point + XYZ.BasisZ);
-                ElementTransformUtils.RotateElement(doc, fi.Id, axis, delta);
+                ElementTransformUtils.RotateElement(doc, fi.Id, axis, angleDelta);
             }
         }
 
