@@ -194,4 +194,61 @@ public class ColumnTests : RevitApiTest
             doc.Close(false);
         }
     }
+
+    [Test]
+    public async Task Import_Column_DeleteUnmatched()
+    {
+        var doc = RevitTestHelper.CreateTempDocument(Application);
+        try
+        {
+            var level = GetFirstLevel(doc);
+
+            using var txSetup = new Transaction(doc, "Setup Columns");
+            txSetup.Start();
+            RevitTestHelper.EnsureFamilyLoaded(doc, Application, BuiltInCategory.OST_Columns);
+            var symbol = new FilteredElementCollector(doc)
+                .OfCategory(BuiltInCategory.OST_Columns)
+                .OfClass(typeof(FamilySymbol))
+                .Cast<FamilySymbol>()
+                .First();
+            if (!symbol.IsActive) symbol.Activate();
+
+            var col1 = doc.Create.NewFamilyInstance(
+                new XYZ(0, 0, level.Elevation), symbol, level, StructuralType.NonStructural);
+            var col2 = doc.Create.NewFamilyInstance(
+                new XYZ(UnitConverter.LengthToFeet(5), 0, level.Elevation), symbol, level, StructuralType.NonStructural);
+            txSetup.Commit();
+
+            var importer = new ColumnImporter();
+            var idMap = RevitTestHelper.BuildIdMap(doc);
+            idMap.Register(col1.UniqueId, col1.Id);
+            idMap.Register(col2.UniqueId, col2.Id);
+            importer.SetIdMap(idMap);
+
+            // Import with only col1 — col2 should be deleted
+            var csvRows = new List<Dictionary<string, string?>>
+            {
+                new()
+                {
+                    ["id"] = col1.UniqueId,
+                    ["level_id"] = level.UniqueId,
+                    ["x"] = "0",
+                    ["y"] = "0",
+                    ["rotation"] = "0",
+                }
+            };
+
+            using var tx = new Transaction(doc, "Test Column Delete");
+            tx.Start();
+
+            var result = importer.Import(doc, csvRows);
+            await Assert.That(result.Deleted).IsGreaterThanOrEqualTo(1);
+
+            tx.RollBack();
+        }
+        finally
+        {
+            doc.Close(false);
+        }
+    }
 }

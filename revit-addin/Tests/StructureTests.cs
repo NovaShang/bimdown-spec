@@ -2,6 +2,7 @@ using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Structure;
 using BimDown.RevitAddin;
 using BimDown.RevitAddin.Import;
+using BimDown.RevitAddin.Tables;
 using Nice3point.TUnit.Revit;
 
 namespace BimDown.RevitTests;
@@ -280,6 +281,234 @@ public class StructureTests : RevitApiTest
             await Assert.That(floor!.FloorType.Name).IsEqualTo("BimDown_250mm");
 
             tx.RollBack();
+        }
+        finally
+        {
+            doc.Close(false);
+        }
+    }
+
+    [Test]
+    public async Task Import_StructureWall_UpdateGeometry()
+    {
+        var doc = RevitTestHelper.CreateTempDocument(Application);
+        try
+        {
+            var level = GetFirstLevel(doc);
+
+            using var txCreate = new Transaction(doc, "Create Structure Wall");
+            txCreate.Start();
+            var wallType = new FilteredElementCollector(doc)
+                .OfClass(typeof(WallType))
+                .Cast<WallType>()
+                .First(wt => wt.Kind == WallKind.Basic);
+            var line = Line.CreateBound(new XYZ(0, 0, 0), new XYZ(UnitConverter.LengthToFeet(8), 0, 0));
+            var wall = Wall.Create(doc, line, wallType.Id, level.Id, UnitConverter.LengthToFeet(3), 0, false, true);
+            txCreate.Commit();
+
+            var importer = new StructureWallImporter();
+            var idMap = RevitTestHelper.BuildIdMap(doc);
+            idMap.Register(wall.UniqueId, wall.Id);
+            importer.SetIdMap(idMap);
+
+            var csvRows = new List<Dictionary<string, string?>>
+            {
+                new()
+                {
+                    ["id"] = wall.UniqueId,
+                    ["level_id"] = level.UniqueId,
+                    ["start_x"] = "1",
+                    ["start_y"] = "2",
+                    ["end_x"] = "9",
+                    ["end_y"] = "2",
+                    ["height"] = "4",
+                }
+            };
+
+            using var tx = new Transaction(doc, "Test Structure Wall Update");
+            tx.Start();
+
+            var result = importer.Import(doc, csvRows);
+            await Assert.That(result.Updated).IsEqualTo(1);
+
+            var lc = wall.Location as LocationCurve;
+            await Assert.That(lc).IsNotNull();
+            var start = lc!.Curve.GetEndPoint(0);
+            RevitTestHelper.AssertClose(UnitConverter.LengthToFeet(1), start.X, 1e-3, "updated start_x");
+            RevitTestHelper.AssertClose(UnitConverter.LengthToFeet(2), start.Y, 1e-3, "updated start_y");
+
+            tx.RollBack();
+        }
+        finally
+        {
+            doc.Close(false);
+        }
+    }
+
+    [Test]
+    public async Task Import_Beam_UpdateGeometry()
+    {
+        var doc = RevitTestHelper.CreateTempDocument(Application);
+        try
+        {
+            using var txSetup = new Transaction(doc, "Load family");
+            txSetup.Start();
+            RevitTestHelper.EnsureFamilyLoaded(doc, Application, BuiltInCategory.OST_StructuralFraming);
+            txSetup.Commit();
+
+            var level = GetFirstLevel(doc);
+
+            // Create initial beam
+            using var txCreate = new Transaction(doc, "Create Beam");
+            txCreate.Start();
+            var symbol = new FilteredElementCollector(doc)
+                .OfCategory(BuiltInCategory.OST_StructuralFraming)
+                .OfClass(typeof(FamilySymbol))
+                .Cast<FamilySymbol>()
+                .First();
+            if (!symbol.IsActive) symbol.Activate();
+            var beamLine = Line.CreateBound(
+                new XYZ(0, 0, UnitConverter.LengthToFeet(3)),
+                new XYZ(UnitConverter.LengthToFeet(6), 0, UnitConverter.LengthToFeet(3)));
+            var beam = doc.Create.NewFamilyInstance(beamLine, symbol, level, StructuralType.Beam);
+            txCreate.Commit();
+
+            var importer = new BeamImporter();
+            var idMap = RevitTestHelper.BuildIdMap(doc);
+            idMap.Register(beam.UniqueId, beam.Id);
+            importer.SetIdMap(idMap);
+
+            var csvRows = new List<Dictionary<string, string?>>
+            {
+                new()
+                {
+                    ["id"] = beam.UniqueId,
+                    ["level_id"] = level.UniqueId,
+                    ["start_x"] = "1",
+                    ["start_y"] = "0",
+                    ["start_z"] = "4",
+                    ["end_x"] = "9",
+                    ["end_y"] = "0",
+                    ["end_z"] = "4",
+                }
+            };
+
+            using var tx = new Transaction(doc, "Test Beam Update");
+            tx.Start();
+
+            var result = importer.Import(doc, csvRows);
+            await Assert.That(result.Updated).IsEqualTo(1);
+
+            var lc = beam.Location as LocationCurve;
+            await Assert.That(lc).IsNotNull();
+            var start = lc!.Curve.GetEndPoint(0);
+            RevitTestHelper.AssertClose(UnitConverter.LengthToFeet(1), start.X, 1e-3, "updated start_x");
+            RevitTestHelper.AssertClose(UnitConverter.LengthToFeet(4), start.Z, 1e-3, "updated start_z");
+
+            tx.RollBack();
+        }
+        finally
+        {
+            doc.Close(false);
+        }
+    }
+
+    [Test]
+    public async Task RoundTrip_StructureWall_ExportThenCsv()
+    {
+        var doc = RevitTestHelper.CreateTempDocument(Application);
+        try
+        {
+            var level = GetFirstLevel(doc);
+
+            using var txCreate = new Transaction(doc, "Create Structure Wall");
+            txCreate.Start();
+            var wallType = new FilteredElementCollector(doc)
+                .OfClass(typeof(WallType))
+                .Cast<WallType>()
+                .First(wt => wt.Kind == WallKind.Basic);
+            var line = Line.CreateBound(
+                new XYZ(0, 0, 0),
+                new XYZ(UnitConverter.LengthToFeet(10), 0, 0));
+            var wall = Wall.Create(doc, line, wallType.Id, level.Id, UnitConverter.LengthToFeet(3.5), 0, false, true);
+            wall.get_Parameter(BuiltInParameter.ALL_MODEL_MARK)?.Set("RT-SW1");
+            txCreate.Commit();
+
+            try
+            {
+                var exporter = StructureTableExporters.StructureWall();
+                var exportedRows = exporter.Export(doc);
+                var targetRow = exportedRows.Find(r => r["number"] == "RT-SW1");
+                await Assert.That(targetRow).IsNotNull();
+
+                var (_, csvRows) = RevitTestHelper.RoundTripCsv(exporter.Columns, [targetRow!]);
+                await Assert.That(csvRows.Count).IsEqualTo(1);
+                await Assert.That(csvRows[0]["number"]).IsEqualTo("RT-SW1");
+            }
+            finally
+            {
+                using var txClean = new Transaction(doc, "Cleanup");
+                txClean.Start();
+                doc.Delete(wall.Id);
+                txClean.Commit();
+            }
+        }
+        finally
+        {
+            doc.Close(false);
+        }
+    }
+
+    [Test]
+    public async Task RoundTrip_Beam_ExportThenCsv()
+    {
+        var doc = RevitTestHelper.CreateTempDocument(Application);
+        try
+        {
+            using var txSetup = new Transaction(doc, "Load family");
+            txSetup.Start();
+            RevitTestHelper.EnsureFamilyLoaded(doc, Application, BuiltInCategory.OST_StructuralFraming);
+            txSetup.Commit();
+
+            var level = GetFirstLevel(doc);
+
+            using var txCreate = new Transaction(doc, "Create Beam");
+            txCreate.Start();
+            var symbol = new FilteredElementCollector(doc)
+                .OfCategory(BuiltInCategory.OST_StructuralFraming)
+                .OfClass(typeof(FamilySymbol))
+                .Cast<FamilySymbol>()
+                .First();
+            if (!symbol.IsActive) symbol.Activate();
+
+            var beamLine = Line.CreateBound(
+                new XYZ(0, 0, UnitConverter.LengthToFeet(3)),
+                new XYZ(UnitConverter.LengthToFeet(8), 0, UnitConverter.LengthToFeet(3)));
+            var beam = doc.Create.NewFamilyInstance(beamLine, symbol, level, StructuralType.Beam);
+            beam.get_Parameter(BuiltInParameter.ALL_MODEL_MARK)?.Set("RT-B1");
+            txCreate.Commit();
+
+            try
+            {
+                var exporter = StructureTableExporters.Beam();
+                var exportedRows = exporter.Export(doc);
+                var targetRow = exportedRows.Find(r => r["number"] == "RT-B1");
+                await Assert.That(targetRow).IsNotNull();
+
+                var startZ = UnitConverter.ParseDouble(targetRow!["start_z"]!);
+                RevitTestHelper.AssertClose(3.0, startZ, 1e-4, "exported start_z");
+
+                var (_, csvRows) = RevitTestHelper.RoundTripCsv(exporter.Columns, [targetRow]);
+                await Assert.That(csvRows.Count).IsEqualTo(1);
+                await Assert.That(csvRows[0]["number"]).IsEqualTo("RT-B1");
+            }
+            finally
+            {
+                using var txClean = new Transaction(doc, "Cleanup");
+                txClean.Start();
+                doc.Delete(beam.Id);
+                txClean.Commit();
+            }
         }
         finally
         {

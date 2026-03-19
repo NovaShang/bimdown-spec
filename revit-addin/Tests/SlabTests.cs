@@ -155,4 +155,64 @@ public class SlabTests : RevitApiTest
             doc.Close(false);
         }
     }
+
+    [Test]
+    public async Task Import_Slab_UpdateGeometry_DeleteRecreate()
+    {
+        var doc = RevitTestHelper.CreateTempDocument(Application);
+        try
+        {
+            var level = GetFirstLevel(doc);
+
+            // Create initial slab
+            using var txSetup = new Transaction(doc, "Create Slab");
+            txSetup.Start();
+            var floorType = new FilteredElementCollector(doc)
+                .OfClass(typeof(FloorType))
+                .Cast<FloorType>()
+                .First();
+            var curveLoop = new CurveLoop();
+            var p1 = new XYZ(0, 0, level.Elevation);
+            var p2 = new XYZ(UnitConverter.LengthToFeet(4), 0, level.Elevation);
+            var p3 = new XYZ(UnitConverter.LengthToFeet(4), UnitConverter.LengthToFeet(4), level.Elevation);
+            var p4 = new XYZ(0, UnitConverter.LengthToFeet(4), level.Elevation);
+            curveLoop.Append(Line.CreateBound(p1, p2));
+            curveLoop.Append(Line.CreateBound(p2, p3));
+            curveLoop.Append(Line.CreateBound(p3, p4));
+            curveLoop.Append(Line.CreateBound(p4, p1));
+            var floor = Floor.Create(doc, [curveLoop], floorType.Id, level.Id);
+            txSetup.Commit();
+
+            var importer = new SlabImporter();
+            var idMap = RevitTestHelper.BuildIdMap(doc);
+            idMap.Register(floor.UniqueId, floor.Id);
+            importer.SetIdMap(idMap);
+
+            // Update with new geometry — triggers delete/recreate
+            var csvRows = new List<Dictionary<string, string?>>
+            {
+                new()
+                {
+                    ["id"] = floor.UniqueId,
+                    ["level_id"] = level.UniqueId,
+                    ["points"] = "[[0,0],[6,0],[6,6],[0,6]]",
+                    ["function"] = "floor",
+                    ["thickness"] = "0.2",
+                }
+            };
+
+            using var tx = new Transaction(doc, "Test Slab Update");
+            tx.Start();
+
+            var result = importer.Import(doc, csvRows);
+            await Assert.That(result.Updated).IsEqualTo(1);
+            await Assert.That(result.Errors.Count).IsEqualTo(0);
+
+            tx.RollBack();
+        }
+        finally
+        {
+            doc.Close(false);
+        }
+    }
 }

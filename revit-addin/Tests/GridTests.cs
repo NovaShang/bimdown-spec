@@ -113,4 +113,52 @@ public class GridTests : RevitApiTest
             doc.Close(false);
         }
     }
+
+    [Test]
+    public async Task Import_Grid_UpdateName()
+    {
+        var doc = RevitTestHelper.CreateTempDocument(Application);
+        try
+        {
+            using var txCreate = new Transaction(doc, "Create Grid");
+            txCreate.Start();
+            var line = Line.CreateBound(
+                new XYZ(0, 0, 0),
+                new XYZ(UnitConverter.LengthToFeet(15), 0, 0));
+            var grid = Grid.Create(doc, line);
+            grid.Name = "OldName";
+            txCreate.Commit();
+
+            var importer = new GridImporter();
+            var idMap = new IdMap();
+            idMap.Register(grid.UniqueId, grid.Id);
+            importer.SetIdMap(idMap);
+
+            var csvRows = new List<Dictionary<string, string?>>
+            {
+                new()
+                {
+                    ["id"] = grid.UniqueId,
+                    ["number"] = "NewName",
+                    ["start_x"] = "0",
+                    ["start_y"] = "0",
+                    ["end_x"] = "15",
+                    ["end_y"] = "0",
+                }
+            };
+
+            using var tx = new Transaction(doc, "Test Grid Update");
+            tx.Start();
+
+            var result = importer.Import(doc, csvRows);
+            await Assert.That(result.Updated).IsEqualTo(1);
+            await Assert.That(grid.Name).IsEqualTo("NewName");
+
+            tx.RollBack();
+        }
+        finally
+        {
+            doc.Close(false);
+        }
+    }
 }
