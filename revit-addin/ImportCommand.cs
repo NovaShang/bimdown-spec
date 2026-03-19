@@ -25,14 +25,36 @@ public class ImportCommand : IExternalCommand
 
         TableImporterBase[] importers =
         [
+            // Order 0
             new LevelImporter(),
+            // Order 1
             new GridImporter(),
+            // Order 10
             new WallImporter(),
+            new StructureWallImporter(),
             new ColumnImporter(),
+            new StructureColumnImporter(),
+            // Order 15
             new SlabImporter(),
+            new StructureSlabImporter(),
             new SpaceImporter(),
+            new BeamImporter(),
+            new BraceImporter(),
+            new IsolatedFoundationImporter(),
+            new StripFoundationImporter(),
+            new RaftFoundationImporter(),
+            new StairImporter(),
+            // Order 20
             new DoorImporter(),
             new WindowImporter(),
+            // Order 25
+            new DuctImporter(),
+            new PipeImporter(),
+            new CableTrayImporter(),
+            new ConduitImporter(),
+            // Order 30
+            new EquipmentImporter(),
+            new TerminalImporter(),
         ];
 
         foreach (var importer in importers)

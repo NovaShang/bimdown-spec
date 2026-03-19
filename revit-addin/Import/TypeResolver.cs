@@ -129,6 +129,78 @@ static class TypeResolver
         return ResolveOrCreateOpeningType(doc, BuiltInCategory.OST_Windows, targetName, widthMeters, heightMeters);
     }
 
+    public static FamilySymbol ResolveOrCreateStructuralColumnType(Document doc, string? shape, double sizeXMeters, double sizeYMeters)
+    {
+        var sizeXMm = (int)Math.Round(sizeXMeters * 1000);
+        var sizeYMm = (int)Math.Round(sizeYMeters * 1000);
+        var shapeStr = shape ?? "rect";
+        var targetName = $"BimDown_struct_{shapeStr}_{sizeXMm}x{sizeYMm}";
+
+        var existing = new FilteredElementCollector(doc)
+            .OfCategory(BuiltInCategory.OST_StructuralColumns)
+            .OfClass(typeof(FamilySymbol))
+            .Cast<FamilySymbol>()
+            .FirstOrDefault(fs => fs.Name == targetName);
+        if (existing is not null)
+        {
+            if (!existing.IsActive) existing.Activate();
+            return existing;
+        }
+
+        var template = new FilteredElementCollector(doc)
+            .OfCategory(BuiltInCategory.OST_StructuralColumns)
+            .OfClass(typeof(FamilySymbol))
+            .Cast<FamilySymbol>()
+            .FirstOrDefault()
+            ?? throw new InvalidOperationException("No structural column FamilySymbol found to duplicate");
+
+        var newType = (FamilySymbol)template.Duplicate(targetName);
+        if (!newType.IsActive) newType.Activate();
+        return newType;
+    }
+
+    public static FamilySymbol ResolveOrCreateStructuralFramingType(Document doc, string? shape, double sizeXMeters, double sizeYMeters)
+    {
+        var sizeXMm = (int)Math.Round(sizeXMeters * 1000);
+        var sizeYMm = (int)Math.Round(sizeYMeters * 1000);
+        var shapeStr = shape ?? "rect";
+        var targetName = $"BimDown_framing_{shapeStr}_{sizeXMm}x{sizeYMm}";
+
+        var existing = new FilteredElementCollector(doc)
+            .OfCategory(BuiltInCategory.OST_StructuralFraming)
+            .OfClass(typeof(FamilySymbol))
+            .Cast<FamilySymbol>()
+            .FirstOrDefault(fs => fs.Name == targetName);
+        if (existing is not null)
+        {
+            if (!existing.IsActive) existing.Activate();
+            return existing;
+        }
+
+        var template = new FilteredElementCollector(doc)
+            .OfCategory(BuiltInCategory.OST_StructuralFraming)
+            .OfClass(typeof(FamilySymbol))
+            .Cast<FamilySymbol>()
+            .FirstOrDefault()
+            ?? throw new InvalidOperationException("No structural framing FamilySymbol found to duplicate");
+
+        var newType = (FamilySymbol)template.Duplicate(targetName);
+        if (!newType.IsActive) newType.Activate();
+        return newType;
+    }
+
+    public static FamilySymbol FindFirstFamilySymbol(Document doc, BuiltInCategory category)
+    {
+        var symbol = new FilteredElementCollector(doc)
+            .OfCategory(category)
+            .OfClass(typeof(FamilySymbol))
+            .Cast<FamilySymbol>()
+            .FirstOrDefault()
+            ?? throw new InvalidOperationException($"No FamilySymbol found for {category}");
+        if (!symbol.IsActive) symbol.Activate();
+        return symbol;
+    }
+
     static FamilySymbol ResolveOrCreateOpeningType(Document doc, BuiltInCategory category, string targetName,
         double widthMeters, double heightMeters)
     {
