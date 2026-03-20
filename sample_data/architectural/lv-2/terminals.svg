@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-34.485 -31.672 64.597 49.853">
+  <g transform="scale(1,-1)">
+    <rect id="tm-2" x="-8.561" y="-3.408" width="0.3" height="0.3" fill="black" transform="rotate(90,-8.411,-3.258)" />
+    <rect id="tm-4" x="7.695" y="-3.408" width="0.3" height="0.3" fill="black" transform="rotate(90,7.845,-3.258)" />
+    <rect id="tm-8" x="-8.561" y="-2.112" width="0.3" height="0.3" fill="black" transform="rotate(90,-8.411,-1.962)" />
+    <rect id="tm-9" x="-8.561" y="-2.76" width="0.3" height="0.3" fill="black" transform="rotate(90,-8.411,-2.61)" />
+    <rect id="tm-12" x="7.695" y="-2.112" width="0.3" height="0.3" fill="black" transform="rotate(90,7.845,-1.962)" />
+    <rect id="tm-13" x="7.695" y="-2.76" width="0.3" height="0.3" fill="black" transform="rotate(90,7.845,-2.61)" />
+    <rect id="tm-24" x="-14.25" y="-4.446" width="0.3" height="0.3" fill="black" transform="rotate(180,-14.1,-4.296)" />
+    <rect id="tm-25" x="-14.25" y="-2.261" width="0.3" height="0.3" fill="black" transform="rotate(180,-14.1,-2.111)" />
+    <rect id="tm-26" x="-14.25" y="-0.077" width="0.3" height="0.3" fill="black" transform="rotate(180,-14.1,0.073)" />
+    <rect id="tm-27" x="-10.897" y="-0.077" width="0.3" height="0.3" fill="black" transform="rotate(180,-10.747,0.073)" />
+    <rect id="tm-28" x="-10.897" y="-4.446" width="0.3" height="0.3" fill="black" transform="rotate(180,-10.747,-4.296)" />
+    <rect id="tm-29" x="-7.545" y="-4.446" width="0.3" height="0.3" fill="black" transform="rotate(180,-7.395,-4.296)" />
+    <rect id="tm-30" x="-7.545" y="-2.261" width="0.3" height="0.3" fill="black" transform="rotate(180,-7.395,-2.111)" />
+    <rect id="tm-31" x="-7.545" y="-0.077" width="0.3" height="0.3" fill="black" transform="rotate(180,-7.395,0.073)" />
+    <rect id="tm-44" x="-9.099" y="1.603" width="0.3" height="0.3" fill="black" />
+    <rect id="tm-45" x="-2.69" y="1.603" width="0.3" height="0.3" fill="black" />
+    <rect id="tm-46" x="3.719" y="1.603" width="0.3" height="0.3" fill="black" />
+    <rect id="tm-47" x="10.129" y="1.603" width="0.3" height="0.3" fill="black" />
+    <rect id="tm-50" x="-0.568" y="4.02" width="0.3" height="0.3" fill="black" transform="rotate(180,-0.418,4.17)" />
+    <rect id="tm-89" x="5.568" y="5.176" width="0.3" height="0.3" fill="black" transform="rotate(90,5.718,5.326)" />
+    <rect id="tm-90" x="5.568" y="6.471" width="0.3" height="0.3" fill="black" transform="rotate(90,5.718,6.621)" />
+    <rect id="tm-91" x="5.568" y="5.824" width="0.3" height="0.3" fill="black" transform="rotate(90,5.718,5.974)" />
+    <rect id="tm-104" x="15.776" y="5.854" width="0.3" height="0.3" fill="black" transform="rotate(180,15.926,6.004)" />
+    <rect id="tm-105" x="14.48" y="5.854" width="0.3" height="0.3" fill="black" transform="rotate(180,14.63,6.004)" />
+    <rect id="tm-106" x="15.128" y="5.854" width="0.3" height="0.3" fill="black" transform="rotate(180,15.278,6.004)" />
+    <rect id="tm-110" x="-8.869" y="5.854" width="0.3" height="0.3" fill="black" transform="rotate(180,-8.719,6.004)" />
+    <rect id="tm-111" x="-10.164" y="5.854" width="0.3" height="0.3" fill="black" transform="rotate(180,-10.014,6.004)" />
+    <rect id="tm-112" x="-9.516" y="5.854" width="0.3" height="0.3" fill="black" transform="rotate(180,-9.366,6.004)" />
+    <rect id="tm-180" x="1.83" y="4.993" width="0.3" height="0.3" fill="black" transform="rotate(180,1.98,5.143)" />
+    <rect id="tm-187" x="-2.69" y="-6.068" width="0.3" height="0.3" fill="black" transform="rotate(180,-2.54,-5.918)" />
+    <rect id="tm-211" x="12.575" y="-0.239" width="0.3" height="0.3" fill="black" transform="rotate(120,12.725,-0.089)" />
+    <rect id="tm-212" x="12.575" y="-5.217" width="0.3" height="0.3" fill="black" transform="rotate(120,12.725,-5.067)" />
+    <rect id="tm-213" x="15.128" y="-0.239" width="0.3" height="0.3" fill="black" transform="rotate(120,15.278,-0.089)" />
+    <rect id="tm-214" x="15.128" y="-5.217" width="0.3" height="0.3" fill="black" transform="rotate(120,15.278,-5.067)" />
+    <rect id="tm-227" x="-15.009" y="6.772" width="0.3" height="0.3" fill="black" transform="rotate(240,-14.859,6.922)" />
+    <rect id="tm-228" x="-15.009" y="11.963" width="0.3" height="0.3" fill="black" transform="rotate(240,-14.859,12.113)" />
+    <rect id="tm-239" x="-12.456" y="6.772" width="0.3" height="0.3" fill="black" transform="rotate(240,-12.306,6.922)" />
+    <rect id="tm-240" x="-12.456" y="11.963" width="0.3" height="0.3" fill="black" transform="rotate(240,-12.306,12.113)" />
+    <rect id="tm-251" x="-33.373" y="6.518" width="0.3" height="0.3" fill="black" transform="rotate(240,-33.223,6.668)" />
+    <rect id="tm-252" x="-33.373" y="11.963" width="0.3" height="0.3" fill="black" transform="rotate(240,-33.223,12.113)" />
+    <rect id="tm-263" x="-30.821" y="6.518" width="0.3" height="0.3" fill="black" transform="rotate(240,-30.671,6.668)" />
+    <rect id="tm-264" x="-30.821" y="11.963" width="0.3" height="0.3" fill="black" transform="rotate(240,-30.671,12.113)" />
+  </g>
+</svg>

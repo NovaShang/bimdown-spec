@@ -23,6 +23,13 @@ record SvgTableMapping(string TableName, string SvgFileName, SvgRenderType Rende
         new("isolated_foundation", "isolated_foundations.svg", SvgRenderType.Point),
         new("strip_foundation", "strip_foundations.svg", SvgRenderType.Line),
         new("raft_foundation", "raft_foundations.svg", SvgRenderType.Polygon),
+        // MEP
+        new("duct", "ducts.svg", SvgRenderType.Line),
+        new("pipe", "pipes.svg", SvgRenderType.Line),
+        new("cable_tray", "cable_trays.svg", SvgRenderType.Line),
+        new("conduit", "conduits.svg", SvgRenderType.Line),
+        new("equipment", "equipments.svg", SvgRenderType.Point),
+        new("terminal", "terminals.svg", SvgRenderType.Point),
     ];
 
     static readonly Dictionary<string, SvgTableMapping> ByTable =

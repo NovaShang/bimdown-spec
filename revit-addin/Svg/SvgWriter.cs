@@ -14,6 +14,8 @@ static class SvgWriter
         List<Dictionary<string, string?>> levelRows)
     {
         var wallLookup = BuildWallLookup(tables);
+        var allSvgFiles = new List<(string OutputPath, List<XElement> Elements)>();
+        var allElements = new List<XElement>();
 
         foreach (var (tableName, rows) in tables)
         {
@@ -26,10 +28,7 @@ static class SvgWriter
 
             foreach (var group in grouped)
             {
-                // Use level short ID as directory name (same as CSV export)
                 var levelDir = Path.Combine(outputDir, group.Key);
-                Directory.CreateDirectory(levelDir);
-
                 var svgPath = Path.Combine(levelDir, mapping.SvgFileName);
                 var elements = new List<XElement>();
 
@@ -48,19 +47,30 @@ static class SvgWriter
 
                 if (elements.Count == 0) continue;
 
-                var viewBox = ComputeViewBox(elements);
-
-                var g = new XElement(Ns + "g",
-                    new XAttribute("transform", "scale(1,-1)"),
-                    elements);
-
-                var svg = new XElement(Ns + "svg",
-                    new XAttribute("xmlns", Ns.NamespaceName),
-                    new XAttribute("viewBox", viewBox),
-                    g);
-
-                svg.Save(svgPath);
+                allSvgFiles.Add((svgPath, elements));
+                allElements.AddRange(elements);
             }
+        }
+
+        if (allElements.Count == 0) return;
+
+        var globalViewBox = ComputeViewBox(allElements);
+
+        foreach (var (svgPath, elements) in allSvgFiles)
+        {
+            var levelDir = Path.GetDirectoryName(svgPath);
+            if (!Directory.Exists(levelDir)) Directory.CreateDirectory(levelDir!);
+
+            var g = new XElement(Ns + "g",
+                new XAttribute("transform", "scale(1,-1)"),
+                elements);
+
+            var svg = new XElement(Ns + "svg",
+                new XAttribute("xmlns", Ns.NamespaceName),
+                new XAttribute("viewBox", globalViewBox),
+                g);
+
+            svg.Save(svgPath);
         }
     }
 
@@ -81,6 +91,7 @@ static class SvgWriter
             "beam" or "brace" => row.GetValueOrDefault("size_y"),
             "stair" => row.GetValueOrDefault("width"),
             "strip_foundation" => row.GetValueOrDefault("width"),
+            "duct" or "pipe" or "cable_tray" or "conduit" => row.GetValueOrDefault("size_x"),
             _ => row.GetValueOrDefault("thickness")
         };
 

@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-33.918 -13.687 55.2 23.839">
+  <g transform="scale(1,-1)">
+    <line id="du-128" x1="17.722" y1="-5.145" x2="17.722" y2="-4.183" stroke="black" stroke-width="0.203" stroke-linecap="square" />
+    <line id="du-918" x1="-7.788" y1="11.232" x2="-7.788" y2="10.892" stroke="black" stroke-width="0.102" stroke-linecap="square" />
+    <line id="du-964" x1="-2.858" y1="11.232" x2="-2.858" y2="10.457" stroke="black" stroke-width="0.102" stroke-linecap="square" />
+    <line id="du-993" x1="17.722" y1="-6.575" x2="17.722" y2="-7.94" stroke="black" stroke-width="0.102" stroke-linecap="square" />
+    <line id="du-994" x1="18.23" y1="-6.575" x2="18.23" y2="-7.205" stroke="black" stroke-width="0.102" stroke-linecap="square" />
+  </g>
+</svg>
