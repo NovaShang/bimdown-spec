@@ -1,2 +1,0 @@
-﻿id,name,number,level_id,created_at,updated_at,base_offset,volume,bbox_min_x,bbox_min_y,bbox_min_z,bbox_max_x,bbox_max_y,bbox_max_z,start_x,start_y,end_x,end_y,length,top_level_id,top_offset,height,material,thickness
-w-1,"Proposed Partition 4""",,lv-8,,,,1.574731302,15.5829,-6.0325,-5.1562,15.6845,-1.4097,-1.8034,15.6337,-1.4097,15.6337,-6.0325,4.6228,lv-10,0,3.3528,Default Wall,0.1016

@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-34.33 -13.909 56.584 23.868">
+  <g transform="scale(1,-1)">
+    <rect id="if-1" x="-27.823" y="-8.761" width="0.3" height="0.3" fill="black" />
+    <rect id="if-2" x="-6.322" y="12.575" width="0.3" height="0.3" fill="black" transform="rotate(360,-6.172,12.725)" />
+    <rect id="if-3" x="0.942" y="12.575" width="0.3" height="0.3" fill="black" transform="rotate(360,1.092,12.725)" />
+    <rect id="if-4" x="12.423" y="12.575" width="0.3" height="0.3" fill="black" transform="rotate(360,12.573,12.725)" />
+    <rect id="if-5" x="18.717" y="12.528" width="0.3" height="0.3" fill="black" transform="rotate(97.5,18.867,12.678)" />
+    <rect id="if-6" x="7.14" y="12.575" width="0.3" height="0.3" fill="black" transform="rotate(360,7.29,12.725)" />
+    <rect id="if-7" x="-27.823" y="12.575" width="0.3" height="0.3" fill="black" transform="rotate(360,-27.673,12.725)" />
+    <rect id="if-8" x="-21.486" y="12.575" width="0.3" height="0.3" fill="black" transform="rotate(360,-21.336,12.725)" />
+    <rect id="if-9" x="-33.83" y="-8.761" width="0.3" height="0.3" fill="black" transform="rotate(360,-33.68,-8.611)" />
+    <rect id="if-10" x="-15.161" y="-8.761" width="0.3" height="0.3" fill="black" transform="rotate(360,-15.011,-8.611)" />
+    <rect id="if-11" x="-6.322" y="-8.761" width="0.3" height="0.3" fill="black" transform="rotate(360,-6.172,-8.611)" />
+    <rect id="if-12" x="-2.69" y="-9.459" width="0.3" height="0.3" fill="black" transform="rotate(360,-2.54,-9.309)" />
+    <rect id="if-13" x="21.454" y="-8.262" width="0.3" height="0.3" fill="black" transform="rotate(7.5,21.604,-8.112)" />
+    <rect id="if-14" x="4.041" y="-9.459" width="0.3" height="0.3" fill="black" transform="rotate(360,4.191,-9.309)" />
+    <rect id="if-15" x="-19.822" y="-8.761" width="0.3" height="0.3" fill="black" transform="rotate(360,-19.672,-8.611)" />
+    <rect id="if-16" x="-33.83" y="-4.024" width="0.3" height="0.3" fill="black" transform="rotate(360,-33.68,-3.874)" />
+    <rect id="if-17" x="-33.83" y="0.612" width="0.3" height="0.3" fill="black" transform="rotate(360,-33.68,0.762)" />
+    <rect id="if-40" x="19.621" y="5.658" width="0.3" height="0.3" fill="black" transform="rotate(97.5,19.771,5.808)" />
+    <rect id="if-41" x="20.624" y="-1.962" width="0.3" height="0.3" fill="black" transform="rotate(97.5,20.774,-1.812)" />
+    <rect id="if-42" x="-15.39" y="5.476" width="0.3" height="0.3" fill="black" transform="rotate(360,-15.24,5.626)" />
+    <rect id="if-43" x="-12.228" y="5.476" width="0.3" height="0.3" fill="black" transform="rotate(360,-12.078,5.626)" />
+    <rect id="if-44" x="-15.39" y="13.109" width="0.3" height="0.3" fill="black" transform="rotate(360,-15.24,13.259)" />
+    <rect id="if-45" x="-12.228" y="13.109" width="0.3" height="0.3" fill="black" transform="rotate(360,-12.078,13.259)" />
+    <rect id="if-46" x="-15.39" y="9.292" width="0.3" height="0.3" fill="black" transform="rotate(360,-15.24,9.442)" />
+    <rect id="if-47" x="-12.228" y="9.292" width="0.3" height="0.3" fill="black" transform="rotate(360,-12.078,9.442)" />
+    <rect id="if-48" x="-13.841" y="7.384" width="0.3" height="0.3" fill="black" transform="rotate(360,-13.691,7.534)" />
+    <rect id="if-49" x="-13.841" y="11.201" width="0.3" height="0.3" fill="black" transform="rotate(360,-13.691,11.351)" />
+    <rect id="if-50" x="12.194" y="0.65" width="0.3" height="0.3" fill="black" transform="rotate(360,12.344,0.8)" />
+    <rect id="if-51" x="15.357" y="0.65" width="0.3" height="0.3" fill="black" transform="rotate(360,15.507,0.8)" />
+    <rect id="if-52" x="13.776" y="-1.103" width="0.3" height="0.3" fill="black" transform="rotate(360,13.926,-0.953)" />
+    <rect id="if-53" x="12.194" y="-2.855" width="0.3" height="0.3" fill="black" transform="rotate(360,12.344,-2.705)" />
+    <rect id="if-54" x="15.357" y="-2.855" width="0.3" height="0.3" fill="black" transform="rotate(360,15.507,-2.705)" />
+    <rect id="if-55" x="12.194" y="-6.36" width="0.3" height="0.3" fill="black" transform="rotate(360,12.344,-6.21)" />
+    <rect id="if-56" x="15.357" y="-6.36" width="0.3" height="0.3" fill="black" transform="rotate(360,15.507,-6.21)" />
+    <rect id="if-57" x="17.09" y="-8.836" width="0.3" height="0.3" fill="black" transform="rotate(7.5,17.24,-8.686)" />
+    <rect id="if-58" x="13.776" y="-4.608" width="0.3" height="0.3" fill="black" transform="rotate(360,13.926,-4.458)" />
+    <rect id="if-77" x="12.194" y="-9.459" width="0.3" height="0.3" fill="black" transform="rotate(360,12.344,-9.309)" />
+  </g>
+</svg>

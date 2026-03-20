@@ -1,0 +1,6 @@
+﻿id,number,base_offset,start_z,end_z,shape,size_x,size_y,system_type,start_node_id,end_node_id
+du-128,,,4.826,4.826,round,0.203,0.203,hvac,,
+du-918,,,1.334,1.334,round,0.102,0.102,hvac,,
+du-964,,,1.334,1.334,round,0.102,0.102,hvac,,
+du-993,,,4.826,4.826,round,0.102,0.102,hvac,,
+du-994,,,4.826,4.826,round,0.102,0.102,hvac,,

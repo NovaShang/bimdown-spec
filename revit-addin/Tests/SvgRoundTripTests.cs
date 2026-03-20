@@ -189,8 +189,8 @@ public class SvgRoundTripTests : RevitApiTest
 
             SvgWriter.WriteAll(outputDir, tables, levelRows);
 
-            await Assert.That(File.Exists(Path.Combine(outputDir, "Level 1", "walls.svg"))).IsTrue();
-            await Assert.That(File.Exists(Path.Combine(outputDir, "Level 2", "walls.svg"))).IsTrue();
+            await Assert.That(File.Exists(Path.Combine(outputDir, "lv-1", "walls.svg"))).IsTrue();
+            await Assert.That(File.Exists(Path.Combine(outputDir, "lv-2", "walls.svg"))).IsTrue();
         }
         finally { Cleanup(outputDir); }
     }
@@ -214,7 +214,7 @@ public class SvgRoundTripTests : RevitApiTest
 
             SvgWriter.WriteAll(outputDir, tables, levelRows);
 
-            var svgPath = Path.Combine(outputDir, "L1", "walls.svg");
+            var svgPath = Path.Combine(outputDir, "lv-1", "walls.svg");
             var content = File.ReadAllText(svgPath);
 
             await Assert.That(content).Contains("xmlns=\"http://www.w3.org/2000/svg\"");

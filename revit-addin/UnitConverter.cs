@@ -17,7 +17,7 @@ static class UnitConverter
     public static double AreaToSqFeet(double sqMeters) => sqMeters / SquareFeetToSquareMeters;
     public static double AngleToRadians(double degrees) => degrees / RadiansToDegrees;
 
-    public static string FormatDouble(double value) => value.ToString("G10");
+    public static string FormatDouble(double value) => Math.Round(value, 3).ToString("G");
     public static string? FormatNullable(double? value) => value is { } v ? FormatDouble(v) : null;
 
     public static double ParseDouble(string value) => double.Parse(value, System.Globalization.CultureInfo.InvariantCulture);

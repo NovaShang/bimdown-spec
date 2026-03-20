@@ -1,0 +1,30 @@
+﻿id,number,base_offset,top_level_id,top_offset,material
+w-3,,,lv-6,0,Default Wall
+w-18,,,lv-4,0,Metal Stud Layer
+w-22,,,lv-4,0,Metal Stud Layer
+w-23,,,lv-4,0,Metal Stud Layer
+w-27,,,lv-2,0,"Concrete, Cast-in-Place gray"
+w-30,,,lv-2,-0.737,Metal Furring
+w-31,,,lv-2,-0.152,"Concrete, Cast-in-Place gray"
+w-32,,,lv-2,-0.152,Air
+w-364,,,lv-2,0,"Concrete, Cast-in-Place gray"
+w-413,,,lv-2,0,Metal Stud Layer
+w-414,,,lv-2,0,"Concrete, Cast-in-Place gray"
+w-418,,,lv-4,-0.152,Metal Furring
+w-422,,,lv-4,0,Metal Furring
+w-423,,,lv-4,0,Metal Furring
+w-576,,,lv-4,0.61,Metal Stud Layer
+w-577,,,lv-4,0.61,Metal Stud Layer
+w-578,,,lv-4,0.61,Metal Stud Layer
+w-579,,,lv-2,0,Metal Furring
+w-670,,,lv-2,-0.152,Metal Furring
+w-671,,,lv-2,-0.152,Metal Furring
+w-674,,,lv-2,-0.152,Air
+w-675,,,lv-2,0,Metal Furring
+w-676,,,lv-2,0,Metal Furring
+w-700,,,lv-2,-0.152,Metal Stud Layer
+w-707,,,lv-4,-0.762,Metal Stud Layer
+w-708,,,lv-4,-0.762,Metal Stud Layer
+w-880,,,lv-2,0,Metal Furring
+w-881,,,lv-2,0,Metal Furring
+w-882,,,lv-2,0,Metal Furring

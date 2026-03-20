@@ -1,0 +1,54 @@
+﻿id,number,base_offset,top_level_id,top_offset,material
+w-1,,,lv-2,-0.025,Metal Stud Layer
+w-2,,,lv-15,0,"Concrete, Cast-in-Place gray"
+w-16,,,lv-15,0,"Concrete, Cast-in-Place gray"
+w-17,,,lv-15,0,"Concrete, Cast-in-Place gray"
+w-38,,,lv-15,0,"Concrete, Cast-in-Place gray"
+w-39,,,lv-12,0,Metal Stud Layer
+w-53,,,lv-16,-0.152,Metal Stud Layer
+w-54,,,lv-2,-0.152,Metal Stud Layer
+w-55,,,lv-4,-0.94,Metal Stud Layer
+w-56,,,lv-4,-1.549,Metal Stud Layer
+w-57,,,,0,Metal Stud Layer
+w-58,,,lv-16,-0.152,Metal Stud Layer
+w-59,,,lv-16,-0.152,Metal Stud Layer
+w-60,,,lv-16,-0.152,Metal Stud Layer
+w-61,,,lv-16,-0.152,Metal Stud Layer
+w-94,,,lv-15,0,"Concrete, Cast-in-Place gray"
+w-95,,,lv-15,0,"Concrete, Cast-in-Place gray"
+w-96,,,lv-15,0,"Concrete, Cast-in-Place gray"
+w-357,,,,0,Metal Stud Layer
+w-358,,,,0,Metal Stud Layer
+w-359,,,lv-16,-0.152,Metal Stud Layer
+w-366,,,lv-15,0,"Concrete, Cast-in-Place gray"
+w-368,,,lv-16,-0.152,Metal Stud Layer
+w-369,,,lv-16,-0.152,Metal Stud Layer
+w-370,,,lv-16,-0.152,Metal Stud Layer
+w-371,,,lv-16,-0.984,Metal Stud Layer
+w-372,,,lv-2,-0.152,Metal Stud Layer
+w-373,,,lv-2,-0.152,Metal Stud Layer
+w-374,,,lv-2,-0.152,Metal Furring
+w-376,,,lv-6,0.584,Metal Stud Layer
+w-377,,,lv-6,0.584,Metal Stud Layer
+w-420,,,lv-2,-0.152,Air
+w-432,,,lv-16,-0.152,Metal Furring
+w-433,,,lv-16,-0.152,Metal Furring
+w-434,,,lv-16,-0.152,Metal Furring
+w-435,,,lv-16,-0.152,Metal Furring
+w-436,,,lv-16,-0.152,Metal Furring
+w-437,,,lv-6,0.584,Metal Stud Layer
+w-610,,,,0,"CMU, Split Face"
+w-611,,,,0,"CMU, Split Face"
+w-612,,,,0,"CMU, Split Face"
+w-613,,,,0,"CMU, Split Face"
+w-614,,,,0,"CMU, Split Face"
+w-615,,,,0,"CMU, Split Face"
+w-622,,,lv-15,0,Air
+w-623,,,lv-15,0,Air
+w-646,,,lv-13,0,Metal Furring
+w-698,,,lv-16,-0.152,Metal Furring
+w-699,,,lv-16,-0.152,Metal Furring
+w-722,,,lv-2,-0.152,Metal Furring
+w-989,,,,0,"CMU, Split Face"
+w-990,,,,0,"CMU, Split Face"
+w-991,,,,0,"CMU, Split Face"

@@ -1,0 +1,21 @@
+﻿id,number,base_offset,material,function,thickness
+sl-6,,0.339,"Steel, Paint Finish, Dark Gray",floor,0.006
+sl-8,,0.339,"Steel, Paint Finish, Dark Gray",floor,0.006
+sl-17,,0.339,"Steel, Paint Finish, Dark Gray",floor,0.006
+sl-96,,-0.102,"Concrete, Cast-in-Place gray",floor,0.102
+sl-97,,0.127,"Concrete, Cast-in-Place gray",floor,0.102
+sl-105,,-0.102,"Concrete, Cast-in-Place gray",floor,0.102
+sl-106,,0.127,"Concrete, Cast-in-Place gray",floor,0.102
+sl-185,,0.203,Paving - Brick Border,floor,0.051
+sl-186,,0.203,Exterior Decking,floor,0.051
+sl-187,,0.203,Planting Bed,floor,0.102
+sl-188,,0.203,Stone Tiles,floor,0.051
+sl-189,,0.203,Sculpture Bed,floor,0.127
+sl-190,,0.203,Grass - Turf,floor,0.102
+sl-192,,,"Concrete, Lightweight",roof,0.152
+sl-204,,,Rigid insulation,roof,0
+sl-205,,,Rigid insulation,roof,0
+sl-206,,,Rigid insulation,roof,0
+sl-207,,,Rigid insulation,roof,0
+sl-208,,,Rigid insulation,roof,0
+sl-211,,,"Concrete, Lightweight",roof,0.152

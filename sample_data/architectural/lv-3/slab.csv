@@ -1,0 +1,14 @@
+﻿id,number,base_offset,material,function,thickness
+sl-1,,0,"Steel, Paint Finish, Dark Gray",floor,0.006
+sl-9,,0,"Concrete, Precast",floor,0.152
+sl-27,,0.61,Grass,floor,0.102
+sl-28,,0,"Brick, Common",floor,0.102
+sl-29,,0.254,Grass,floor,0.102
+sl-71,,0.381,"Brick, Common",floor,0.102
+sl-72,,0.051,Stone Tiles,floor,0.051
+sl-135,,0,"Concrete, Precast Smooth, Light Grey",floor,0.152
+sl-136,,0,"Concrete, Cast-in-Place gray",floor,0.102
+sl-176,,0.279,"Brick, Dark Blend, Soldier",floor,0.203
+sl-177,,0.508,"Brick, Dark Blend, Soldier",floor,0.203
+sl-178,,0.61,"Brick, Common",floor,0.102
+sl-191,,0,"Concrete, Cast-in-Place gray",floor,0.152

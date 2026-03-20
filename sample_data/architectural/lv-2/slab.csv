@@ -1,0 +1,27 @@
+﻿id,number,base_offset,material,function,thickness
+sl-2,,0,"Steel, Paint Finish, Dark Gray",floor,0.006
+sl-14,,0,"Steel, Paint Finish, Dark Gray",floor,0.006
+sl-19,,2.924,Metal Stud Layer,floor,0.111
+sl-30,,2.924,Metal Stud Layer,floor,0.111
+sl-64,,0,"Concrete, Polished",floor,0.152
+sl-67,,0,"Concrete, Precast",floor,0.152
+sl-78,,0,"Steel, Paint Finish, Dark Gray",floor,0.006
+sl-85,,-0.051,"Concrete, Cast-in-Place gray",floor,0.102
+sl-86,,-0.051,"Concrete, Cast-in-Place gray",floor,0.102
+sl-107,,0,"Concrete, Precast Smooth, Light Grey",floor,0.152
+sl-108,,0,"Concrete, Precast",floor,0.152
+sl-109,,0,"Concrete, Polished",floor,0.152
+sl-114,,2.924,Metal Stud Layer,floor,0.111
+sl-116,,2.924,Metal Stud Layer,floor,0.111
+sl-119,,2.924,Metal Stud Layer,floor,0.111
+sl-121,,2.924,Metal Stud Layer,floor,0.111
+sl-144,,0,"Concrete, Precast",floor,0.152
+sl-145,,0,"Concrete, Polished",floor,0.152
+sl-152,,0,"Concrete, Precast",floor,0.152
+sl-153,,0,"Concrete, Polished",floor,0.152
+sl-164,,0,"Concrete, Precast",floor,0.152
+sl-165,,0,"Concrete, Polished",floor,0.152
+sl-166,,0,"Concrete, Precast",floor,0.152
+sl-167,,0,"Concrete, Polished",floor,0.152
+sl-170,,0,"Concrete, Precast",floor,0.152
+sl-171,,0,"Concrete, Polished",floor,0.152

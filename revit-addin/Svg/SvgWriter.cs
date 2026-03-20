@@ -13,7 +13,6 @@ static class SvgWriter
         List<(string TableName, List<Dictionary<string, string?>> Rows)> tables,
         List<Dictionary<string, string?>> levelRows)
     {
-        var levelIdToName = BuildLevelNameMap(levelRows);
         var wallLookup = BuildWallLookup(tables);
 
         foreach (var (tableName, rows) in tables)
@@ -27,8 +26,8 @@ static class SvgWriter
 
             foreach (var group in grouped)
             {
-                var levelName = levelIdToName.GetValueOrDefault(group.Key, group.Key);
-                var levelDir = Path.Combine(outputDir, SanitizePath(levelName));
+                // Use level short ID as directory name (same as CSV export)
+                var levelDir = Path.Combine(outputDir, group.Key);
                 Directory.CreateDirectory(levelDir);
 
                 var svgPath = Path.Combine(levelDir, mapping.SvgFileName);
@@ -49,12 +48,15 @@ static class SvgWriter
 
                 if (elements.Count == 0) continue;
 
+                var viewBox = ComputeViewBox(elements);
+
                 var g = new XElement(Ns + "g",
                     new XAttribute("transform", "scale(1,-1)"),
                     elements);
 
                 var svg = new XElement(Ns + "svg",
                     new XAttribute("xmlns", Ns.NamespaceName),
+                    new XAttribute("viewBox", viewBox),
                     g);
 
                 svg.Save(svgPath);
@@ -219,17 +221,61 @@ static class SvgWriter
             new XAttribute("stroke-width", Fmt(strokeWidth)));
     }
 
-    static Dictionary<string, string> BuildLevelNameMap(List<Dictionary<string, string?>> levelRows)
+    static string ComputeViewBox(List<XElement> elements)
     {
-        var map = new Dictionary<string, string>();
-        foreach (var row in levelRows)
+        var minX = double.MaxValue;
+        var minY = double.MaxValue;
+        var maxX = double.MinValue;
+        var maxY = double.MinValue;
+
+        void Extend(double x, double y)
         {
-            var id = row.GetValueOrDefault("id");
-            var name = row.GetValueOrDefault("name") ?? row.GetValueOrDefault("number") ?? id;
-            if (id is not null && name is not null)
-                map[id] = name;
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
         }
-        return map;
+
+        foreach (var el in elements)
+        {
+            switch (el.Name.LocalName)
+            {
+                case "line":
+                    Extend(Parse(el.Attribute("x1")!.Value), -Parse(el.Attribute("y1")!.Value));
+                    Extend(Parse(el.Attribute("x2")!.Value), -Parse(el.Attribute("y2")!.Value));
+                    break;
+                case "circle":
+                    var cx = Parse(el.Attribute("cx")!.Value);
+                    var cy = -Parse(el.Attribute("cy")!.Value);
+                    var r = Parse(el.Attribute("r")!.Value);
+                    Extend(cx - r, cy - r);
+                    Extend(cx + r, cy + r);
+                    break;
+                case "rect":
+                    var rx = Parse(el.Attribute("x")!.Value);
+                    var ry = -Parse(el.Attribute("y")!.Value);
+                    var rw = Parse(el.Attribute("width")!.Value);
+                    var rh = Parse(el.Attribute("height")!.Value);
+                    Extend(rx, ry - rh);
+                    Extend(rx + rw, ry);
+                    break;
+                case "polygon":
+                    var pts = el.Attribute("points")!.Value;
+                    foreach (var pair in pts.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        var parts = pair.Split(',');
+                        Extend(Parse(parts[0]), -Parse(parts[1]));
+                    }
+                    break;
+            }
+        }
+
+        if (minX > maxX) return "0 0 100 100";
+
+        const double pad = 0.5;
+        minX -= pad; minY -= pad;
+        maxX += pad; maxY += pad;
+        return $"{Fmt(minX)} {Fmt(minY)} {Fmt(maxX - minX)} {Fmt(maxY - minY)}";
     }
 
     static Dictionary<string, WallGeometry> BuildWallLookup(

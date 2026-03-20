@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-34.18 -13.53 49.958 20.012">
+  <g transform="scale(1,-1)">
+    <polygon id="ss-9" points="-30.67,6.007 -30.67,7.811 -30.67,10.325 -30.67,13.03 -33.68,13.03 -33.68,6.007" fill="rgba(128,128,128,0.2)" stroke="gray" stroke-width="0.05" />
+    <polygon id="ss-10" points="-30.366,10.198 -30.366,7.938 -27.826,7.938 -27.826,10.198" fill="rgba(128,128,128,0.2)" stroke="gray" stroke-width="0.05" />
+    <polygon id="ss-18" points="-14.859,6.007 -12.306,6.007 -12.306,13.03 -14.859,13.03" fill="rgba(128,128,128,0.2)" stroke="gray" stroke-width="0.05" />
+    <polygon id="ss-19" points="12.725,-5.982 15.278,-5.982 15.278,0.571 12.725,0.571" fill="rgba(128,128,128,0.2)" stroke="gray" stroke-width="0.05" />
+    <polygon id="ss-20" points="-1.6,8.268 -1.6,6.007 0.94,6.007 0.94,8.268" fill="rgba(128,128,128,0.2)" stroke="gray" stroke-width="0.05" />
+  </g>
+</svg>

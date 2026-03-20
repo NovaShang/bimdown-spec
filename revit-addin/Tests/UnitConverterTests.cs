@@ -52,10 +52,10 @@ public class UnitConverterTests : RevitApiTest
     }
 
     [Test]
-    public async Task FormatDouble_UsesG10()
+    public async Task FormatDouble_RoundsToMillimeter()
     {
         var result = UnitConverter.FormatDouble(1.23456789012345);
-        await Assert.That(result).IsEqualTo("1.23456789");
+        await Assert.That(result).IsEqualTo("1.235");
     }
 
     [Test]

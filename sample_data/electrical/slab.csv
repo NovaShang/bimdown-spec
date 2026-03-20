@@ -1,2 +1,0 @@
-﻿id,name,number,level_id,created_at,updated_at,base_offset,volume,bbox_min_x,bbox_min_y,bbox_min_z,bbox_max_x,bbox_max_y,bbox_max_z,points,area,material,function,thickness
-sl-1,"Concrete 6""",,lv-1,,,0,1.155091367,13.68992485,20.5613,-0.1524,17.04272485,22.8219,0,"[[17.04272485,22.8219],[13.68992485,22.8219],[13.68992485,20.5613],[17.04272485,20.5613]]",7.57933968,"Concrete, Cast-in-Place gray",floor,0.1524

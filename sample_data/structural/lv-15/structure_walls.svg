@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-34.18 -13.683 35.848 8.405">
+  <g transform="scale(1,-1)">
+    <line id="sw-3" x1="-27.597" y1="7.811" x2="-30.518" y2="7.811" stroke="black" stroke-width="0.254" stroke-linecap="square" />
+    <line id="sw-4" x1="-30.518" y1="7.811" x2="-30.518" y2="10.325" stroke="black" stroke-width="0.305" stroke-linecap="square" />
+    <line id="sw-11" x1="-30.518" y1="10.325" x2="-30.518" y2="13.183" stroke="black" stroke-width="0.305" stroke-linecap="square" />
+    <line id="sw-27" x1="-33.68" y1="13.03" x2="-30.518" y2="13.03" stroke="black" stroke-width="0.61" stroke-linecap="square" />
+    <line id="sw-37" x1="-30.518" y1="5.779" x2="-33.68" y2="5.779" stroke="black" stroke-width="0.457" stroke-linecap="square" />
+    <line id="sw-38" x1="-30.518" y1="7.811" x2="-30.518" y2="5.779" stroke="black" stroke-width="0.305" stroke-linecap="square" />
+    <line id="sw-40" x1="-27.597" y1="10.325" x2="-27.597" y2="7.811" stroke="black" stroke-width="0.457" stroke-linecap="square" />
+    <line id="sw-43" x1="-1.727" y1="5.778" x2="1.168" y2="5.778" stroke="black" stroke-width="0.457" stroke-linecap="square" />
+    <line id="sw-44" x1="-1.727" y1="8.395" x2="-1.727" y2="5.778" stroke="black" stroke-width="0.254" stroke-linecap="square" />
+    <line id="sw-45" x1="1.168" y1="8.395" x2="-1.727" y2="8.395" stroke="black" stroke-width="0.254" stroke-linecap="square" />
+    <line id="sw-46" x1="1.168" y1="5.778" x2="1.168" y2="8.395" stroke="black" stroke-width="0.457" stroke-linecap="square" />
+    <line id="sw-47" x1="-30.518" y1="10.325" x2="-27.597" y2="10.325" stroke="black" stroke-width="0.254" stroke-linecap="square" />
+    <line id="sw-48" x1="-33.68" y1="5.779" x2="-33.68" y2="13.03" stroke="black" stroke-width="0.61" stroke-linecap="square" />
+  </g>
+</svg>
