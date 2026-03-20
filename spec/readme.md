@@ -77,3 +77,21 @@ This directory defines the **CSV schema** for BIMDown — the canonical data mod
 - **Stairs use `spatial_line_element`**: Stairs are 3D elements — they have a bottom landing point and a top landing point at different elevations, requiring `start_z`/`end_z`.
 - **`id` is UUID**: All tables include a required `id` field (UUID string) as the primary key, enabling UUID-based linkage between CSVs and SVG layers.
 - **`mep_system.system_type` is enum**: Controlled vocabulary prevents free-form strings and enables reliable filtering.
+
+---
+
+## Storage & Agentic Architecture
+
+To balance **pure-text LLM generation capabilities** and **robust relational queries**, BIMDown employs a dual-read strategy for CSV storage via an intelligent CLI tool/proxy:
+
+### 1. Physical Storage (Partitioned by Level & Global)
+CSVs are physically partitioned by level into small, bounded files (e.g., `1F/wall.csv`, `2F/door.csv`). However, **cross-floor elements** (e.g., `stair`, MEP `pipe` networks, high-rise `structure_column`) must NOT be forcibly anchored to a single floor. They are placed in a dedicated `global/` directory (e.g., `global/stair.csv`).
+- **Why?** This is tailored for Agentic AI "from-scratch" generative design. Generating or editing a 5000-line monolithic CSV directly pushes context window limits and introduces high hallucination risks. By isolating each floor into a tiny file, Agents can read, generate, or overwrite a specific bounded local context flawlessly. Meanwhile, the `global/` folder preserves continuous topologies for entire-building systems (like piping or circulation), avoiding scattered graph logic.
+
+### 2. Logical View (In-Memory DuckDB Union)
+When an Agent needs to manipulate data relationally (e.g., checking for door collisions, or executing a complex SQL `UPDATE`), it interfaces with a Backend Shell or CLI Tool.
+- **Import**: The CLI spins up an in-memory DuckDB instance and dynamically merges the partitioned files into unified global tables using globs (`CREATE TABLE wall AS SELECT * FROM '*/*_wall.csv'`).
+- **Execute**: The LLM safely runs standard declarative SQL statements (`UPDATE/INSERT/DELETE`) against these unified logical views.
+- **Sync-Out (Write-back)**: Upon successful execution, the CLI seamlessly re-partitions the updated tables back into their respective folder structures (`1F/wall.csv`) and overwrites the physical files.
+
+This effectively hides file fragmentation from the LLM when acting as a "Data Analyst", whilst providing lightweight semantic slices when acting as an "Architect/Generator".

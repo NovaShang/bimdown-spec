@@ -18,9 +18,12 @@ SVGs are organized hierarchically by level (floor) and element category. This st
     📄 slabs.svg          (Polygon floors/slabs)
     📄 spaces.svg         (Room polygons)
     📄 doors.svg          (Hosted elements)
+    📄 stairs.svg         (Projected slices of global staircases)
 ```
 
 By decoupling these into separate SVG files, an AI agent or renderer can easily overlay geometries like toggling layers: `walls.svg` + `columns.svg` + `doors.svg`.
+
+*(Note on Cross-Floor Elements: While the CSV Attribute Layer introduces a `global/` folder for multi-story elements like stairs or MEP risers to preserve topology, the SVG Geometry Layer remains **strictly 2D slices**. A multistory stair in `global/stair.csv` is *projected* down by the parser tools and rendered into corresponding floor files like `1F/stairs.svg` and `2F/stairs.svg`. No `global/` SVG folder should exist.)*
 
 ---
 
@@ -99,3 +102,23 @@ Elements defined by a closed loop of points.
     <!-- A simple 5x5m room -->
     <polygon id="uuid-sp-9012" points="0,0 5,0 5,5 0,5" fill="rgba(0,0,255,0.1)" stroke="blue" stroke-width="0.05" />
     ```
+
+### 4.4 Hosted Elements (e.g., Door, Window)
+Hosted elements rely on parametric locations in the CSV (`host_id` and `location_param`) rather than absolute global coordinates. 
+
+To maintain BIMDown's **"Flattened"** data philosophy, we do **not** nest doors inside a wall's `<g>` tag. Instead, we use a **Flat Parallel Structure**:
+1. Hosted elements live in their own isolated file (e.g., `doors.svg`) mirroring the CSV structure (`door.csv` -> `doors.svg`).
+2. They are placed at their absolute computed `(x, y)` coordinates by the serialization engine. 
+3. The relationship is preserved via an explicit `data-host` attribute, functioning as a foreign key.
+
+*   **SVG Tag**: `<line>` (Openings are treated as coincident line segments overlapping the wall. This avoids forcing LLMs to compute rotation matrices for slanted `<rect>` angles).
+*   **Mapping**:
+    *   `data-host` = `host_id` (the UUID of the parent wall).
+    *   `(x1, y1)` to `(x2, y2)` represents the opening cut along the host wall's axis.
+    *   `stroke` defines the visual "cut" (e.g., background color like `white`), and `stroke-width` is slightly wider than the host wall to visually occlude it.
+*   **Example (`doors.svg`)**:
+    ```xml
+    <!-- A 1m door hosted on 'uuid-wall-1234', visualized as a white line cutting the black wall -->
+    <line id="uuid-door-456" data-host="uuid-wall-1234" x1="4.5" y1="0" x2="5.5" y2="0" stroke="white" stroke-width="0.22" />
+    ```
+*(Note: To prevent Agent hallucinations when modifying topologies, workflows should provide predefined Tools for LLMs. For example, if an AI moves a wall, it shouldn't manually update every door coordinate. Instead, it runs an update command to automatically sync the absolute `x,y` coordinates in `doors.svg` based on the unchanged `location_param` logic).*
