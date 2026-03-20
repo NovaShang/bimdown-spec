@@ -80,12 +80,14 @@ public static class ArchitectureTableExporters
             {
                 var fields = new Dictionary<string, string?>();
                 var w = e.get_Parameter(BuiltInParameter.DOOR_WIDTH)?.AsDouble()
-                     ?? e.get_Parameter(BuiltInParameter.FAMILY_WIDTH_PARAM)?.AsDouble();
+                     ?? e.get_Parameter(BuiltInParameter.FAMILY_WIDTH_PARAM)?.AsDouble()
+                     ?? Extractors.ParameterUtils.FindDoubleParameterByNames(e, "width", "w", "b", "宽");
                 var h = e.get_Parameter(BuiltInParameter.DOOR_HEIGHT)?.AsDouble()
-                     ?? e.get_Parameter(BuiltInParameter.FAMILY_HEIGHT_PARAM)?.AsDouble();
+                     ?? e.get_Parameter(BuiltInParameter.FAMILY_HEIGHT_PARAM)?.AsDouble()
+                     ?? Extractors.ParameterUtils.FindDoubleParameterByNames(e, "height", "depth", "h", "d", "高", "深");
                 fields["width"] = w is { } wv ? UnitConverter.FormatDouble(UnitConverter.Length(wv)) : null;
                 fields["height"] = h is { } hv ? UnitConverter.FormatDouble(UnitConverter.Length(hv)) : null;
-                fields["operation"] = null; // Would need family name analysis to determine
+                fields["operation"] = GetDoorOperation(e);
                 return fields;
             }));
 
@@ -123,4 +125,28 @@ public static class ArchitectureTableExporters
                 fields["step_count"] = steps?.ToString();
                 return fields;
             }));
+
+    static string? GetDoorOperation(Element e)
+    {
+        var op = Extractors.ParameterUtils.FindStringParameterByNames(e, "Operation", "Swing", "操作", "开启");
+        if (!string.IsNullOrEmpty(op))
+        {
+            var lowerOp = op.ToLowerInvariant();
+            if (lowerOp.Contains("single") || lowerOp.Contains("单开") || lowerOp.Contains("单扇") || lowerOp.Contains("单门")) return "single_swing";
+            if (lowerOp.Contains("double") || lowerOp.Contains("双开") || lowerOp.Contains("双扇") || lowerOp.Contains("双门")) return "double_swing";
+            if (lowerOp.Contains("sliding") || lowerOp.Contains("推拉")) return "sliding";
+            if (lowerOp.Contains("folding") || lowerOp.Contains("折叠")) return "folding";
+            if (lowerOp.Contains("rolling") || lowerOp.Contains("卷帘")) return "rolling";
+            return op;
+        }
+
+        var name = (e.Name + " " + (e as FamilyInstance)?.Symbol.Family.Name).ToLowerInvariant();
+        if (name.Contains("single") || name.Contains("单开") || name.Contains("单扇") || name.Contains("单门")) return "single_swing";
+        if (name.Contains("double") || name.Contains("双开") || name.Contains("双扇") || name.Contains("双门")) return "double_swing";
+        if (name.Contains("sliding") || name.Contains("推拉")) return "sliding";
+        if (name.Contains("folding") || name.Contains("折叠")) return "folding";
+        if (name.Contains("rolling") || name.Contains("卷帘")) return "rolling";
+
+        return null;
+    }
 }

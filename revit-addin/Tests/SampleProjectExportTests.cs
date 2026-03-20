@@ -140,6 +140,16 @@ public class SampleProjectExportTests : RevitApiTest
             }
         }
 
+        // Write _IdMap.csv
+        var globalFolder = Path.Combine(outputDir, "global");
+        Directory.CreateDirectory(globalFolder);
+        var idMapRows = idGen.Mappings.Select(kvp => new Dictionary<string, string?>
+        {
+            ["id"] = kvp.Value,
+            ["uuid"] = kvp.Key
+        }).ToList();
+        CsvWriter.Write(Path.Combine(globalFolder, "_IdMap.csv"), ["id", "uuid"], idMapRows);
+
         // Pass 3: write SVG geometry layer
         var levelData = exported.FirstOrDefault(e => e.Exporter.TableName == "level");
         if (levelData.Rows is not null)

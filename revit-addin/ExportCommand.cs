@@ -155,6 +155,16 @@ public class ExportCommand : IExternalCommand
             }
         }
 
+        // Write _IdMap.csv matching short IDs to original UniqueIds
+        var globalFolder = Path.Combine(outputDir, "global");
+        Directory.CreateDirectory(globalFolder);
+        var idMapRows = idGen.Mappings.Select(kvp => new Dictionary<string, string?>
+        {
+            ["id"] = kvp.Value,
+            ["uuid"] = kvp.Key
+        }).ToList();
+        CsvWriter.Write(Path.Combine(globalFolder, "_IdMap.csv"), ["id", "uuid"], idMapRows);
+
         // Pass 3: write SVG geometry layer
         if (levelData.Rows is not null)
         {

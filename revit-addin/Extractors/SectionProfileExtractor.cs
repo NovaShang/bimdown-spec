@@ -11,7 +11,8 @@ public class SectionProfileExtractor : IFieldExtractor
         var fields = new Dictionary<string, string?>();
 
         // Try round (diameter)
-        var diameter = element.get_Parameter(BuiltInParameter.RBS_CURVE_DIAMETER_PARAM)?.AsDouble();
+        var diameter = element.get_Parameter(BuiltInParameter.RBS_CURVE_DIAMETER_PARAM)?.AsDouble()
+                    ?? ParameterUtils.FindDoubleParameterByNames(element, "diameter", "d", "直径");
         if (diameter is { } d && d > 0)
         {
             fields["shape"] = "round";
@@ -21,8 +22,10 @@ public class SectionProfileExtractor : IFieldExtractor
         }
 
         // Try rectangular (width/height)
-        var width = element.get_Parameter(BuiltInParameter.RBS_CURVE_WIDTH_PARAM)?.AsDouble();
-        var height = element.get_Parameter(BuiltInParameter.RBS_CURVE_HEIGHT_PARAM)?.AsDouble();
+        var width = element.get_Parameter(BuiltInParameter.RBS_CURVE_WIDTH_PARAM)?.AsDouble()
+                 ?? ParameterUtils.FindDoubleParameterByNames(element, "width", "w", "b", "宽");
+        var height = element.get_Parameter(BuiltInParameter.RBS_CURVE_HEIGHT_PARAM)?.AsDouble()
+                  ?? ParameterUtils.FindDoubleParameterByNames(element, "height", "depth", "h", "d", "高", "深");
         if (width is { } w && height is { } h)
         {
             fields["shape"] = "rect";

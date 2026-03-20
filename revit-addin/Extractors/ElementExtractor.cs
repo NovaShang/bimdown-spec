@@ -24,7 +24,9 @@ public class ElementExtractor : IFieldExtractor
         var fields = new Dictionary<string, string?>
         {
             ["id"] = element.UniqueId,
-            ["number"] = element.get_Parameter(BuiltInParameter.ALL_MODEL_MARK)?.AsString(),
+            ["number"] = element.get_Parameter(BuiltInParameter.ALL_MODEL_MARK)?.AsString()
+                      ?? element.get_Parameter(BuiltInParameter.ROOM_NUMBER)?.AsString()
+                      ?? ParameterUtils.FindStringParameterByNames(element, "number", "编号"),
             ["level_id"] = GetLevelUniqueId(element),
             ["created_at"] = null,
             ["updated_at"] = null,
@@ -32,6 +34,7 @@ public class ElementExtractor : IFieldExtractor
 
         var baseOffset = element.get_Parameter(BuiltInParameter.INSTANCE_FREE_HOST_OFFSET_PARAM)?.AsDouble()
                       ?? element.get_Parameter(BuiltInParameter.FLOOR_HEIGHTABOVELEVEL_PARAM)?.AsDouble()
+                      ?? element.get_Parameter(BuiltInParameter.WALL_BASE_OFFSET)?.AsDouble()
                       ?? element.get_Parameter(BuiltInParameter.INSTANCE_ELEVATION_PARAM)?.AsDouble();
         fields["base_offset"] = baseOffset is { } bo ? UnitConverter.FormatDouble(UnitConverter.Length(bo)) : null;
 
@@ -63,6 +66,13 @@ public class ElementExtractor : IFieldExtractor
         if (levelParam?.AsElementId() is { } scheduleLevelId && scheduleLevelId != ElementId.InvalidElementId)
         {
             return element.Document.GetElement(scheduleLevelId)?.UniqueId;
+        }
+
+        // Try STAIRS_BASE_LEVEL_PARAM
+        levelParam = element.get_Parameter(BuiltInParameter.STAIRS_BASE_LEVEL_PARAM);
+        if (levelParam?.AsElementId() is { } stairLevelId && stairLevelId != ElementId.InvalidElementId)
+        {
+            return element.Document.GetElement(stairLevelId)?.UniqueId;
         }
 
         return null;
