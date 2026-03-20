@@ -1,8 +1,8 @@
 ﻿id,number,base_offset,name
-sp-2,,,Stair S3
-sp-15,,,Corridor 201
-sp-16,,,Live/Work Unit 202
-sp-17,,,Studio Unit 203
-sp-18,,,Two Story Studio Unit 204
-sp-19,,,Live/Work Unit 205
-sp-50,,,Mezzanine Dining 200
+sp-2,S3,,Stair S3
+sp-15,201,,Corridor 201
+sp-16,202,,Live/Work Unit 202
+sp-17,203,,Studio Unit 203
+sp-18,204,,Two Story Studio Unit 204
+sp-19,205,,Live/Work Unit 205
+sp-50,200,,Mezzanine Dining 200

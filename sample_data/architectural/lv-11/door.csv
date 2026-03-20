@@ -1,11 +1,11 @@
 ﻿id,number,base_offset,host_id,material,width,height,operation
-d-19,S16,0.381,w-16,Aluminum,0,0,
-d-55,R100A,0.381,w-91,Aluminum,0,0,
-d-56,R100E,0.381,w-91,Aluminum,0,0,
-d-57,R100D,0.381,w-90,Metal - Painted - Grey,0,0,
-d-58,R103A,0.381,w-229,Metal - Painted - Grey,0,0,
-d-59,R103B,0.381,w-229,Metal - Painted - Grey,0,0,
-d-68,S26,0.381,w-250,Aluminum,0,0,
-d-70,R100B,0.381,w-257,Aluminum,0,0,
-d-71,R100C,0.381,w-256,Aluminum,0,0,
-d-95,S36,0.381,w-415,Aluminum,0,0,
+d-19,S16,0.381,w-16,Aluminum,0,0,single_swing
+d-55,R100A,0.381,w-91,Aluminum,0,0,single_swing
+d-56,R100E,0.381,w-91,Aluminum,0,0,single_swing
+d-57,R100D,0.381,w-90,Metal - Painted - Grey,0,0,double_swing
+d-58,R103A,0.381,w-229,Metal - Painted - Grey,0,0,double_swing
+d-59,R103B,0.381,w-229,Metal - Painted - Grey,0,0,double_swing
+d-68,S26,0.381,w-250,Aluminum,0,0,single_swing
+d-70,R100B,0.381,w-257,Aluminum,0,0,single_swing
+d-71,R100C,0.381,w-256,Aluminum,0,0,single_swing
+d-95,S36,0.381,w-415,Aluminum,0,0,single_swing

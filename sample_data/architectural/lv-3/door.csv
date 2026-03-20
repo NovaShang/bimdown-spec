@@ -1,9 +1,9 @@
 ﻿id,number,base_offset,host_id,material,width,height,operation
-d-2,S11A,0,w-16,Aluminum,0,0,
-d-12,102B,0,w-61,Aluminum,0,0,
-d-13,102A,0,w-56,Aluminum,0,0,
-d-14,101D,0.076,w-373,Glass,0,0,
-d-87,101C,0,w-368,Aluminum,0,0,
-d-88,101B,0,w-368,Aluminum,0,0,
-d-89,101A,0,w-371,Aluminum,0,0,
-d-90,S11B,0.076,w-372,Glass,0,0,
+d-2,S11A,0,w-16,Aluminum,0,0,single_swing
+d-12,102B,0,w-61,Aluminum,0,0,single_swing
+d-13,102A,0,w-56,Aluminum,0,0,single_swing
+d-14,101D,0.076,w-373,Glass,0,0,single_swing
+d-87,101C,0,w-368,Aluminum,0,0,single_swing
+d-88,101B,0,w-368,Aluminum,0,0,single_swing
+d-89,101A,0,w-371,Aluminum,0,0,single_swing
+d-90,S11B,0.076,w-372,Glass,0,0,single_swing

@@ -1,11 +1,11 @@
 ﻿id,number,base_offset,name
-sp-28,,,Office Unit 401
-sp-29,,,Two Story Studio Unit 406
-sp-30,,,Corridor 402
-sp-31,,,Live/Work Unit 403
-sp-32,,,Studio Unit 404
-sp-33,,,Live/Work Unit 407
-sp-34,,,Live/Work Unit 408
-sp-35,,,Live/Work Unit 409
-sp-36,,,Live/Work Unit 410
-sp-49,,,Live/Work Loft Unit 405
+sp-28,401,,Office Unit 401
+sp-29,406,,Two Story Studio Unit 406
+sp-30,402,,Corridor 402
+sp-31,403,,Live/Work Unit 403
+sp-32,404,,Studio Unit 404
+sp-33,407,,Live/Work Unit 407
+sp-34,408,,Live/Work Unit 408
+sp-35,409,,Live/Work Unit 409
+sp-36,410,,Live/Work Unit 410
+sp-49,405,,Live/Work Loft Unit 405
