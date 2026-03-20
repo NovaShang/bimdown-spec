@@ -2,6 +2,7 @@ using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using BimDown.RevitAddin.Import;
+using BimDown.RevitAddin.Svg;
 
 namespace BimDown.RevitAddin;
 
@@ -85,15 +86,34 @@ public class ImportCommand : IExternalCommand
         var totalDeleted = 0;
         var tablesProcessed = 0;
 
+        // Read SVG geometry layer
+        var svgGeometry = SvgReader.ReadAll(inputDir);
+
+        // Collect all CSV rows per table from level-partitioned directories
+        var tableRows = ReadPartitionedCsvs(inputDir);
+
+        // Resolve hosted element parameters from wall geometry in CSVs
+        var wallCsvRows = tableRows.GetValueOrDefault("wall", []);
+        var swCsvRows = tableRows.GetValueOrDefault("structure_wall", []);
+        SvgReader.ResolveHostedParameters(svgGeometry, wallCsvRows, swCsvRows);
+
         foreach (var importer in sorted)
         {
-            var csvPath = Path.Combine(inputDir, $"{importer.TableName}.csv");
-            if (!File.Exists(csvPath)) continue;
+            if (!tableRows.TryGetValue(importer.TableName, out var rows) || rows.Count == 0)
+                continue;
 
             try
             {
-                var (_, rows) = CsvReader.Read(csvPath);
-                if (rows.Count == 0) continue;
+                // Merge SVG geometry fields into CSV rows
+                foreach (var row in rows)
+                {
+                    if (row.TryGetValue("id", out var id) && id is not null
+                        && svgGeometry.TryGetValue(id, out var svgFields))
+                    {
+                        foreach (var (key, value) in svgFields)
+                            row[key] = value;
+                    }
+                }
 
                 using var tx = new Transaction(doc, $"BimDown Import: {importer.TableName}");
                 tx.Start();
@@ -133,5 +153,54 @@ public class ImportCommand : IExternalCommand
 
         Autodesk.Revit.UI.TaskDialog.Show("BimDown Import", msg);
         return Result.Succeeded;
+    }
+
+    /// <summary>
+    /// Reads CSVs from level-partitioned directories (lv-1/, lv-2/, global/, etc.)
+    /// and merges rows per table. For level directories, injects level_id into each row.
+    /// Also reads flat CSVs from inputDir root for backwards compatibility.
+    /// </summary>
+    static Dictionary<string, List<Dictionary<string, string?>>> ReadPartitionedCsvs(string inputDir)
+    {
+        var result = new Dictionary<string, List<Dictionary<string, string?>>>();
+
+        // Scan subdirectories for partitioned CSVs
+        foreach (var subDir in Directory.EnumerateDirectories(inputDir))
+        {
+            var dirName = Path.GetFileName(subDir);
+            var isGlobal = dirName == "global";
+
+            foreach (var csvFile in Directory.EnumerateFiles(subDir, "*.csv"))
+            {
+                var tableName = Path.GetFileNameWithoutExtension(csvFile);
+                var (_, rows) = CsvReader.Read(csvFile);
+
+                // For non-global level directories, inject level_id from directory name
+                if (!isGlobal)
+                {
+                    foreach (var row in rows)
+                        row["level_id"] = dirName;
+                }
+
+                if (!result.TryGetValue(tableName, out var existing))
+                {
+                    existing = [];
+                    result[tableName] = existing;
+                }
+                existing.AddRange(rows);
+            }
+        }
+
+        // Also read flat CSVs from root for backwards compatibility
+        foreach (var csvFile in Directory.EnumerateFiles(inputDir, "*.csv"))
+        {
+            var tableName = Path.GetFileNameWithoutExtension(csvFile);
+            if (result.ContainsKey(tableName)) continue; // Partitioned takes priority
+            var (_, rows) = CsvReader.Read(csvFile);
+            if (rows.Count > 0)
+                result[tableName] = rows;
+        }
+
+        return result;
     }
 }

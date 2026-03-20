@@ -5,6 +5,7 @@ namespace BimDown.RevitAddin.Extractors;
 public class PointElementExtractor : IFieldExtractor
 {
     public IReadOnlyList<string> FieldNames { get; } = ["x", "y", "rotation"];
+    public IReadOnlyList<string> ComputedFieldNames { get; } = ["x", "y", "rotation"];
 
     public Dictionary<string, string?> Extract(Element element)
     {

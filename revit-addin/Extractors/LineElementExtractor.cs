@@ -5,6 +5,7 @@ namespace BimDown.RevitAddin.Extractors;
 public class LineElementExtractor : IFieldExtractor
 {
     public IReadOnlyList<string> FieldNames { get; } = ["start_x", "start_y", "end_x", "end_y", "length"];
+    public IReadOnlyList<string> ComputedFieldNames { get; } = ["start_x", "start_y", "end_x", "end_y", "length"];
 
     public Dictionary<string, string?> Extract(Element element)
     {

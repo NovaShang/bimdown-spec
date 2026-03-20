@@ -5,6 +5,7 @@ namespace BimDown.RevitAddin.Extractors;
 public class VerticalSpanExtractor : IFieldExtractor
 {
     public IReadOnlyList<string> FieldNames { get; } = ["top_level_id", "top_offset", "height"];
+    public IReadOnlyList<string> ComputedFieldNames { get; } = ["height"];
 
     public Dictionary<string, string?> Extract(Element element)
     {

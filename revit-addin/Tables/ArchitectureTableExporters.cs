@@ -17,7 +17,8 @@ public static class ArchitectureTableExporters
                 ["thickness"] = e is Wall w
                     ? UnitConverter.FormatDouble(UnitConverter.Length(w.Width))
                     : null
-            }),
+            },
+            ["thickness"]),
         e => e is Wall w && w.WallType.Kind == WallKind.Basic &&
              w.StructuralUsage == Autodesk.Revit.DB.Structure.StructuralWallUsage.NonBearing);
 

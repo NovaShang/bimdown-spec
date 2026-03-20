@@ -5,6 +5,7 @@ namespace BimDown.RevitAddin.Extractors;
 public class PolygonElementExtractor : IFieldExtractor
 {
     public IReadOnlyList<string> FieldNames { get; } = ["points", "area"];
+    public IReadOnlyList<string> ComputedFieldNames { get; } = ["points", "area"];
 
     public Dictionary<string, string?> Extract(Element element)
     {

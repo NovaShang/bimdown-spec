@@ -11,6 +11,7 @@ public class TableExporter(
 {
     public string TableName => tableName;
     public IReadOnlyList<string> Columns => extractor.FieldNames;
+    public IReadOnlyList<string> CsvColumns => extractor.CsvColumns;
 
     public List<Dictionary<string, string?>> Export(Document doc)
     {

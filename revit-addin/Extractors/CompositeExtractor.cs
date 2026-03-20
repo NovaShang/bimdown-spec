@@ -2,9 +2,14 @@ using Autodesk.Revit.DB;
 
 namespace BimDown.RevitAddin.Extractors;
 
-public class CompositeExtractor(IFieldExtractor[] extractors, string[]? inlineFieldNames = null, Func<Element, Dictionary<string, string?>>? inlineExtract = null)
+public class CompositeExtractor(
+    IFieldExtractor[] extractors,
+    string[]? inlineFieldNames = null,
+    Func<Element, Dictionary<string, string?>>? inlineExtract = null,
+    string[]? computedInlineFieldNames = null)
 {
     public IReadOnlyList<string> FieldNames { get; } = BuildFieldNames(extractors, inlineFieldNames);
+    public IReadOnlyList<string> CsvColumns { get; } = BuildCsvColumns(extractors, inlineFieldNames, computedInlineFieldNames);
 
     public Dictionary<string, string?> Extract(Element element)
     {
@@ -43,6 +48,24 @@ public class CompositeExtractor(IFieldExtractor[] extractors, string[]? inlineFi
             }
         }
         return names;
+    }
+
+    static List<string> BuildCsvColumns(IFieldExtractor[] extractors, string[]? inlineFieldNames, string[]? computedInlineFieldNames)
+    {
+        var computed = new HashSet<string>();
+        foreach (var ex in extractors)
+        {
+            foreach (var name in ex.ComputedFieldNames)
+                computed.Add(name);
+        }
+        if (computedInlineFieldNames is not null)
+        {
+            foreach (var name in computedInlineFieldNames)
+                computed.Add(name);
+        }
+
+        var allFields = BuildFieldNames(extractors, inlineFieldNames);
+        return allFields.Where(f => !computed.Contains(f)).ToList();
     }
 
     // Static helpers to expand base chains into flat extractor arrays

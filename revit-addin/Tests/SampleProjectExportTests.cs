@@ -1,5 +1,6 @@
 using Autodesk.Revit.DB;
 using BimDown.RevitAddin;
+using BimDown.RevitAddin.Svg;
 using BimDown.RevitAddin.Tables;
 using Nice3point.TUnit.Revit;
 
@@ -79,13 +80,10 @@ public class SampleProjectExportTests : RevitApiTest
             }
         }
 
-        // Pass 2: remap IDs to short format and write CSVs
+        // Pass 2: remap IDs to short format
         foreach (var (exporter, rows) in exported)
         {
             idGen.RemapRows(exporter.TableName, rows);
-
-            var filePath = Path.Combine(outputDir, $"{exporter.TableName}.csv");
-            CsvWriter.Write(filePath, exporter.Columns, rows);
 
             // Verify all rows have the expected columns
             foreach (var row in rows)
@@ -94,10 +92,68 @@ public class SampleProjectExportTests : RevitApiTest
                     errors.Add($"{exporter.TableName}: row missing 'id' column");
             }
 
-            // Verify CSV round-trip
-            var (rtColumns, rtRows) = RevitTestHelper.RoundTripCsv(exporter.Columns, rows);
+            // Verify CSV round-trip using CsvColumns (excludes computed fields)
+            var (rtColumns, rtRows) = RevitTestHelper.RoundTripCsv(exporter.CsvColumns, rows);
             if (rtRows.Count != rows.Count)
                 errors.Add($"{exporter.TableName}: CSV round-trip row count mismatch ({rows.Count} -> {rtRows.Count})");
+        }
+
+        // Build level_id → short_id map
+        var levelIdToShortId = new Dictionary<string, string>();
+        var levelEntry = exported.FirstOrDefault(e => e.Exporter.TableName == "level");
+        if (levelEntry.Rows is not null)
+        {
+            foreach (var row in levelEntry.Rows)
+            {
+                if (row.TryGetValue("id", out var id) && id is not null)
+                    levelIdToShortId[id] = id;
+            }
+        }
+
+        // Write level-partitioned CSVs
+        var globalTableNames = new HashSet<string> { "level", "grid" };
+        foreach (var (exporter, rows) in exported)
+        {
+            if (globalTableNames.Contains(exporter.TableName))
+            {
+                var globalDir = Path.Combine(outputDir, "global");
+                Directory.CreateDirectory(globalDir);
+                CsvWriter.Write(Path.Combine(globalDir, $"{exporter.TableName}.csv"), exporter.CsvColumns, rows);
+            }
+            else
+            {
+                var grouped = rows.GroupBy(r => r.GetValueOrDefault("level_id"));
+                foreach (var group in grouped)
+                {
+                    string dirName;
+                    if (group.Key is not null && levelIdToShortId.TryGetValue(group.Key, out var shortId))
+                        dirName = shortId;
+                    else if (group.Key is not null)
+                        dirName = group.Key;
+                    else
+                        dirName = "global";
+
+                    var dir = Path.Combine(outputDir, dirName);
+                    Directory.CreateDirectory(dir);
+                    CsvWriter.Write(Path.Combine(dir, $"{exporter.TableName}.csv"), exporter.CsvColumns, group.ToList());
+                }
+            }
+        }
+
+        // Pass 3: write SVG geometry layer
+        var levelData = exported.FirstOrDefault(e => e.Exporter.TableName == "level");
+        if (levelData.Rows is not null)
+        {
+            try
+            {
+                SvgWriter.WriteAll(outputDir,
+                    exported.Select(e => (e.Exporter.TableName, e.Rows)).ToList(),
+                    levelData.Rows);
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"SVG export: {ex.Message}");
+            }
         }
 
         // Verify expected tables produced data

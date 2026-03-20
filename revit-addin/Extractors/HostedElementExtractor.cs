@@ -5,6 +5,7 @@ namespace BimDown.RevitAddin.Extractors;
 public class HostedElementExtractor : IFieldExtractor
 {
     public IReadOnlyList<string> FieldNames { get; } = ["host_id", "location_param"];
+    public IReadOnlyList<string> ComputedFieldNames { get; } = ["location_param"];
 
     public Dictionary<string, string?> Extract(Element element)
     {

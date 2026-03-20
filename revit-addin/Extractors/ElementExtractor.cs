@@ -6,8 +6,15 @@ public class ElementExtractor : IFieldExtractor
 {
     public IReadOnlyList<string> FieldNames { get; } =
     [
-        "id", "name", "number", "level_id", "created_at", "updated_at",
+        "id", "number", "level_id", "created_at", "updated_at",
         "base_offset", "volume",
+        "bbox_min_x", "bbox_min_y", "bbox_min_z",
+        "bbox_max_x", "bbox_max_y", "bbox_max_z"
+    ];
+
+    public IReadOnlyList<string> ComputedFieldNames { get; } =
+    [
+        "level_id", "created_at", "updated_at", "volume",
         "bbox_min_x", "bbox_min_y", "bbox_min_z",
         "bbox_max_x", "bbox_max_y", "bbox_max_z"
     ];
@@ -17,7 +24,6 @@ public class ElementExtractor : IFieldExtractor
         var fields = new Dictionary<string, string?>
         {
             ["id"] = element.UniqueId,
-            ["name"] = element.Name,
             ["number"] = element.get_Parameter(BuiltInParameter.ALL_MODEL_MARK)?.AsString(),
             ["level_id"] = GetLevelUniqueId(element),
             ["created_at"] = null,
