@@ -11,4 +11,4 @@ fields:
 
   - name: location_param
     type: float
-    required: true
+    computed: true

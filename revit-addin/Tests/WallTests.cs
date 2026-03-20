@@ -26,14 +26,15 @@ public class WallTests : RevitApiTest
             var idMap = RevitTestHelper.BuildIdMap(doc);
             importer.SetIdMap(idMap);
 
+            var levelId = BimDownParameter.Get(level)!;
             var csvRows = new List<Dictionary<string, string?>>
             {
                 new()
                 {
-                    ["id"] = "test-wall-001",
+                    ["id"] = "w-1",
                     ["name"] = "Test Wall",
                     ["number"] = "W-1",
-                    ["level_id"] = level.UniqueId,
+                    ["level_id"] = levelId,
                     ["start_x"] = "0",
                     ["start_y"] = "0",
                     ["end_x"] = "5",
@@ -50,7 +51,7 @@ public class WallTests : RevitApiTest
             await Assert.That(result.Created).IsEqualTo(1);
             await Assert.That(result.Errors.Count).IsEqualTo(0);
 
-            var wallId = idMap.Resolve(doc, "test-wall-001");
+            var wallId = idMap.Resolve(doc, "w-1");
             await Assert.That(wallId).IsNotNull();
 
             var wall = doc.GetElement(wallId!) as Wall;
@@ -143,6 +144,8 @@ public class WallTests : RevitApiTest
         try
         {
             var level = GetFirstLevel(doc);
+            var idMap = RevitTestHelper.BuildIdMap(doc);
+            var levelId = BimDownParameter.Get(level)!;
 
             using var tx = new Transaction(doc, "Test Wall Update");
             tx.Start();
@@ -156,17 +159,18 @@ public class WallTests : RevitApiTest
                 new XYZ(UnitConverter.LengthToFeet(10), 0, 0));
             var wall = Wall.Create(doc, line, wallType.Id, level.Id, UnitConverter.LengthToFeet(3), 0, false, false);
 
+            BimDownParameter.Set(wall, "w-1");
+            idMap.Register("w-1", wall.Id);
+
             var importer = new WallImporter();
-            var idMap = RevitTestHelper.BuildIdMap(doc);
-            idMap.Register(wall.UniqueId, wall.Id);
             importer.SetIdMap(idMap);
 
             var csvRows = new List<Dictionary<string, string?>>
             {
                 new()
                 {
-                    ["id"] = wall.UniqueId,
-                    ["level_id"] = level.UniqueId,
+                    ["id"] = "w-1",
+                    ["level_id"] = levelId,
                     ["start_x"] = "2",
                     ["start_y"] = "3",
                     ["end_x"] = "8",
@@ -204,6 +208,8 @@ public class WallTests : RevitApiTest
         try
         {
             var level = GetFirstLevel(doc);
+            var idMap = RevitTestHelper.BuildIdMap(doc);
+            var levelId = BimDownParameter.Get(level)!;
 
             using var tx = new Transaction(doc, "Test Wall Delete");
             tx.Start();
@@ -217,10 +223,12 @@ public class WallTests : RevitApiTest
             var wall1 = Wall.Create(doc, line1, wallType.Id, level.Id, UnitConverter.LengthToFeet(3), 0, false, false);
             var wall2 = Wall.Create(doc, line2, wallType.Id, level.Id, UnitConverter.LengthToFeet(3), 0, false, false);
 
+            BimDownParameter.Set(wall1, "w-1");
+            BimDownParameter.Set(wall2, "w-2");
+            idMap.Register("w-1", wall1.Id);
+            idMap.Register("w-2", wall2.Id);
+
             var importer = new WallImporter();
-            var idMap = RevitTestHelper.BuildIdMap(doc);
-            idMap.Register(wall1.UniqueId, wall1.Id);
-            idMap.Register(wall2.UniqueId, wall2.Id);
             importer.SetIdMap(idMap);
 
             // Import with only wall1 — wall2 should be deleted
@@ -228,8 +236,8 @@ public class WallTests : RevitApiTest
             {
                 new()
                 {
-                    ["id"] = wall1.UniqueId,
-                    ["level_id"] = level.UniqueId,
+                    ["id"] = "w-1",
+                    ["level_id"] = levelId,
                     ["start_x"] = "0",
                     ["start_y"] = "0",
                     ["end_x"] = "5",

@@ -32,7 +32,7 @@ public class SlabTests : RevitApiTest
                 {
                     ["id"] = "test-slab-001",
                     ["number"] = "S-1",
-                    ["level_id"] = level.UniqueId,
+                    ["level_id"] = BimDownParameter.Get(level)!,
                     ["points"] = "[[0,0],[4,0],[4,4],[0,4]]",
                     ["function"] = "floor",
                     ["thickness"] = "0.2",
@@ -77,7 +77,7 @@ public class SlabTests : RevitApiTest
                 new()
                 {
                     ["id"] = "test-slab-tri",
-                    ["level_id"] = level.UniqueId,
+                    ["level_id"] = BimDownParameter.Get(level)!,
                     ["points"] = "[[0,0],[6,0],[3,5]]",
                     ["function"] = "floor",
                 }
@@ -185,16 +185,18 @@ public class SlabTests : RevitApiTest
 
             var importer = new SlabImporter();
             var idMap = RevitTestHelper.BuildIdMap(doc);
-            idMap.Register(floor.UniqueId, floor.Id);
+            RevitTestHelper.TagElement(doc, floor, "sl-1");
+            idMap.Register("sl-1", floor.Id);
             importer.SetIdMap(idMap);
 
+            var levelId = BimDownParameter.Get(level)!;
             // Update with new geometry — triggers delete/recreate
             var csvRows = new List<Dictionary<string, string?>>
             {
                 new()
                 {
-                    ["id"] = floor.UniqueId,
-                    ["level_id"] = level.UniqueId,
+                    ["id"] = "sl-1",
+                    ["level_id"] = levelId,
                     ["points"] = "[[0,0],[6,0],[6,6],[0,6]]",
                     ["function"] = "floor",
                     ["thickness"] = "0.2",

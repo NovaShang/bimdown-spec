@@ -7,3 +7,4 @@ bases:
 fields:
   - name: thickness
     type: float
+    computed: true

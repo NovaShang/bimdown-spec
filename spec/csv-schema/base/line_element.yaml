@@ -6,19 +6,19 @@ abstract: true
 fields:
   - name: start_x
     type: float
-    required: true
+    computed: true
 
   - name: start_y
     type: float
-    required: true
+    computed: true
 
   - name: end_x
     type: float
-    required: true
+    computed: true
 
   - name: end_y
     type: float
-    required: true
+    computed: true
 
   - name: length
     type: float

@@ -22,6 +22,23 @@ public class ImportCommand : IExternalCommand
 
         var inputDir = dialog.SelectedPath;
         var idMap = new IdMap();
+        var allErrors = new List<string>();
+
+        // Ensure BimDown_Id shared parameter exists
+        using (var txParam = new Transaction(doc, "BimDown: Ensure parameter"))
+        {
+            txParam.Start();
+            try
+            {
+                BimDownParameter.EnsureParameter(doc);
+                txParam.Commit();
+            }
+            catch (Exception ex)
+            {
+                txParam.RollBack();
+                allErrors.Add($"Parameter setup: {ex.Message}");
+            }
+        }
 
         TableImporterBase[] importers =
         [
@@ -66,7 +83,6 @@ public class ImportCommand : IExternalCommand
         var totalCreated = 0;
         var totalUpdated = 0;
         var totalDeleted = 0;
-        var allErrors = new List<string>();
         var tablesProcessed = 0;
 
         foreach (var importer in sorted)

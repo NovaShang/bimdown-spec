@@ -31,7 +31,7 @@ public class MepTests : RevitApiTest
                 {
                     ["id"] = "test-duct-001",
                     ["number"] = "D-1",
-                    ["level_id"] = level.UniqueId,
+                    ["level_id"] = BimDownParameter.Get(level)!,
                     ["start_x"] = "0",
                     ["start_y"] = "0",
                     ["start_z"] = "3",
@@ -90,7 +90,7 @@ public class MepTests : RevitApiTest
                 {
                     ["id"] = "test-pipe-001",
                     ["number"] = "P-1",
-                    ["level_id"] = level.UniqueId,
+                    ["level_id"] = BimDownParameter.Get(level)!,
                     ["start_x"] = "0",
                     ["start_y"] = "5",
                     ["start_z"] = "2",

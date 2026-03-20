@@ -37,7 +37,7 @@ public class ArchitectureTests : RevitApiTest
                     ["id"] = "test-space-001",
                     ["name"] = "Living Room",
                     ["number"] = "R-1",
-                    ["level_id"] = level.UniqueId,
+                    ["level_id"] = BimDownParameter.Get(level)!,
                     ["points"] = "[[0,0],[5,0],[5,4],[0,4]]",
                 }
             };
@@ -97,7 +97,7 @@ public class ArchitectureTests : RevitApiTest
                 {
                     ["id"] = roomUniqueId,
                     ["name"] = "New Name",
-                    ["level_id"] = level.UniqueId,
+                    ["level_id"] = BimDownParameter.Get(level)!,
                 }
             };
 
@@ -200,7 +200,7 @@ public class ArchitectureTests : RevitApiTest
                 {
                     ["id"] = "test-door-001",
                     ["number"] = "D-1",
-                    ["level_id"] = level.UniqueId,
+                    ["level_id"] = BimDownParameter.Get(level)!,
                     ["host_id"] = wall.UniqueId,
                     ["location_param"] = "0.5",
                     ["width"] = "0.9",
@@ -335,7 +335,7 @@ public class ArchitectureTests : RevitApiTest
                 {
                     ["id"] = "test-window-001",
                     ["number"] = "W-1",
-                    ["level_id"] = level.UniqueId,
+                    ["level_id"] = BimDownParameter.Get(level)!,
                     ["host_id"] = wall.UniqueId,
                     ["location_param"] = "0.5",
                     ["width"] = "1.2",

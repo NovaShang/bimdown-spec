@@ -6,12 +6,12 @@ abstract: true
 fields:
   - name: x
     type: float
-    required: true
+    computed: true
 
   - name: y
     type: float
-    required: true
+    computed: true
 
   - name: rotation
     type: float
-    required: true
+    computed: true

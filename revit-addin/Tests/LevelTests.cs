@@ -59,8 +59,8 @@ public class LevelTests : RevitApiTest
         var doc = RevitTestHelper.CreateTempDocument(Application);
         try
         {
+            var idMap = RevitTestHelper.BuildIdMap(doc);
             var importer = new LevelImporter();
-            var idMap = new IdMap();
             importer.SetIdMap(idMap);
 
             // Include existing levels so DiffEngine won't try to delete them
@@ -68,14 +68,14 @@ public class LevelTests : RevitApiTest
                 doc, BuiltInCategory.OST_Levels,
                 el => new Dictionary<string, string?>
                 {
-                    ["id"] = el.UniqueId,
+                    ["id"] = BimDownParameter.Get(el),
                     ["name"] = ((Level)el).Name,
                     ["elevation"] = UnitConverter.FormatDouble(UnitConverter.Length(((Level)el).Elevation)),
                 });
 
             csvRows.Add(new Dictionary<string, string?>
             {
-                ["id"] = "test-level-001",
+                ["id"] = "lv-99",
                 ["name"] = "BimDown Test Level",
                 ["number"] = "TL-1",
                 ["elevation"] = "15.5",
@@ -89,7 +89,7 @@ public class LevelTests : RevitApiTest
             await Assert.That(result.Errors.Count).IsEqualTo(0);
 
             // Verify the created level
-            var levelId = idMap.Resolve(doc, "test-level-001");
+            var levelId = idMap.Resolve(doc, "lv-99");
             await Assert.That(levelId).IsNotNull();
 
             var level = doc.GetElement(levelId!) as Level;
@@ -157,21 +157,24 @@ public class LevelTests : RevitApiTest
         var doc = RevitTestHelper.CreateTempDocument(Application);
         try
         {
+            var idMap = RevitTestHelper.BuildIdMap(doc);
+
             using var tx = new Transaction(doc, "Test Level Update");
             tx.Start();
             var level = Level.Create(doc, UnitConverter.LengthToFeet(5.0));
             level.Name = "Original Name";
 
+            BimDownParameter.Set(level, "lv-99");
+            idMap.Register("lv-99", level.Id);
+
             var importer = new LevelImporter();
-            var idMap = new IdMap();
-            idMap.Register(level.UniqueId, level.Id);
             importer.SetIdMap(idMap);
 
             var csvRows = new List<Dictionary<string, string?>>
             {
                 new()
                 {
-                    ["id"] = level.UniqueId,
+                    ["id"] = "lv-99",
                     ["name"] = "Updated Name",
                     ["elevation"] = "10.0",
                 }

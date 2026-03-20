@@ -22,7 +22,7 @@ public class TableExporter(
                 .OfCategory(category)
                 .WhereElementIsNotElementType();
 
-            foreach (var element in collector)
+            foreach (var element in collector.OrderBy(e => e.Id.Value))
             {
                 try
                 {

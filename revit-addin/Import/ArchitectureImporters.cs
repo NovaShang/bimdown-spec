@@ -312,7 +312,10 @@ class SlabImporter() : TableImporterBase(
             {
                 var csvId = row.GetValueOrDefault("id");
                 if (csvId is not null)
+                {
+                    BimDownParameter.Set(newFloor, csvId);
                     IdMap.Register(csvId, newFloor.Id);
+                }
             }
             return;
         }

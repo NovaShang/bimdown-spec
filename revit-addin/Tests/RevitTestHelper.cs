@@ -24,18 +24,69 @@ static class RevitTestHelper
 
     public static IdMap BuildIdMap(Document doc)
     {
+        var needsTx = !doc.IsModifiable;
+        Transaction? tx = null;
+        if (needsTx)
+        {
+            tx = new Transaction(doc, "Setup BimDown IDs");
+            tx.Start();
+        }
+
+        BimDownParameter.EnsureParameter(doc);
+
         var idMap = new IdMap();
+        var levelCounter = 0;
         foreach (var el in new FilteredElementCollector(doc)
                      .OfCategory(BuiltInCategory.OST_Levels)
-                     .WhereElementIsNotElementType())
-            idMap.Register(el.UniqueId, el.Id);
+                     .WhereElementIsNotElementType()
+                     .OrderBy(e => e.Id.Value))
+        {
+            var shortId = $"lv-{++levelCounter}";
+            BimDownParameter.Set(el, shortId);
+            idMap.Register(shortId, el.Id);
+        }
 
+        var gridCounter = 0;
         foreach (var el in new FilteredElementCollector(doc)
                      .OfCategory(BuiltInCategory.OST_Grids)
-                     .WhereElementIsNotElementType())
-            idMap.Register(el.UniqueId, el.Id);
+                     .WhereElementIsNotElementType()
+                     .OrderBy(e => e.Id.Value))
+        {
+            var shortId = $"gr-{++gridCounter}";
+            BimDownParameter.Set(el, shortId);
+            idMap.Register(shortId, el.Id);
+        }
+
+        if (needsTx)
+        {
+            tx!.Commit();
+            tx.Dispose();
+        }
 
         return idMap;
+    }
+
+    /// <summary>
+    /// Tags an element with a BimDown_Id. If no transaction is active, creates one.
+    /// </summary>
+    public static void TagElement(Document doc, Element element, string shortId)
+    {
+        var needsTx = !doc.IsModifiable;
+        Transaction? tx = null;
+        if (needsTx)
+        {
+            tx = new Transaction(doc, "Tag BimDown ID");
+            tx.Start();
+        }
+
+        BimDownParameter.EnsureParameter(doc);
+        BimDownParameter.Set(element, shortId);
+
+        if (needsTx)
+        {
+            tx!.Commit();
+            tx.Dispose();
+        }
     }
 
     public static void AssertClose(double expected, double actual, double tolerance = 1e-6, string? message = null)
@@ -116,6 +167,7 @@ static class RevitTestHelper
 
     /// <summary>
     /// Collects existing elements as CSV rows so DiffEngine won't try to delete them.
+    /// Uses BimDown_Id for element IDs.
     /// </summary>
     public static List<Dictionary<string, string?>> PreserveExistingElements(
         Document doc, BuiltInCategory category, Func<Element, Dictionary<string, string?>> toRow)

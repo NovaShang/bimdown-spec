@@ -8,7 +8,10 @@ static class DiffEngine
     {
         var modelById = new Dictionary<string, Element>();
         foreach (var el in modelElements)
-            modelById[el.UniqueId] = el;
+        {
+            var bid = BimDownParameter.Get(el);
+            if (bid is not null) modelById[bid] = el;
+        }
 
         var toUpdate = new List<(Dictionary<string, string?> Row, Element Element)>();
         var toCreate = new List<Dictionary<string, string?>>();
@@ -29,7 +32,11 @@ static class DiffEngine
         }
 
         var toDelete = modelElements
-            .Where(el => !matchedIds.Contains(el.UniqueId))
+            .Where(el =>
+            {
+                var bid = BimDownParameter.Get(el);
+                return bid is not null && !matchedIds.Contains(bid);
+            })
             .ToList();
 
         return new DiffResult(toUpdate, toCreate, toDelete);

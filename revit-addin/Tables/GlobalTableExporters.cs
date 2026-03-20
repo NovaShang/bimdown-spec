@@ -14,7 +14,7 @@ public class LevelTableExporter : ITableExporter
             .OfCategory(BuiltInCategory.OST_Levels)
             .WhereElementIsNotElementType();
 
-        foreach (var element in collector)
+        foreach (var element in collector.OrderBy(e => e.Id.Value))
         {
             if (element is not Level level) continue;
             rows.Add(new Dictionary<string, string?>
@@ -41,7 +41,7 @@ public class GridTableExporter : ITableExporter
             .OfCategory(BuiltInCategory.OST_Grids)
             .WhereElementIsNotElementType();
 
-        foreach (var element in collector)
+        foreach (var element in collector.OrderBy(e => e.Id.Value))
         {
             if (element is not Grid grid) continue;
             var curve = grid.Curve;

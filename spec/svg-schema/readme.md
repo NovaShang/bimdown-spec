@@ -61,7 +61,7 @@ To remain "AI-Friendly" and lightweight, BIMDown strictly limits allowed SVG fea
 
 Geometries are mapped based on their placement paradigm in the CSV schema (`line_element`, `point_element`, `polygon_element`). 
 
-Every drawn element **must** include its corresponding Attribute Layer UUID as the `id` property.
+Every drawn element **must** include its corresponding Attribute Layer short ID as the `id` property (e.g., `w-1`, `c-3`).
 
 ### 4.1 Line-Based Elements (e.g., Wall, Beam)
 Instead of drawing the boundary of a wall as a complex polygon, we draw its **centerline** and represent its physical thickness via `stroke-width`. This makes inferencing and modifying topology trivial for Large Language Models.
@@ -74,7 +74,7 @@ Instead of drawing the boundary of a wall as a complex polygon, we draw its **ce
 *   **Example (`walls.svg`)**:
     ```xml
     <!-- A wall that is 0.2m thick connecting (0,0) and (5,0) -->
-    <line id="uuid-wall-1234" x1="0" y1="0" x2="5" y2="0" stroke="black" stroke-width="0.2" stroke-linecap="square" />
+    <line id="w-1" x1="0" y1="0" x2="5" y2="0" stroke="black" stroke-width="0.2" stroke-linecap="square" />
     ```
 
 ### 4.2 Point-Based Elements (e.g., Column, Equipment)
@@ -88,7 +88,7 @@ Elements placed at a single point `(x, y)` with a defined profile (e.g., rectang
 *   **Example (`columns.svg`)**:
     ```xml
     <!-- A 0.4m x 0.4m column at (2, 2). Rendered centered -->
-    <rect id="uuid-col-5678" x="1.8" y="1.8" width="0.4" height="0.4" fill="black" />
+    <rect id="c-1" x="1.8" y="1.8" width="0.4" height="0.4" fill="black" />
     ```
 
 ### 4.3 Polygon-Based Elements (e.g., Space, Slab)
@@ -100,7 +100,7 @@ Elements defined by a closed loop of points.
 *   **Example (`spaces.svg`)**:
     ```xml
     <!-- A simple 5x5m room -->
-    <polygon id="uuid-sp-9012" points="0,0 5,0 5,5 0,5" fill="rgba(0,0,255,0.1)" stroke="blue" stroke-width="0.05" />
+    <polygon id="sp-1" points="0,0 5,0 5,5 0,5" fill="rgba(0,0,255,0.1)" stroke="blue" stroke-width="0.05" />
     ```
 
 ### 4.4 Hosted Elements (e.g., Door, Window)
@@ -113,12 +113,12 @@ To maintain BIMDown's **"Flattened"** data philosophy, we do **not** nest doors 
 
 *   **SVG Tag**: `<line>` (Openings are treated as coincident line segments overlapping the wall. This avoids forcing LLMs to compute rotation matrices for slanted `<rect>` angles).
 *   **Mapping**:
-    *   `data-host` = `host_id` (the UUID of the parent wall).
+    *   `data-host` = `host_id` (the short ID of the parent wall).
     *   `(x1, y1)` to `(x2, y2)` represents the opening cut along the host wall's axis.
     *   `stroke` defines the visual "cut" (e.g., background color like `white`), and `stroke-width` is slightly wider than the host wall to visually occlude it.
 *   **Example (`doors.svg`)**:
     ```xml
-    <!-- A 1m door hosted on 'uuid-wall-1234', visualized as a white line cutting the black wall -->
-    <line id="uuid-door-456" data-host="uuid-wall-1234" x1="4.5" y1="0" x2="5.5" y2="0" stroke="white" stroke-width="0.22" />
+    <!-- A 1m door hosted on 'w-1', visualized as a white line cutting the black wall -->
+    <line id="d-1" data-host="w-1" x1="4.5" y1="0" x2="5.5" y2="0" stroke="white" stroke-width="0.22" />
     ```
 *(Note: To prevent Agent hallucinations when modifying topologies, workflows should provide predefined Tools for LLMs. For example, if an AI moves a wall, it shouldn't manually update every door coordinate. Instead, it runs an update command to automatically sync the absolute `x,y` coordinates in `doors.svg` based on the unchanged `location_param` logic).*

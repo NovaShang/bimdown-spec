@@ -39,7 +39,7 @@ public class FoundationTests : RevitApiTest
                 {
                     ["id"] = "test-isofound-001",
                     ["number"] = "IF-1",
-                    ["level_id"] = level.UniqueId,
+                    ["level_id"] = BimDownParameter.Get(level)!,
                     ["x"] = "5",
                     ["y"] = "5",
                 }
@@ -92,15 +92,17 @@ public class FoundationTests : RevitApiTest
 
             var importer = new IsolatedFoundationImporter();
             var idMap = RevitTestHelper.BuildIdMap(doc);
-            idMap.Register(instance.UniqueId, instance.Id);
+            RevitTestHelper.TagElement(doc, instance, "if-1");
+            idMap.Register("if-1", instance.Id);
             importer.SetIdMap(idMap);
 
+            var levelId = BimDownParameter.Get(level)!;
             var csvRows = new List<Dictionary<string, string?>>
             {
                 new()
                 {
-                    ["id"] = instance.UniqueId,
-                    ["level_id"] = level.UniqueId,
+                    ["id"] = "if-1",
+                    ["level_id"] = levelId,
                     ["x"] = "8",
                     ["y"] = "9",
                 }
@@ -143,7 +145,7 @@ public class FoundationTests : RevitApiTest
                 {
                     ["id"] = "test-raft-001",
                     ["number"] = "RF-1",
-                    ["level_id"] = level.UniqueId,
+                    ["level_id"] = BimDownParameter.Get(level)!,
                     ["points"] = "[[0,0],[10,0],[10,8],[0,8]]",
                     ["thickness"] = "0.5",
                 }
@@ -246,7 +248,7 @@ public class FoundationTests : RevitApiTest
                 new()
                 {
                     ["id"] = "test-strip-001",
-                    ["level_id"] = level.UniqueId,
+                    ["level_id"] = BimDownParameter.Get(level)!,
                     ["start_x"] = "0",
                     ["start_y"] = "0",
                     ["end_x"] = "8",

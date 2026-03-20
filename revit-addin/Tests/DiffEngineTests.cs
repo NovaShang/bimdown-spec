@@ -1,4 +1,5 @@
 using Autodesk.Revit.DB;
+using BimDown.RevitAddin;
 using BimDown.RevitAddin.Import;
 using Nice3point.TUnit.Revit;
 
@@ -14,8 +15,8 @@ public class DiffEngineTests : RevitApiTest
         {
             var csvRows = new List<Dictionary<string, string?>>
             {
-                new() { ["id"] = "aaa" },
-                new() { ["id"] = "bbb" },
+                new() { ["id"] = "w-1" },
+                new() { ["id"] = "w-2" },
             };
 
             var result = DiffEngine.Diff(csvRows, []);
@@ -42,6 +43,16 @@ public class DiffEngineTests : RevitApiTest
 
             if (levels.Count == 0) return;
 
+            // Tag levels with BimDown_Id so they participate in diff
+            using (var tx = new Transaction(doc, "Set BimDown_Id"))
+            {
+                tx.Start();
+                BimDownParameter.EnsureParameter(doc);
+                for (var i = 0; i < levels.Count; i++)
+                    BimDownParameter.Set(levels[i], $"lv-{i + 1}");
+                tx.Commit();
+            }
+
             var result = DiffEngine.Diff([], levels);
             await Assert.That(result.ToCreate.Count).IsEqualTo(0);
             await Assert.That(result.ToUpdate.Count).IsEqualTo(0);
@@ -66,15 +77,24 @@ public class DiffEngineTests : RevitApiTest
 
             if (levels.Count == 0) return;
 
-            var matchedLevel = levels[0];
+            // Tag levels with BimDown_Id
+            using (var tx = new Transaction(doc, "Set BimDown_Id"))
+            {
+                tx.Start();
+                BimDownParameter.EnsureParameter(doc);
+                for (var i = 0; i < levels.Count; i++)
+                    BimDownParameter.Set(levels[i], $"lv-{i + 1}");
+                tx.Commit();
+            }
+
             var csvRows = new List<Dictionary<string, string?>>
             {
-                new() { ["id"] = matchedLevel.UniqueId, ["name"] = "Updated" },
+                new() { ["id"] = "lv-1", ["name"] = "Updated" },
             };
 
             var result = DiffEngine.Diff(csvRows, levels);
             await Assert.That(result.ToUpdate.Count).IsEqualTo(1);
-            await Assert.That(result.ToUpdate[0].Element.UniqueId).IsEqualTo(matchedLevel.UniqueId);
+            await Assert.That(BimDownParameter.Get(result.ToUpdate[0].Element)).IsEqualTo("lv-1");
             await Assert.That(result.ToCreate.Count).IsEqualTo(0);
             await Assert.That(result.ToDelete.Count).IsEqualTo(levels.Count - 1);
         }
@@ -97,10 +117,20 @@ public class DiffEngineTests : RevitApiTest
 
             if (levels.Count == 0) return;
 
+            // Tag levels with BimDown_Id
+            using (var tx = new Transaction(doc, "Set BimDown_Id"))
+            {
+                tx.Start();
+                BimDownParameter.EnsureParameter(doc);
+                for (var i = 0; i < levels.Count; i++)
+                    BimDownParameter.Set(levels[i], $"lv-{i + 1}");
+                tx.Commit();
+            }
+
             var csvRows = new List<Dictionary<string, string?>>
             {
-                new() { ["id"] = levels[0].UniqueId, ["name"] = "Existing" },
-                new() { ["id"] = "brand-new-id", ["name"] = "New" },
+                new() { ["id"] = "lv-1", ["name"] = "Existing" },
+                new() { ["id"] = "lv-999", ["name"] = "New" },
             };
 
             var result = DiffEngine.Diff(csvRows, levels);
@@ -127,6 +157,29 @@ public class DiffEngineTests : RevitApiTest
 
             var result = DiffEngine.Diff(csvRows, []);
             await Assert.That(result.ToCreate.Count).IsEqualTo(1);
+        }
+        finally
+        {
+            doc.Close(false);
+        }
+    }
+
+    [Test]
+    public async Task Diff_UntaggedElements_NotDeleted()
+    {
+        var doc = RevitTestHelper.CreateTempDocument(Application);
+        try
+        {
+            var levels = new FilteredElementCollector(doc)
+                .OfCategory(BuiltInCategory.OST_Levels)
+                .WhereElementIsNotElementType()
+                .ToElements();
+
+            if (levels.Count == 0) return;
+
+            // Don't set BimDown_Id — elements without it should not be deleted
+            var result = DiffEngine.Diff([], levels);
+            await Assert.That(result.ToDelete.Count).IsEqualTo(0);
         }
         finally
         {

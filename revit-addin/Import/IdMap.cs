@@ -6,23 +6,18 @@ class IdMap
 {
     readonly Dictionary<string, ElementId> _map = new();
 
-    public void Register(string csvId, ElementId elementId) => _map[csvId] = elementId;
+    public void Register(string shortId, ElementId elementId) => _map[shortId] = elementId;
 
-    public ElementId? Resolve(Document doc, string? csvId)
+    public ElementId? Resolve(Document doc, string? shortId)
     {
-        if (string.IsNullOrEmpty(csvId)) return null;
-
-        // Check map first (for newly created elements)
-        if (_map.TryGetValue(csvId, out var mapped)) return mapped;
-
-        // Fall back to document lookup by UniqueId
-        var element = doc.GetElement(csvId);
-        return element?.Id;
+        if (string.IsNullOrEmpty(shortId)) return null;
+        if (_map.TryGetValue(shortId, out var id)) return id;
+        return null;
     }
 
-    public Level? ResolveLevel(Document doc, string? csvId)
+    public Level? ResolveLevel(Document doc, string? shortId)
     {
-        var id = Resolve(doc, csvId);
+        var id = Resolve(doc, shortId);
         return id is not null ? doc.GetElement(id) as Level : null;
     }
 }

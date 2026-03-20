@@ -33,7 +33,7 @@ public class StructureTests : RevitApiTest
                 {
                     ["id"] = "test-sw-001",
                     ["number"] = "SW-1",
-                    ["level_id"] = level.UniqueId,
+                    ["level_id"] = BimDownParameter.Get(level)!,
                     ["start_x"] = "0",
                     ["start_y"] = "0",
                     ["end_x"] = "8",
@@ -88,7 +88,7 @@ public class StructureTests : RevitApiTest
                 {
                     ["id"] = "test-beam-001",
                     ["number"] = "B-1",
-                    ["level_id"] = level.UniqueId,
+                    ["level_id"] = BimDownParameter.Get(level)!,
                     ["start_x"] = "0",
                     ["start_y"] = "0",
                     ["start_z"] = "3",
@@ -151,7 +151,7 @@ public class StructureTests : RevitApiTest
                 {
                     ["id"] = "test-brace-001",
                     ["number"] = "BR-1",
-                    ["level_id"] = level.UniqueId,
+                    ["level_id"] = BimDownParameter.Get(level)!,
                     ["start_x"] = "0",
                     ["start_y"] = "0",
                     ["start_z"] = "0",
@@ -205,7 +205,7 @@ public class StructureTests : RevitApiTest
                 {
                     ["id"] = "test-scol-001",
                     ["number"] = "SC-1",
-                    ["level_id"] = level.UniqueId,
+                    ["level_id"] = BimDownParameter.Get(level)!,
                     ["x"] = "5",
                     ["y"] = "5",
                     ["rotation"] = "0",
@@ -260,7 +260,7 @@ public class StructureTests : RevitApiTest
                 {
                     ["id"] = "test-sslab-001",
                     ["number"] = "SS-1",
-                    ["level_id"] = level.UniqueId,
+                    ["level_id"] = BimDownParameter.Get(level)!,
                     ["points"] = "[[0,0],[6,0],[6,6],[0,6]]",
                     ["thickness"] = "0.25",
                 }
@@ -308,15 +308,17 @@ public class StructureTests : RevitApiTest
 
             var importer = new StructureWallImporter();
             var idMap = RevitTestHelper.BuildIdMap(doc);
-            idMap.Register(wall.UniqueId, wall.Id);
+            RevitTestHelper.TagElement(doc, wall, "sw-1");
+            idMap.Register("sw-1", wall.Id);
             importer.SetIdMap(idMap);
 
+            var levelId = BimDownParameter.Get(level)!;
             var csvRows = new List<Dictionary<string, string?>>
             {
                 new()
                 {
-                    ["id"] = wall.UniqueId,
-                    ["level_id"] = level.UniqueId,
+                    ["id"] = "sw-1",
+                    ["level_id"] = levelId,
                     ["start_x"] = "1",
                     ["start_y"] = "2",
                     ["end_x"] = "9",
@@ -375,15 +377,17 @@ public class StructureTests : RevitApiTest
 
             var importer = new BeamImporter();
             var idMap = RevitTestHelper.BuildIdMap(doc);
-            idMap.Register(beam.UniqueId, beam.Id);
+            RevitTestHelper.TagElement(doc, beam, "bm-1");
+            idMap.Register("bm-1", beam.Id);
             importer.SetIdMap(idMap);
 
+            var levelId = BimDownParameter.Get(level)!;
             var csvRows = new List<Dictionary<string, string?>>
             {
                 new()
                 {
-                    ["id"] = beam.UniqueId,
-                    ["level_id"] = level.UniqueId,
+                    ["id"] = "bm-1",
+                    ["level_id"] = levelId,
                     ["start_x"] = "1",
                     ["start_y"] = "0",
                     ["start_z"] = "4",

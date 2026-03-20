@@ -34,7 +34,7 @@ public class MepExtendedTests : RevitApiTest
                 {
                     ["id"] = "test-ct-001",
                     ["number"] = "CT-1",
-                    ["level_id"] = level.UniqueId,
+                    ["level_id"] = BimDownParameter.Get(level)!,
                     ["start_x"] = "0",
                     ["start_y"] = "0",
                     ["start_z"] = "3",
@@ -96,7 +96,7 @@ public class MepExtendedTests : RevitApiTest
                 {
                     ["id"] = "test-conduit-001",
                     ["number"] = "CO-1",
-                    ["level_id"] = level.UniqueId,
+                    ["level_id"] = BimDownParameter.Get(level)!,
                     ["start_x"] = "0",
                     ["start_y"] = "2",
                     ["start_z"] = "3",
@@ -168,7 +168,7 @@ public class MepExtendedTests : RevitApiTest
                 {
                     ["id"] = "test-equip-001",
                     ["number"] = "EQ-1",
-                    ["level_id"] = level.UniqueId,
+                    ["level_id"] = BimDownParameter.Get(level)!,
                     ["x"] = "5",
                     ["y"] = "5",
                     ["rotation"] = "90",
@@ -236,7 +236,7 @@ public class MepExtendedTests : RevitApiTest
                 {
                     ["id"] = "test-term-001",
                     ["number"] = "T-1",
-                    ["level_id"] = level.UniqueId,
+                    ["level_id"] = BimDownParameter.Get(level)!,
                     ["x"] = "3",
                     ["y"] = "4",
                     ["rotation"] = "0",

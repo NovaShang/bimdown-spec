@@ -32,14 +32,15 @@ public class ColumnTests : RevitApiTest
             var idMap = RevitTestHelper.BuildIdMap(doc);
             importer.SetIdMap(idMap);
 
+            var levelId = BimDownParameter.Get(level)!;
             var csvRows = new List<Dictionary<string, string?>>
             {
                 new()
                 {
-                    ["id"] = "test-col-001",
+                    ["id"] = "c-1",
                     ["name"] = "Test Column",
                     ["number"] = "C-1",
-                    ["level_id"] = level.UniqueId,
+                    ["level_id"] = levelId,
                     ["x"] = "3",
                     ["y"] = "4",
                     ["rotation"] = "45",
@@ -53,7 +54,7 @@ public class ColumnTests : RevitApiTest
             await Assert.That(result.Created).IsEqualTo(1);
             await Assert.That(result.Errors.Count).IsEqualTo(0);
 
-            var colId = idMap.Resolve(doc, "test-col-001");
+            var colId = idMap.Resolve(doc, "c-1");
             await Assert.That(colId).IsNotNull();
 
             var column = doc.GetElement(colId!) as FamilyInstance;
@@ -108,15 +109,17 @@ public class ColumnTests : RevitApiTest
 
             var importer = new ColumnImporter();
             var idMap = RevitTestHelper.BuildIdMap(doc);
-            idMap.Register(column.UniqueId, column.Id);
+            RevitTestHelper.TagElement(doc, column, "c-1");
+            idMap.Register("c-1", column.Id);
             importer.SetIdMap(idMap);
 
+            var levelId = BimDownParameter.Get(level)!;
             var csvRows = new List<Dictionary<string, string?>>
             {
                 new()
                 {
-                    ["id"] = column.UniqueId,
-                    ["level_id"] = level.UniqueId,
+                    ["id"] = "c-1",
+                    ["level_id"] = levelId,
                     ["x"] = "5",
                     ["y"] = "7",
                     ["rotation"] = "0",
@@ -221,17 +224,20 @@ public class ColumnTests : RevitApiTest
 
             var importer = new ColumnImporter();
             var idMap = RevitTestHelper.BuildIdMap(doc);
-            idMap.Register(col1.UniqueId, col1.Id);
-            idMap.Register(col2.UniqueId, col2.Id);
+            RevitTestHelper.TagElement(doc, col1, "c-1");
+            RevitTestHelper.TagElement(doc, col2, "c-2");
+            idMap.Register("c-1", col1.Id);
+            idMap.Register("c-2", col2.Id);
             importer.SetIdMap(idMap);
 
+            var levelId = BimDownParameter.Get(level)!;
             // Import with only col1 — col2 should be deleted
             var csvRows = new List<Dictionary<string, string?>>
             {
                 new()
                 {
-                    ["id"] = col1.UniqueId,
-                    ["level_id"] = level.UniqueId,
+                    ["id"] = "c-1",
+                    ["level_id"] = levelId,
                     ["x"] = "0",
                     ["y"] = "0",
                     ["rotation"] = "0",

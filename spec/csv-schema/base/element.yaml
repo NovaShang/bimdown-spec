@@ -19,9 +19,11 @@ fields:
 
   - name: created_at
     type: datetime
+    computed: true
 
   - name: updated_at
     type: datetime
+    computed: true
 
   - name: base_offset
     type: float

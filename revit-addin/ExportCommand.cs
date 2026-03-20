@@ -55,19 +55,47 @@ public class ExportCommand : IExternalCommand
             MepTableExporters.Terminal(),
         ];
 
-        var exportedCount = 0;
+        var idGen = new ShortIdGenerator();
         var errors = new List<string>();
 
+        // Ensure BimDown_Id shared parameter exists
+        using (var txParam = new Transaction(doc, "BimDown: Ensure parameter"))
+        {
+            txParam.Start();
+            try
+            {
+                BimDownParameter.EnsureParameter(doc);
+                txParam.Commit();
+            }
+            catch (Exception ex)
+            {
+                txParam.RollBack();
+                errors.Add($"Parameter setup: {ex.Message}");
+            }
+        }
+
+        // Seed from existing BimDown_Id values on model elements
+        foreach (var category in BimDownParameter.AllCategories)
+        {
+            try
+            {
+                var collector = new FilteredElementCollector(doc)
+                    .OfCategory(category)
+                    .WhereElementIsNotElementType();
+                idGen.SeedFromModel(collector.OrderBy(e => e.Id.Value).ToList());
+            }
+            catch { }
+        }
+
+        // Pass 1: export all tables (rows still have UniqueIds)
+        var exported = new List<(ITableExporter Exporter, List<Dictionary<string, string?>> Rows)>();
         foreach (var exporter in exporters)
         {
             try
             {
                 var rows = exporter.Export(doc);
                 if (rows.Count == 0) continue;
-
-                var filePath = Path.Combine(outputDir, $"{exporter.TableName}.csv");
-                CsvWriter.Write(filePath, exporter.Columns, rows);
-                exportedCount++;
+                exported.Add((exporter, rows));
             }
             catch (Exception ex)
             {
@@ -75,7 +103,36 @@ public class ExportCommand : IExternalCommand
             }
         }
 
-        var msg = $"Exported {exportedCount} tables to:\n{outputDir}";
+        // Pass 2: remap IDs and write CSVs
+        foreach (var (exporter, rows) in exported)
+        {
+            idGen.RemapRows(exporter.TableName, rows);
+            var filePath = Path.Combine(outputDir, $"{exporter.TableName}.csv");
+            CsvWriter.Write(filePath, exporter.Columns, rows);
+        }
+
+        // Write BimDown_Id back to Revit elements
+        using (var txWrite = new Transaction(doc, "BimDown: Write short IDs"))
+        {
+            txWrite.Start();
+            try
+            {
+                foreach (var (uniqueId, shortId) in idGen.Mappings)
+                {
+                    var element = doc.GetElement(uniqueId);
+                    if (element is not null)
+                        BimDownParameter.Set(element, shortId);
+                }
+                txWrite.Commit();
+            }
+            catch (Exception ex)
+            {
+                txWrite.RollBack();
+                errors.Add($"Write IDs: {ex.Message}");
+            }
+        }
+
+        var msg = $"Exported {exported.Count} tables to:\n{outputDir}";
         if (errors.Count > 0)
             msg += $"\n\nWarnings ({errors.Count}):\n" + string.Join("\n", errors);
 

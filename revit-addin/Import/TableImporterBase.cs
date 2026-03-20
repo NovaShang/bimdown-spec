@@ -59,7 +59,10 @@ abstract class TableImporterBase(string tableName, int order, BuiltInCategory[] 
                 {
                     var csvId = row.GetValueOrDefault("id");
                     if (csvId is not null)
+                    {
+                        BimDownParameter.Set(newElement, csvId);
                         IdMap.Register(csvId, newElement.Id);
+                    }
                     created++;
                 }
             }
@@ -76,11 +79,15 @@ abstract class TableImporterBase(string tableName, int order, BuiltInCategory[] 
             try
             {
                 UpdateElement(doc, row, element);
+                var csvId = row.GetValueOrDefault("id");
+                if (csvId is not null && element.IsValidObject)
+                    BimDownParameter.Set(element, csvId);
                 updated++;
             }
             catch (Exception ex)
             {
-                errors.Add($"Update {element.UniqueId}: {ex.Message}");
+                var id = row.GetValueOrDefault("id") ?? element.UniqueId;
+                errors.Add($"Update {id}: {ex.Message}");
             }
         }
 

@@ -58,38 +58,46 @@ public class SampleProjectExportTests : RevitApiTest
         Directory.CreateDirectory(outputDir);
 
         var exporters = AllExporters();
+        var idGen = new ShortIdGenerator();
         var results = new Dictionary<string, int>();
         var errors = new List<string>();
 
+        // Pass 1: export all tables (rows still have UniqueIds)
+        var exported = new List<(ITableExporter Exporter, List<Dictionary<string, string?>> Rows)>();
         foreach (var exporter in exporters)
         {
             try
             {
                 var rows = exporter.Export(doc);
                 results[exporter.TableName] = rows.Count;
-
                 if (rows.Count > 0)
-                {
-                    var filePath = Path.Combine(outputDir, $"{exporter.TableName}.csv");
-                    CsvWriter.Write(filePath, exporter.Columns, rows);
-
-                    // Verify all rows have the expected columns
-                    foreach (var row in rows)
-                    {
-                        if (!row.ContainsKey("id"))
-                            errors.Add($"{exporter.TableName}: row missing 'id' column");
-                    }
-
-                    // Verify CSV round-trip
-                    var (rtColumns, rtRows) = RevitTestHelper.RoundTripCsv(exporter.Columns, rows);
-                    if (rtRows.Count != rows.Count)
-                        errors.Add($"{exporter.TableName}: CSV round-trip row count mismatch ({rows.Count} -> {rtRows.Count})");
-                }
+                    exported.Add((exporter, rows));
             }
             catch (Exception ex)
             {
                 errors.Add($"{exporter.TableName}: {ex.Message}");
             }
+        }
+
+        // Pass 2: remap IDs to short format and write CSVs
+        foreach (var (exporter, rows) in exported)
+        {
+            idGen.RemapRows(exporter.TableName, rows);
+
+            var filePath = Path.Combine(outputDir, $"{exporter.TableName}.csv");
+            CsvWriter.Write(filePath, exporter.Columns, rows);
+
+            // Verify all rows have the expected columns
+            foreach (var row in rows)
+            {
+                if (!row.ContainsKey("id"))
+                    errors.Add($"{exporter.TableName}: row missing 'id' column");
+            }
+
+            // Verify CSV round-trip
+            var (rtColumns, rtRows) = RevitTestHelper.RoundTripCsv(exporter.Columns, rows);
+            if (rtRows.Count != rows.Count)
+                errors.Add($"{exporter.TableName}: CSV round-trip row count mismatch ({rows.Count} -> {rtRows.Count})");
         }
 
         // Verify expected tables produced data

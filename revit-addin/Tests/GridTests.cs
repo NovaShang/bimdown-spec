@@ -131,14 +131,15 @@ public class GridTests : RevitApiTest
 
             var importer = new GridImporter();
             var idMap = new IdMap();
-            idMap.Register(grid.UniqueId, grid.Id);
+            RevitTestHelper.TagElement(doc, grid, "gr-1");
+            idMap.Register("gr-1", grid.Id);
             importer.SetIdMap(idMap);
 
             var csvRows = new List<Dictionary<string, string?>>
             {
                 new()
                 {
-                    ["id"] = grid.UniqueId,
+                    ["id"] = "gr-1",
                     ["number"] = "NewName",
                     ["start_x"] = "0",
                     ["start_y"] = "0",

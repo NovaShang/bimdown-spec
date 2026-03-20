@@ -6,7 +6,7 @@ abstract: true
 fields:
   - name: points
     type: string
-    required: true
+    computed: true
     
   - name: area
     type: float
