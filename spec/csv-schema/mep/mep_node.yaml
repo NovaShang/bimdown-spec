@@ -1,0 +1,6 @@
+name: mep_node
+bases:
+  - point_element
+  - mep_system
+
+fields: []

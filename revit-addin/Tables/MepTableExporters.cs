@@ -21,13 +21,19 @@ public static class MepTableExporters
         "cable_tray",
         [BuiltInCategory.OST_CableTray],
         new CompositeExtractor(
-            [..CompositeExtractor.ExpandSpatialLineElement(), new SectionProfileExtractor(), new MepSystemExtractor()]));
+            [..CompositeExtractor.ExpandSpatialLineElement(), new SectionProfileExtractor(), new MepSystemExtractor(), new MepConnectedSegmentExtractor()]));
 
     public static ITableExporter Conduit() => new TableExporter(
         "conduit",
         [BuiltInCategory.OST_Conduit],
         new CompositeExtractor(
-            [..CompositeExtractor.ExpandSpatialLineElement(), new SectionProfileExtractor(), new MepSystemExtractor()]));
+            [..CompositeExtractor.ExpandSpatialLineElement(), new SectionProfileExtractor(), new MepSystemExtractor(), new MepConnectedSegmentExtractor()]));
+
+    public static ITableExporter MepNode() => new TableExporter(
+        "mep_node",
+        [BuiltInCategory.OST_DuctFitting, BuiltInCategory.OST_PipeFitting, BuiltInCategory.OST_CableTrayFitting, BuiltInCategory.OST_ConduitFitting],
+        new CompositeExtractor(
+            [..CompositeExtractor.ExpandPointElement(), new MepSystemExtractor(), new MepNodeExtractor()]));
 
     public static ITableExporter Equipment() => new TableExporter(
         "equipment",

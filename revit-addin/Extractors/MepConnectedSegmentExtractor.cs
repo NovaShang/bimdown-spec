@@ -1,7 +1,4 @@
 using Autodesk.Revit.DB;
-using Autodesk.Revit.DB.Mechanical;
-using Autodesk.Revit.DB.Plumbing;
-using Autodesk.Revit.DB.Electrical;
 
 namespace BimDown.RevitAddin.Extractors;
 
@@ -16,21 +13,29 @@ public class MepConnectedSegmentExtractor : IFieldExtractor
         var connectorSet = GetConnectors(element);
         if (connectorSet is null) return fields;
 
-        // MEP curves typically have two main connectors (start/end)
         Connector? startConn = null;
         Connector? endConn = null;
+        var fallbacks = new List<Connector>();
 
         foreach (Connector conn in connectorSet)
         {
             if (conn.ConnectorType != ConnectorType.End) continue;
 
+            if (conn.Direction == FlowDirectionType.In)
+                startConn ??= conn;
+            else if (conn.Direction == FlowDirectionType.Out)
+                endConn ??= conn;
+            else
+                fallbacks.Add(conn);
+        }
+
+        // Fill missing from fallbacks
+        foreach (var conn in fallbacks)
+        {
             if (startConn is null)
                 startConn = conn;
-            else
-            {
+            else if (endConn is null)
                 endConn = conn;
-                break;
-            }
         }
 
         if (startConn is not null)

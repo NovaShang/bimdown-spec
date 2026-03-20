@@ -4,8 +4,10 @@ abstract: true
 fields:
   - name: start_node_id
     type: string
-    required: true
+    description: "ID of the upstream node (e.g., equipment or mep_node) where flow enters."
+    required: false
 
   - name: end_node_id
     type: string
-    required: true
+    description: "ID of the downstream node (e.g., equipment or mep_node) where flow exits."
+    required: false

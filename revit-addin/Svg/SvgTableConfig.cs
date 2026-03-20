@@ -30,6 +30,7 @@ record SvgTableMapping(string TableName, string SvgFileName, SvgRenderType Rende
         new("conduit", "conduits.svg", SvgRenderType.Line),
         new("equipment", "equipments.svg", SvgRenderType.Point),
         new("terminal", "terminals.svg", SvgRenderType.Point),
+        new("mep_node", "mep_nodes.svg", SvgRenderType.Point), // rendered as point but we will patch lines to it
     ];
 
     static readonly Dictionary<string, SvgTableMapping> ByTable =
