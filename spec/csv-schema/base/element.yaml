@@ -6,16 +6,13 @@ fields:
     type: string
     required: true
 
-  - name: name
-    type: string
-
   - name: number
     type: string
 
   - name: level_id
     type: reference
     reference: level
-    required: true
+    computed: true
 
   - name: created_at
     type: datetime

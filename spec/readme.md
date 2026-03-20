@@ -63,7 +63,7 @@ The YAML schemas use two critical tags to define field behavior across the CSV a
 
 | Mixin                     | Key Fields                                        |
 |---------------------------|---------------------------------------------------|
-| `element`                 | `id` (short ID, PK), `name`, `number`, `level_id` |
+| `element`                 | `id` (short ID, PK), `number`                      |
 | `line_element`            | `start_x/y`, `end_x/y`                            |
 | `spatial_line_element`    | extends `line_element` + `start_z`, `end_z`       |
 | `point_element`           | `x`, `y`, `rotation`                              |

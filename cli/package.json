@@ -1,0 +1,26 @@
+{
+  "name": "bimdown",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "bimdown": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@duckdb/node-api": "^1.5.0-r.1",
+    "commander": "^13.1.0",
+    "fast-xml-parser": "^5.2.0",
+    "yaml": "^2.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsup": "^8.4.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}
