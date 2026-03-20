@@ -97,6 +97,20 @@ public class ImportCommand : IExternalCommand
         var swCsvRows = tableRows.GetValueOrDefault("structure_wall", []);
         SvgReader.ResolveHostedParameters(svgGeometry, wallCsvRows, swCsvRows);
 
+        // Parse _IdMap.csv if available to build uuid -> id map
+        var uuidToIdMap = new Dictionary<string, string>();
+        if (tableRows.TryGetValue("_IdMap", out var idMapRows))
+        {
+            foreach (var row in idMapRows)
+            {
+                if (row.TryGetValue("uuid", out var uuid) && !string.IsNullOrEmpty(uuid) &&
+                    row.TryGetValue("id", out var id) && !string.IsNullOrEmpty(id))
+                {
+                    uuidToIdMap[uuid] = id;
+                }
+            }
+        }
+
         foreach (var importer in sorted)
         {
             if (!tableRows.TryGetValue(importer.TableName, out var rows) || rows.Count == 0)
@@ -120,7 +134,7 @@ public class ImportCommand : IExternalCommand
 
                 try
                 {
-                    var result = importer.Import(doc, rows);
+                    var result = importer.Import(doc, rows, uuidToIdMap);
                     tx.Commit();
 
                     totalCreated += result.Created;

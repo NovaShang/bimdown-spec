@@ -12,7 +12,7 @@ abstract class TableImporterBase(string tableName, int order, BuiltInCategory[] 
 
     public void SetIdMap(IdMap idMap) => IdMap = idMap;
 
-    public ImportResult Import(Document doc, List<Dictionary<string, string?>> csvRows)
+    public ImportResult Import(Document doc, List<Dictionary<string, string?>> csvRows, IReadOnlyDictionary<string, string>? uuidToIdMap = null)
     {
         // Collect model elements for this category
         var modelElements = new List<Element>();
@@ -29,7 +29,7 @@ abstract class TableImporterBase(string tableName, int order, BuiltInCategory[] 
             }
         }
 
-        var diff = DiffEngine.Diff(csvRows, modelElements);
+        var diff = DiffEngine.Diff(csvRows, modelElements, uuidToIdMap);
         var errors = new List<string>();
         var created = 0;
         var updated = 0;
