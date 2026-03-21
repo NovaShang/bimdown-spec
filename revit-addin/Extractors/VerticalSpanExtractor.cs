@@ -13,7 +13,8 @@ public class VerticalSpanExtractor : IFieldExtractor
 
         // Top level
         var topLevelId = element.get_Parameter(BuiltInParameter.WALL_HEIGHT_TYPE)?.AsElementId()
-                      ?? element.get_Parameter(BuiltInParameter.FAMILY_TOP_LEVEL_PARAM)?.AsElementId();
+                      ?? element.get_Parameter(BuiltInParameter.FAMILY_TOP_LEVEL_PARAM)?.AsElementId()
+                      ?? element.get_Parameter(BuiltInParameter.STAIRS_TOP_LEVEL_PARAM)?.AsElementId();
         if (topLevelId is not null && topLevelId != ElementId.InvalidElementId)
         {
             fields["top_level_id"] = element.Document.GetElement(topLevelId)?.UniqueId;
@@ -21,7 +22,8 @@ public class VerticalSpanExtractor : IFieldExtractor
 
         // Top offset
         var topOffset = element.get_Parameter(BuiltInParameter.WALL_TOP_OFFSET)?.AsDouble()
-                     ?? element.get_Parameter(BuiltInParameter.FAMILY_TOP_LEVEL_OFFSET_PARAM)?.AsDouble();
+                     ?? element.get_Parameter(BuiltInParameter.FAMILY_TOP_LEVEL_OFFSET_PARAM)?.AsDouble()
+                     ?? element.get_Parameter(BuiltInParameter.STAIRS_TOP_OFFSET)?.AsDouble();
         fields["top_offset"] = topOffset is { } to ? UnitConverter.FormatDouble(UnitConverter.Length(to)) : null;
 
         // Height

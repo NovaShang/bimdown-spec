@@ -1,6 +1,7 @@
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Architecture;
 using BimDown.RevitAddin.Extractors;
+using static BimDown.RevitAddin.Extractors.ParameterUtils;
 
 namespace BimDown.RevitAddin.Tables;
 
@@ -79,11 +80,11 @@ public static class ArchitectureTableExporters
             e =>
             {
                 var fields = new Dictionary<string, string?>();
-                var w = e.get_Parameter(BuiltInParameter.DOOR_WIDTH)?.AsDouble()
-                     ?? e.get_Parameter(BuiltInParameter.FAMILY_WIDTH_PARAM)?.AsDouble()
+                var w = e.get_Parameter(BuiltInParameter.DOOR_WIDTH).AsPositiveDouble()
+                     ?? e.get_Parameter(BuiltInParameter.FAMILY_WIDTH_PARAM).AsPositiveDouble()
                      ?? Extractors.ParameterUtils.FindDoubleParameterByNames(e, "width", "w", "b", "宽");
-                var h = e.get_Parameter(BuiltInParameter.DOOR_HEIGHT)?.AsDouble()
-                     ?? e.get_Parameter(BuiltInParameter.FAMILY_HEIGHT_PARAM)?.AsDouble()
+                var h = e.get_Parameter(BuiltInParameter.DOOR_HEIGHT).AsPositiveDouble()
+                     ?? e.get_Parameter(BuiltInParameter.FAMILY_HEIGHT_PARAM).AsPositiveDouble()
                      ?? Extractors.ParameterUtils.FindDoubleParameterByNames(e, "height", "depth", "h", "d", "高", "深");
                 fields["width"] = w is { } wv ? UnitConverter.FormatDouble(UnitConverter.Length(wv)) : null;
                 fields["height"] = h is { } hv ? UnitConverter.FormatDouble(UnitConverter.Length(hv)) : null;
@@ -100,10 +101,12 @@ public static class ArchitectureTableExporters
             e =>
             {
                 var fields = new Dictionary<string, string?>();
-                var w = e.get_Parameter(BuiltInParameter.WINDOW_WIDTH)?.AsDouble()
-                     ?? e.get_Parameter(BuiltInParameter.FAMILY_WIDTH_PARAM)?.AsDouble();
-                var h = e.get_Parameter(BuiltInParameter.WINDOW_HEIGHT)?.AsDouble()
-                     ?? e.get_Parameter(BuiltInParameter.FAMILY_HEIGHT_PARAM)?.AsDouble();
+                var w = e.get_Parameter(BuiltInParameter.WINDOW_WIDTH).AsPositiveDouble()
+                     ?? e.get_Parameter(BuiltInParameter.FAMILY_WIDTH_PARAM).AsPositiveDouble()
+                     ?? Extractors.ParameterUtils.FindDoubleParameterByNames(e, "width", "w", "b", "宽");
+                var h = e.get_Parameter(BuiltInParameter.WINDOW_HEIGHT).AsPositiveDouble()
+                     ?? e.get_Parameter(BuiltInParameter.FAMILY_HEIGHT_PARAM).AsPositiveDouble()
+                     ?? Extractors.ParameterUtils.FindDoubleParameterByNames(e, "height", "depth", "h", "d", "高", "深");
                 fields["width"] = w is { } wv ? UnitConverter.FormatDouble(UnitConverter.Length(wv)) : null;
                 fields["height"] = h is { } hv ? UnitConverter.FormatDouble(UnitConverter.Length(hv)) : null;
                 return fields;
@@ -118,7 +121,8 @@ public static class ArchitectureTableExporters
             e =>
             {
                 var fields = new Dictionary<string, string?>();
-                var width = e.get_Parameter(BuiltInParameter.STAIRS_ATTR_TREAD_WIDTH)?.AsDouble();
+                var width = e.get_Parameter(BuiltInParameter.STAIRS_ATTR_TREAD_WIDTH).AsPositiveDouble()
+                         ?? e.get_Parameter(BuiltInParameter.STAIRS_ACTUAL_TREAD_DEPTH)?.AsDouble();
                 fields["width"] = width is { } w ? UnitConverter.FormatDouble(UnitConverter.Length(w)) : null;
 
                 var steps = e.get_Parameter(BuiltInParameter.STAIRS_ACTUAL_NUM_RISERS)?.AsInteger();

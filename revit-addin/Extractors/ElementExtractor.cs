@@ -35,6 +35,7 @@ public class ElementExtractor : IFieldExtractor
         var baseOffset = element.get_Parameter(BuiltInParameter.INSTANCE_FREE_HOST_OFFSET_PARAM)?.AsDouble()
                       ?? element.get_Parameter(BuiltInParameter.FLOOR_HEIGHTABOVELEVEL_PARAM)?.AsDouble()
                       ?? element.get_Parameter(BuiltInParameter.WALL_BASE_OFFSET)?.AsDouble()
+                      ?? element.get_Parameter(BuiltInParameter.STAIRS_BASE_OFFSET)?.AsDouble()
                       ?? element.get_Parameter(BuiltInParameter.INSTANCE_ELEVATION_PARAM)?.AsDouble();
         fields["base_offset"] = baseOffset is { } bo ? UnitConverter.FormatDouble(UnitConverter.Length(bo)) : null;
 

@@ -19,7 +19,7 @@ public class StructuralSectionProfileExtractor : IFieldExtractor
         }
 
         // Try diameter first (round sections)
-        var diameter = element.get_Parameter(BuiltInParameter.STRUCTURAL_SECTION_COMMON_DIAMETER)?.AsDouble()
+        var diameter = element.get_Parameter(BuiltInParameter.STRUCTURAL_SECTION_COMMON_DIAMETER).AsPositiveDouble()
                     ?? ParameterUtils.FindDoubleParameterByNames(element, "diameter", "d", "直径");
         if (diameter is { } d && d > 0)
         {
@@ -30,13 +30,15 @@ public class StructuralSectionProfileExtractor : IFieldExtractor
         }
 
         // Rectangular / other sections
-        var width = element.get_Parameter(BuiltInParameter.STRUCTURAL_SECTION_COMMON_WIDTH)?.AsDouble()
+        var width = element.get_Parameter(BuiltInParameter.STRUCTURAL_SECTION_COMMON_WIDTH).AsPositiveDouble()
+                 ?? element.get_Parameter(BuiltInParameter.FAMILY_WIDTH_PARAM).AsPositiveDouble()
                  ?? ParameterUtils.FindDoubleParameterByNames(element, "width", "w", "b", "宽");
-        var height = element.get_Parameter(BuiltInParameter.STRUCTURAL_SECTION_COMMON_HEIGHT)?.AsDouble()
+        var height = element.get_Parameter(BuiltInParameter.STRUCTURAL_SECTION_COMMON_HEIGHT).AsPositiveDouble()
+                  ?? element.get_Parameter(BuiltInParameter.FAMILY_HEIGHT_PARAM).AsPositiveDouble()
                   ?? ParameterUtils.FindDoubleParameterByNames(element, "height", "depth", "h", "d", "高", "深");
-        if (width is { } w)
+        if (width is { } w && w > 0)
             fields["size_x"] = UnitConverter.FormatDouble(UnitConverter.Length(w));
-        if (height is { } h)
+        if (height is { } h && h > 0)
             fields["size_y"] = UnitConverter.FormatDouble(UnitConverter.Length(h));
 
         return fields;
