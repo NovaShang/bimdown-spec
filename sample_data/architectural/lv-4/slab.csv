@@ -1,4 +1,4 @@
-﻿id,number,base_offset,material,function,thickness
+id,number,base_offset,material,function,thickness
 sl-5,,0,"Steel, Paint Finish, Dark Gray",floor,0.006
 sl-10,,2.924,Metal Stud Layer,floor,0.111
 sl-13,,0,"Steel, Paint Finish, Dark Gray",floor,0.006

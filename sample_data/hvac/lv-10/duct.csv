@@ -1,4 +1,4 @@
-﻿id,number,base_offset,start_z,end_z,shape,size_x,size_y,system_type,start_node_id,end_node_id
+id,number,base_offset,start_z,end_z,shape,size_x,size_y,system_type,start_node_id,end_node_id
 du-135,,,1.613,1.613,round,0.203,0.203,hvac,,
 du-138,,,1.613,1.613,round,0.203,0.203,hvac,,
 du-139,,,1.702,1.955,round,0.203,0.203,hvac,,
@@ -72,6 +72,6 @@ du-1043,,,0.864,0.864,round,0.203,0.203,hvac,,
 du-1044,,,0.864,0.864,round,0.203,0.203,hvac,,
 du-1045,,,0.864,0.864,round,0.203,0.203,hvac,,
 du-1046,,,0.864,0.864,round,0.203,0.203,hvac,,
-du-1047,,,0.864,0.864,round,0.203,0.203,hvac,,
+du-1047,,,0.864,0.864,round,0.2035,0.203,hvac,,
 du-1048,,,0.971,1.257,round,0.102,0.102,hvac,,
 du-1049,,,1.176,0.863,round,0.102,0.102,hvac,,

@@ -1,4 +1,4 @@
-﻿id,number,base_offset,top_level_id,top_offset,material,shape,size_x,size_y
+id,number,base_offset,top_level_id,top_offset,material,shape,size_x,size_y
 c-91,,-0,lv-3,0,,,,
 c-92,,-0,lv-3,0,,,,
 c-93,,-0,lv-3,0,,,,
@@ -12,3 +12,4 @@ c-100,,0,lv-3,0,,,,
 c-101,,0,lv-3,0,,,,
 c-102,,0,lv-3,0,,,,
 c-103,,0,lv-3,0,,,,
+c-1,,0,,0,Concrete,rectangular,0.3,0.3

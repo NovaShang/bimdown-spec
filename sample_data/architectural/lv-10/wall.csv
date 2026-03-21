@@ -1,5 +1,4 @@
-﻿id,number,base_offset,top_level_id,top_offset,material
-w-4,,-0.152,lv-3,0,"Concrete, Cast-in-Place gray"
+id,number,base_offset,top_level_id,top_offset,material
 w-5,,-0.152,lv-3,0,"Concrete, Cast-in-Place gray"
 w-6,,-0.152,lv-1,0,"Concrete, Cast-in-Place gray"
 w-7,,-0.152,lv-3,0,"Concrete, Cast-in-Place gray"
@@ -45,3 +44,5 @@ w-996,,-1.829,lv-10,0,"Concrete, Cast-in-Place gray"
 w-997,,-1.829,lv-10,0,"Concrete, Cast-in-Place gray"
 w-998,,-1.829,lv-10,0,"Concrete, Cast-in-Place gray"
 w-999,,-1.829,lv-10,0,"Concrete, Cast-in-Place gray"
+w-4,,-0.152,lv-3,0,"Concrete, Cast-in-Place gray"
+w-1,,0,,0,Default Wall

@@ -1,4 +1,4 @@
-﻿id,number,base_offset,host_id,material,width,height,operation
+id,number,base_offset,host_id,material,width,height,operation
 d-1,S10,0,w-12,Aluminum,0,0,single_swing
 d-6,S30,0,w-15,Aluminum,0,0,single_swing
 d-43,P02,0,w-205,Aluminum,0,0,single_swing

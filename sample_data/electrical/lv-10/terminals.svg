@@ -1,52 +1,52 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="-34.315 -23.322 56.245 32.983">
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-34.485 -31.672 64.597 49.853">
   <g transform="scale(1,-1)">
-    <rect id="tm-298" x="-31.583" y="-3.052" width="0.3" height="0.3" fill="black" transform="rotate(315,-31.433,-2.902)" />
-    <rect id="tm-299" x="-26.707" y="-3.053" width="0.3" height="0.3" fill="black" transform="rotate(315,-26.557,-2.903)" />
-    <rect id="tm-300" x="-21.831" y="-3.054" width="0.3" height="0.3" fill="black" transform="rotate(315,-21.681,-2.904)" />
-    <rect id="tm-301" x="-16.955" y="-3.055" width="0.3" height="0.3" fill="black" transform="rotate(315,-16.805,-2.905)" />
-    <rect id="tm-302" x="-24.269" y="-5.491" width="0.3" height="0.3" fill="black" transform="rotate(315,-24.119,-5.341)" />
-    <rect id="tm-303" x="-19.394" y="-5.492" width="0.3" height="0.3" fill="black" transform="rotate(315,-19.244,-5.342)" />
-    <rect id="tm-304" x="-16.955" y="-7.931" width="0.3" height="0.3" fill="black" transform="rotate(315,-16.805,-7.781)" />
-    <rect id="tm-305" x="-21.831" y="-7.93" width="0.3" height="0.3" fill="black" transform="rotate(315,-21.681,-7.78)" />
-    <rect id="tm-306" x="-26.707" y="-7.929" width="0.3" height="0.3" fill="black" transform="rotate(315,-26.557,-7.779)" />
-    <rect id="tm-307" x="-31.583" y="-7.928" width="0.3" height="0.3" fill="black" transform="rotate(315,-31.433,-7.778)" />
-    <rect id="tm-585" x="-4.344" y="9.535" width="0.3" height="0.3" fill="black" transform="rotate(180,-4.194,9.685)" />
-    <rect id="tm-586" x="-4.344" y="6.927" width="0.3" height="0.3" fill="black" transform="rotate(180,-4.194,7.077)" />
-    <rect id="tm-587" x="-0.785" y="9.535" width="0.3" height="0.3" fill="black" transform="rotate(180,-0.635,9.685)" />
-    <rect id="tm-588" x="1.653" y="9.535" width="0.3" height="0.3" fill="black" transform="rotate(180,1.803,9.685)" />
-    <rect id="tm-767" x="-19.946" y="9.439" width="0.3" height="0.3" fill="black" transform="rotate(120,-19.796,9.589)" />
-    <rect id="tm-768" x="-19.946" y="7.483" width="0.3" height="0.3" fill="black" transform="rotate(120,-19.796,7.633)" />
-    <rect id="tm-769" x="-18.997" y="8.486" width="0.3" height="0.3" fill="black" transform="rotate(180,-18.847,8.636)" />
-    <rect id="tm-770" x="-19.001" y="8.362" width="0.3" height="0.3" fill="black" transform="rotate(90,-18.851,8.512)" />
-    <rect id="tm-771" x="-22.854" y="7.607" width="0.3" height="0.3" fill="black" transform="rotate(180,-22.704,7.757)" />
-    <rect id="tm-772" x="-22.028" y="7.607" width="0.3" height="0.3" fill="black" transform="rotate(180,-21.878,7.757)" />
-    <rect id="tm-773" x="-22.432" y="10.645" width="0.3" height="0.3" fill="black" transform="rotate(90,-22.282,10.795)" />
-    <rect id="tm-774" x="-23.981" y="10.643" width="0.3" height="0.3" fill="black" transform="rotate(180,-23.831,10.793)" />
-    <rect id="tm-775" x="-25.229" y="10.643" width="0.3" height="0.3" fill="black" transform="rotate(180,-25.079,10.793)" />
-    <rect id="tm-776" x="-26.177" y="10.643" width="0.3" height="0.3" fill="black" transform="rotate(180,-26.027,10.793)" />
-    <rect id="tm-777" x="-18.921" y="6.003" width="0.3" height="0.3" fill="black" transform="rotate(90,-18.771,6.153)" />
-    <rect id="tm-778" x="-15.466" y="4.232" width="0.3" height="0.3" fill="black" transform="rotate(240,-15.316,4.382)" />
-    <rect id="tm-779" x="-27.598" y="5.095" width="0.3" height="0.3" fill="black" transform="rotate(120,-27.448,5.245)" />
-    <rect id="tm-780" x="-26.078" y="2.65" width="0.3" height="0.3" fill="black" transform="rotate(180,-25.928,2.8)" />
-    <rect id="tm-781" x="-23.047" y="2.65" width="0.3" height="0.3" fill="black" transform="rotate(180,-22.897,2.8)" />
-    <rect id="tm-782" x="-20.015" y="2.65" width="0.3" height="0.3" fill="black" transform="rotate(180,-19.865,2.8)" />
-    <rect id="tm-783" x="-16.984" y="2.65" width="0.3" height="0.3" fill="black" transform="rotate(180,-16.834,2.8)" />
-    <rect id="tm-784" x="-27.053" y="5.73" width="0.3" height="0.3" fill="black" transform="rotate(180,-26.903,5.88)" />
-    <rect id="tm-785" x="-26.3" y="5.73" width="0.3" height="0.3" fill="black" transform="rotate(180,-26.15,5.88)" />
-    <rect id="tm-786" x="-24.74" y="7.483" width="0.3" height="0.3" fill="black" transform="rotate(90,-24.59,7.633)" />
-    <rect id="tm-787" x="-23.308" y="7.483" width="0.3" height="0.3" fill="black" transform="rotate(90,-23.158,7.633)" />
-    <rect id="tm-788" x="-24.566" y="7.607" width="0.3" height="0.3" fill="black" transform="rotate(180,-24.416,7.757)" />
-    <rect id="tm-789" x="-25.68" y="7.616" width="0.3" height="0.3" fill="black" transform="rotate(90,-25.53,7.766)" />
-    <rect id="tm-790" x="-24.948" y="12.56" width="0.3" height="0.3" fill="black" transform="rotate(90,-24.798,12.71)" />
-    <rect id="tm-791" x="-26.495" y="12.56" width="0.3" height="0.3" fill="black" transform="rotate(90,-26.345,12.71)" />
-    <rect id="tm-935" x="-27.858" y="3.05" width="0.3" height="0.3" fill="black" transform="rotate(240,-27.708,3.2)" />
-    <rect id="tm-936" x="-15.466" y="1.399" width="0.3" height="0.3" fill="black" transform="rotate(240,-15.316,1.549)" />
-    <rect id="tm-937" x="-32.916" y="5.416" width="0.3" height="0.3" fill="black" transform="rotate(90,-32.766,5.566)" />
-    <rect id="tm-1021" x="-19.946" y="9.948" width="0.3" height="0.3" fill="black" transform="rotate(120,-19.796,10.098)" />
-    <rect id="tm-1022" x="-19.946" y="6.883" width="0.3" height="0.3" fill="black" transform="rotate(120,-19.796,7.033)" />
-    <rect id="tm-1051" x="-18.286" y="11.051" width="0.3" height="0.3" fill="black" transform="rotate(180,-18.136,11.201)" />
-    <rect id="tm-1056" x="-21.003" y="12.56" width="0.3" height="0.3" fill="black" transform="rotate(90,-20.853,12.71)" />
-    <rect id="tm-1057" x="-16.914" y="10.731" width="0.3" height="0.3" fill="black" transform="rotate(90,-16.764,10.881)" />
+    <rect id="tm-304" x="-16.955" y="-7.931" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-305" x="-21.831" y="-7.93" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-306" x="-26.707" y="-7.929" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-307" x="-31.583" y="-7.928" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-298" x="-31.583" y="-3.052" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-299" x="-26.707" y="-3.053" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-300" x="-21.831" y="-3.054" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-301" x="-16.955" y="-3.055" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-302" x="-24.269" y="-5.491" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-303" x="-19.394" y="-5.492" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-585" x="-4.344" y="9.535" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-586" x="-4.344" y="6.927" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-587" x="-0.785" y="9.535" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-588" x="1.653" y="9.535" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-767" x="-19.946" y="9.439" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-768" x="-19.946" y="7.483" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-769" x="-18.997" y="8.486" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-770" x="-19.001" y="8.362" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-771" x="-22.854" y="7.607" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-772" x="-22.028" y="7.607" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-773" x="-22.432" y="10.645" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-774" x="-23.981" y="10.643" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-775" x="-25.229" y="10.643" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-776" x="-26.177" y="10.643" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-777" x="-18.921" y="6.003" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-778" x="-15.466" y="4.232" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-779" x="-27.598" y="5.095" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-780" x="-26.078" y="2.65" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-781" x="-23.047" y="2.65" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-782" x="-20.015" y="2.65" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-783" x="-16.984" y="2.65" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-784" x="-27.053" y="5.73" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-785" x="-26.3" y="5.73" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-786" x="-24.74" y="7.483" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-787" x="-23.308" y="7.483" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-788" x="-24.566" y="7.607" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-789" x="-25.68" y="7.616" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-790" x="-24.948" y="12.56" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-791" x="-26.495" y="12.56" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-935" x="-27.858" y="3.05" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-936" x="-15.466" y="1.399" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-937" x="-32.916" y="5.416" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-1021" x="-19.946" y="9.948" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-1022" x="-19.946" y="6.883" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-1051" x="-18.286" y="11.051" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-1056" x="-21.003" y="12.56" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
+    <rect id="tm-1057" x="-16.914" y="10.731" width="0.3" height="0.3" stroke="black" stroke-width="0.02" fill="none" />
   </g>
 </svg>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="-34.485 -31.672 64.597 49.853">
   <g transform="scale(1,-1)">
     <line id="w-29" x1="-6.172" y1="12.87" x2="-6.172" y2="2.745" stroke="black" stroke-width="0.298" stroke-linecap="square" />
@@ -126,5 +126,6 @@
     <line id="w-1030" x1="-9.112" y1="4.077" x2="-9.112" y2="5.658" stroke="black" stroke-width="0.184" stroke-linecap="square" />
     <line id="w-1037" x1="-9.112" y1="4.077" x2="-8.352" y2="4.077" stroke="black" stroke-width="0.184" stroke-linecap="square" />
     <line id="w-1067" x1="-9.825" y1="-2.734" x2="-9.825" y2="-0.629" stroke="black" stroke-width="0.124" stroke-linecap="square" />
+    <line id="w-1" x1="-12.011" y1="-7.663" x2="-14.922" y2="-7.616" stroke="black" stroke-width="0.2" stroke-linecap="square" />
   </g>
 </svg>

@@ -1,13 +1,13 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="-34.485 -31.672 64.597 49.853">
   <g transform="scale(1,-1)">
-    <line id="d-1" data-host="w-12" x1="-30.518" y1="6.671" x2="-30.518" y2="6.671" stroke="white" stroke-width="0.325" />
-    <line id="d-6" data-host="w-15" x1="12.497" y1="-0.088" x2="12.497" y2="-0.088" stroke="white" stroke-width="0.477" />
-    <line id="d-43" data-host="w-205" x1="-27.465" y1="11.163" x2="-27.465" y2="11.163" stroke="white" stroke-width="0.214" />
-    <line id="d-44" data-host="w-206" x1="-1.757" y1="9.235" x2="-1.757" y2="9.235" stroke="white" stroke-width="0.214" />
-    <line id="d-45" data-host="w-206" x1="-1.757" y1="11.253" x2="-1.757" y2="11.253" stroke="white" stroke-width="0.214" />
-    <line id="d-46" data-host="w-208" x1="16.296" y1="0.779" x2="16.296" y2="0.779" stroke="white" stroke-width="0.214" />
-    <line id="d-75" data-host="w-259" x1="-14.199" y1="5.779" x2="-14.199" y2="5.779" stroke="white" stroke-width="0.477" />
-    <line id="d-131" data-host="w-15" x1="12.497" y1="-6.944" x2="12.497" y2="-6.944" stroke="white" stroke-width="0.477" />
+    <line id="d-1" x1="-30.518" y1="6.671" x2="-30.518" y2="6.671" stroke="black" stroke-width="0.325" stroke-linecap="square" />
+    <line id="d-6" x1="12.497" y1="-0.088" x2="12.497" y2="-0.088" stroke="black" stroke-width="0.477" stroke-linecap="square" />
+    <line id="d-43" x1="-27.465" y1="11.163" x2="-27.465" y2="11.163" stroke="black" stroke-width="0.214" stroke-linecap="square" />
+    <line id="d-44" x1="-1.757" y1="9.235" x2="-1.757" y2="9.235" stroke="black" stroke-width="0.214" stroke-linecap="square" />
+    <line id="d-45" x1="-1.757" y1="11.253" x2="-1.757" y2="11.253" stroke="black" stroke-width="0.214" stroke-linecap="square" />
+    <line id="d-46" x1="16.296" y1="0.779" x2="16.296" y2="0.779" stroke="black" stroke-width="0.214" stroke-linecap="square" />
+    <line id="d-75" x1="-14.199" y1="5.779" x2="-14.199" y2="5.779" stroke="black" stroke-width="0.477" stroke-linecap="square" />
+    <line id="d-131" x1="12.497" y1="-6.944" x2="12.497" y2="-6.944" stroke="black" stroke-width="0.477" stroke-linecap="square" />
   </g>
 </svg>
