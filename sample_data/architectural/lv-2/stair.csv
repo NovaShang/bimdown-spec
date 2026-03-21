@@ -1,4 +1,4 @@
 ﻿id,number,base_offset,start_z,end_z,top_level_id,top_offset,width,step_count
-st-2,,,,,,,,24
-st-8,,,,,,,,24
-st-13,,,,,,,,24
+st-2,,0,,,lv-5,0,0.279,24
+st-8,,0,,,lv-5,0,0.279,24
+st-13,,0,,,lv-5,0,0.279,24

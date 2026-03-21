@@ -1,6 +1,6 @@
 ﻿id,number,base_offset,start_z,end_z,top_level_id,top_offset,width,step_count
-st-4,,,,,,,,22
-st-7,,,,,,,,19
-st-9,,,,,,,,19
-st-12,,,,,,,,19
-st-15,,,,,,,,14
+st-4,,0,,,lv-2,0,0.279,22
+st-7,,0,,,lv-2,0,0.279,19
+st-9,,0,,,lv-2,0,0.279,19
+st-12,,0,,,lv-2,0,0.279,19
+st-15,,0,,,lv-2,0,0.25,14

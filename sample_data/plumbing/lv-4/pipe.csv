@@ -1,4 +1,4 @@
-id,number,base_offset,start_z,end_z,shape,size_x,size_y,system_type,start_node_id,end_node_id
+﻿id,number,base_offset,start_z,end_z,shape,size_x,size_y,system_type,start_node_id,end_node_id
 pi-2,,,5.223,5.656,round,0.102,0.102,plumbing,,
 pi-3,,,5.223,5.656,round,0.102,0.102,plumbing,,
 pi-4,,,5.656,5.274,round,0.102,0.102,plumbing,,

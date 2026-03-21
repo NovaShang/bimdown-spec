@@ -1,6 +1,5 @@
 ﻿id,number,base_offset,top_level_id,top_offset,material,shape,size_x,size_y
-c-15,,0,lv-2,-0.152,Gypsum Wall Board,,,
-c-16,,0,lv-2,-0.152,Default Wall,,,
-c-17,,0,lv-2,-0.152,Default Wall,,,
-c-18,,0,lv-2,-0.152,Gypsum Wall Board,,,
- 
+c-15,,0,lv-2,-0.152,Gypsum Wall Board,rect,0.61,0.61
+c-16,,0,lv-2,-0.152,Default Wall,rect,0.61,0.61
+c-17,,0,lv-2,-0.152,Default Wall,rect,0.61,0.61
+c-18,,0,lv-2,-0.152,Gypsum Wall Board,rect,0.61,0.61

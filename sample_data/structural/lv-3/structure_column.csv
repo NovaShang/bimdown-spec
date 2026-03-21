@@ -1,4 +1,4 @@
 ﻿id,number,base_offset,top_level_id,top_offset,material,shape,size_x,size_y
-sc-42,,0,lv-16,0,Steel,,0,0
-sc-43,,0,lv-16,0,Steel,,0,0
-sc-60,,0,lv-17,0,Steel,,0,0
+sc-42,,0,lv-16,0,Steel,,0.254,0.254
+sc-43,,0,lv-16,0,Steel,,0.254,0.254
+sc-60,,0,lv-17,0,Steel,,0.254,0.254

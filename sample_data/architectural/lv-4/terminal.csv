@@ -1,9 +1,14 @@
-id,number,base_offset,system_type,terminal_type
+﻿id,number,base_offset,system_type,terminal_type
 tm-1,35,-0,,
 tm-6,40,-0,,
 tm-7,41,0.305,,
+tm-16,177,0,,
+tm-17,2,0,,
+tm-18,3,0,,
+tm-19,4,0,,
 tm-20,5,0,,
 tm-21,6,0,,
+tm-22,7,0,,
 tm-23,8,0,,
 tm-40,80,2.464,,
 tm-41,81,2.464,,

@@ -1,11 +1,10 @@
-id,number,base_offset,top_level_id,top_offset,material,shape,size_x,size_y,id
-c-5,,0,lv-2,0,,,,,c-5
-c-70,,0,lv-2,-0.152,Gypsum Wall Board,,,,c-70
-c-71,,0,lv-2,0,Gypsum Wall Board,,,,c-71
-c-72,,0,lv-2,-0.152,Gypsum Wall Board,,,,c-72
-c-75,,-0,lv-2,-0.152,Gypsum Wall Board,,,,c-75
-c-79,,-0,lv-2,-0.152,Gypsum Wall Board,,,,c-79
-c-87,,0,lv-2,-0.152,Gypsum Wall Board,,,,c-87
-c-88,,0,lv-2,-0.152,Gypsum Wall Board,,,,c-88
-c-107,,0,lv-2,-0.152,Gypsum Wall Board,,,,c-107
-c-1,,0,,0,Concrete,rectangular,0.3,0.3,c-1
+﻿id,number,base_offset,top_level_id,top_offset,material,shape,size_x,size_y
+c-5,,0,lv-2,0,,round,0.102,0.102
+c-70,,0,lv-2,-0.152,Gypsum Wall Board,rect,0.61,0.61
+c-71,,0,lv-2,0,Gypsum Wall Board,rect,0.61,0.61
+c-72,,0,lv-2,-0.152,Gypsum Wall Board,rect,0.61,0.61
+c-75,,-0,lv-2,-0.152,Gypsum Wall Board,rect,0.559,0.61
+c-79,,-0,lv-2,-0.152,Gypsum Wall Board,rect,0.508,0.61
+c-87,,0,lv-2,-0.152,Gypsum Wall Board,rect,0.61,0.61
+c-88,,0,lv-2,-0.152,Gypsum Wall Board,rect,0.61,0.61
+c-107,,0,lv-2,-0.152,Gypsum Wall Board,rect,0.61,0.61

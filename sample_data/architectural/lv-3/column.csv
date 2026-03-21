@@ -1,9 +1,9 @@
 ﻿id,number,base_offset,top_level_id,top_offset,material,shape,size_x,size_y
-c-10,,0,lv-2,0,Gypsum Wall Board,,,
-c-11,,0,lv-2,-0.152,Gypsum Wall Board,,,
-c-19,,0,lv-4,-0.762,"Concrete, Cast-in-Place gray",,,
-c-66,,0,lv-2,-0.152,Gypsum Wall Board,,,
-c-84,,-0,lv-2,-1.6,"Metal Panels 50""x60"" - White",,,
-c-106,,0,lv-2,-0.152,Gypsum Wall Board,,,
-c-115,,-0,lv-16,0,Gypsum Wall Board,,,
-c-117,,-0,lv-16,0,Gypsum Wall Board,,,
+c-10,,0,lv-2,0,Gypsum Wall Board,rect,0.61,0.61
+c-11,,0,lv-2,-0.152,Gypsum Wall Board,rect,0.61,0.61
+c-19,,0,lv-4,-0.762,"Concrete, Cast-in-Place gray",rect,0.61,0.61
+c-66,,0,lv-2,-0.152,Gypsum Wall Board,rect,0.61,0.61
+c-84,,-0,lv-2,-1.6,"Metal Panels 50""x60"" - White",rect,0.61,0.61
+c-106,,0,lv-2,-0.152,Gypsum Wall Board,rect,0.61,0.61
+c-115,,-0,lv-16,0,Gypsum Wall Board,rect,0.61,0.61
+c-117,,-0,lv-16,0,Gypsum Wall Board,rect,0.61,0.61

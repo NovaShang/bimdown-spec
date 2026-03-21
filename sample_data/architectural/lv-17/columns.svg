@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="-34.485 -31.672 64.597 49.853">
   <g transform="scale(1,-1)">
-    <rect id="c-111" x="-4.671" y="-5.918" width="0.3" height="0.3" fill="black" />
-    <rect id="c-112" x="-0.709" y="-5.918" width="0.3" height="0.3" fill="black" />
-    <rect id="c-113" x="-0.709" y="-7.823" width="0.3" height="0.3" fill="black" />
-    <rect id="c-114" x="-4.671" y="-7.823" width="0.3" height="0.3" fill="black" />
+    <circle id="c-111" cx="-4.521" cy="-5.768" r="0.064" fill="black" />
+    <circle id="c-112" cx="-0.559" cy="-5.768" r="0.064" fill="black" />
+    <circle id="c-113" cx="-0.559" cy="-7.673" r="0.064" fill="black" />
+    <circle id="c-114" cx="-4.521" cy="-7.673" r="0.064" fill="black" />
   </g>
 </svg>

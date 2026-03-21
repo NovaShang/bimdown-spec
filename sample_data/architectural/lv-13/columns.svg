@@ -1,22 +1,22 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="-34.485 -31.672 64.597 49.853">
   <g transform="scale(1,-1)">
-    <rect id="c-1" x="-0.788" y="-9.585" width="0.3" height="0.3" fill="black" />
-    <rect id="c-2" x="0.889" y="-9.585" width="0.3" height="0.3" fill="black" />
-    <rect id="c-3" x="-4.593" y="-9.585" width="0.3" height="0.3" fill="black" />
-    <rect id="c-4" x="-6.269" y="-9.585" width="0.3" height="0.3" fill="black" />
-    <rect id="c-7" x="-6.322" y="5.705" width="0.3" height="0.3" fill="black" />
-    <rect id="c-8" x="-6.322" y="0.612" width="0.3" height="0.3" fill="black" />
-    <rect id="c-9" x="-6.322" y="-4.024" width="0.3" height="0.3" fill="black" />
-    <rect id="c-12" x="7.14" y="0.612" width="0.3" height="0.3" fill="black" />
-    <rect id="c-13" x="7.14" y="5.705" width="0.3" height="0.3" fill="black" />
-    <rect id="c-14" x="7.14" y="12.486" width="0.3" height="0.3" fill="black" />
-    <rect id="c-20" x="0.942" y="-4.024" width="0.3" height="0.3" fill="black" />
-    <rect id="c-21" x="0.942" y="0.612" width="0.3" height="0.3" fill="black" />
-    <rect id="c-73" x="-15.161" y="0.612" width="0.3" height="0.3" fill="black" />
-    <rect id="c-74" x="-15.161" y="-4.024" width="0.3" height="0.3" fill="black" />
-    <rect id="c-78" x="-6.322" y="-8.545" width="0.3" height="0.3" fill="black" />
-    <rect id="c-82" x="0.942" y="-8.545" width="0.3" height="0.3" fill="black" />
-    <rect id="c-86" x="0.942" y="12.499" width="0.3" height="0.3" fill="black" />
+    <rect id="c-1" x="-0.928" y="-9.774" width="0.581" height="0.678" fill="black" />
+    <rect id="c-2" x="0.748" y="-9.774" width="0.581" height="0.678" fill="black" />
+    <rect id="c-3" x="-4.733" y="-9.774" width="0.581" height="0.678" fill="black" />
+    <rect id="c-4" x="-6.409" y="-9.774" width="0.581" height="0.678" fill="black" />
+    <rect id="c-7" x="-6.477" y="5.55" width="0.61" height="0.61" fill="black" />
+    <rect id="c-8" x="-6.477" y="0.457" width="0.61" height="0.61" fill="black" />
+    <rect id="c-9" x="-6.477" y="-4.179" width="0.61" height="0.61" fill="black" />
+    <rect id="c-12" x="6.985" y="0.457" width="0.61" height="0.61" fill="black" />
+    <rect id="c-13" x="6.985" y="5.55" width="0.61" height="0.61" fill="black" />
+    <rect id="c-14" x="6.985" y="12.331" width="0.61" height="0.61" fill="black" />
+    <rect id="c-20" x="0.787" y="-4.179" width="0.61" height="0.61" fill="black" />
+    <rect id="c-21" x="0.787" y="0.457" width="0.61" height="0.61" fill="black" />
+    <rect id="c-73" x="-15.29" y="0.457" width="0.559" height="0.61" fill="black" />
+    <rect id="c-74" x="-15.265" y="-4.179" width="0.508" height="0.61" fill="black" />
+    <rect id="c-78" x="-6.477" y="-8.649" width="0.61" height="0.508" fill="black" />
+    <rect id="c-82" x="0.787" y="-8.649" width="0.61" height="0.508" fill="black" />
+    <rect id="c-86" x="0.864" y="12.42" width="0.457" height="0.457" fill="black" />
   </g>
 </svg>
