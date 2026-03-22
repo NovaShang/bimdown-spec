@@ -13,7 +13,7 @@ class WallImporter() : TableImporterBase(
 {
     protected override Element? CreateElement(Document doc, Dictionary<string, string?> row)
     {
-        var line = ParseWallLine(row);
+        var line = ParseLine2D(row);
         var levelId = IdMap.Resolve(doc, row.GetValueOrDefault("level_id"))
             ?? throw new InvalidOperationException("level_id is required");
 
@@ -58,7 +58,7 @@ class WallImporter() : TableImporterBase(
         // Update location curve endpoints
         if (wall.Location is LocationCurve lc)
         {
-            var newLine = ParseWallLine(row);
+            var newLine = ParseLine2D(row);
             lc.Curve = newLine;
         }
 
@@ -96,15 +96,6 @@ class WallImporter() : TableImporterBase(
         }
 
         SetMark(wall, row);
-    }
-
-    static Line ParseWallLine(Dictionary<string, string?> row)
-    {
-        var sx = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["start_x"]!));
-        var sy = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["start_y"]!));
-        var ex = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["end_x"]!));
-        var ey = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["end_y"]!));
-        return Line.CreateBound(new XYZ(sx, sy, 0), new XYZ(ex, ey, 0));
     }
 
     static ElementId GetDefaultWallTypeId(Document doc)

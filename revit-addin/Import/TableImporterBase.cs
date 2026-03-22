@@ -103,4 +103,24 @@ abstract class TableImporterBase(string tableName, int order, BuiltInCategory[] 
         if (number is not null)
             element.get_Parameter(BuiltInParameter.ALL_MODEL_MARK)?.Set(number);
     }
+
+    internal static Line ParseLine2D(Dictionary<string, string?> row)
+    {
+        var sx = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["start_x"]!));
+        var sy = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["start_y"]!));
+        var ex = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["end_x"]!));
+        var ey = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["end_y"]!));
+        return Line.CreateBound(new XYZ(sx, sy, 0), new XYZ(ex, ey, 0));
+    }
+
+    internal static Line Parse3DLine(Dictionary<string, string?> row)
+    {
+        var sx = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["start_x"]!));
+        var sy = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["start_y"]!));
+        var sz = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["start_z"]!));
+        var ex = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["end_x"]!));
+        var ey = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["end_y"]!));
+        var ez = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["end_z"]!));
+        return Line.CreateBound(new XYZ(sx, sy, sz), new XYZ(ex, ey, ez));
+    }
 }

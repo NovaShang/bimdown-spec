@@ -53,6 +53,7 @@ public class ExportCommand : IExternalCommand
             MepTableExporters.Pipe(),
             MepTableExporters.CableTray(),
             MepTableExporters.Conduit(),
+            MepTableExporters.MepNode(),
             MepTableExporters.Equipment(),
             MepTableExporters.Terminal(),
         ];
@@ -86,7 +87,10 @@ public class ExportCommand : IExternalCommand
                     .WhereElementIsNotElementType();
                 idGen.SeedFromModel(collector.OrderBy(e => e.Id.Value).ToList());
             }
-            catch { }
+            catch (Exception ex)
+            {
+                errors.Add($"ID seed ({category}): {ex.Message}");
+            }
         }
 
         // Pass 1: export all tables (rows still have UniqueIds)

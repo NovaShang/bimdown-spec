@@ -38,7 +38,7 @@ class GridImporter() : TableImporterBase("grid", 1, [BuiltInCategory.OST_Grids])
 {
     protected override Element? CreateElement(Document doc, Dictionary<string, string?> row)
     {
-        var line = ParseGridLine(row);
+        var line = ParseLine2D(row);
         var grid = Grid.Create(doc, line);
 
         var number = row.GetValueOrDefault("number");
@@ -55,14 +55,5 @@ class GridImporter() : TableImporterBase("grid", 1, [BuiltInCategory.OST_Grids])
         if (number is not null && grid.Name != number) grid.Name = number;
 
         // Grid geometry updates are limited in Revit — log a warning if endpoints differ
-    }
-
-    static Line ParseGridLine(Dictionary<string, string?> row)
-    {
-        var sx = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["start_x"]!));
-        var sy = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["start_y"]!));
-        var ex = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["end_x"]!));
-        var ey = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["end_y"]!));
-        return Line.CreateBound(new XYZ(sx, sy, 0), new XYZ(ex, ey, 0));
     }
 }

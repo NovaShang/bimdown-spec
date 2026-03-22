@@ -11,7 +11,7 @@ class StructureWallImporter() : TableImporterBase(
 {
     protected override Element? CreateElement(Document doc, Dictionary<string, string?> row)
     {
-        var line = ParseLine(row);
+        var line = ParseLine2D(row);
         var levelId = IdMap.Resolve(doc, row.GetValueOrDefault("level_id"))
             ?? throw new InvalidOperationException("level_id is required");
 
@@ -58,7 +58,7 @@ class StructureWallImporter() : TableImporterBase(
         if (element is not Wall wall) return;
 
         if (wall.Location is LocationCurve lc)
-            lc.Curve = ParseLine(row);
+            lc.Curve = ParseLine2D(row);
 
         var heightStr = row.GetValueOrDefault("height");
         if (heightStr is not null)
@@ -89,15 +89,6 @@ class StructureWallImporter() : TableImporterBase(
         }
 
         SetMark(wall, row);
-    }
-
-    static Line ParseLine(Dictionary<string, string?> row)
-    {
-        var sx = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["start_x"]!));
-        var sy = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["start_y"]!));
-        var ex = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["end_x"]!));
-        var ey = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["end_y"]!));
-        return Line.CreateBound(new XYZ(sx, sy, 0), new XYZ(ex, ey, 0));
     }
 }
 
@@ -274,7 +265,10 @@ class StructureSlabImporter() : TableImporterBase(
             {
                 var csvId = row.GetValueOrDefault("id");
                 if (csvId is not null)
+                {
+                    BimDownParameter.Set(newFloor, csvId);
                     IdMap.Register(csvId, newFloor.Id);
+                }
             }
             return;
         }
@@ -299,21 +293,10 @@ class StructureSlabImporter() : TableImporterBase(
 
 static class StructuralFramingHelper
 {
-    internal static Line Parse3DLine(Dictionary<string, string?> row)
-    {
-        var sx = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["start_x"]!));
-        var sy = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["start_y"]!));
-        var sz = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["start_z"]!));
-        var ex = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["end_x"]!));
-        var ey = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["end_y"]!));
-        var ez = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["end_z"]!));
-        return Line.CreateBound(new XYZ(sx, sy, sz), new XYZ(ex, ey, ez));
-    }
-
     internal static Element CreateFramingInstance(Document doc, Dictionary<string, string?> row,
         IdMap idMap, StructuralType structuralType)
     {
-        var line = Parse3DLine(row);
+        var line = TableImporterBase.Parse3DLine(row);
         var levelId = idMap.Resolve(doc, row.GetValueOrDefault("level_id"))
             ?? throw new InvalidOperationException("level_id is required");
         var level = (Level)doc.GetElement(levelId);
@@ -343,7 +326,7 @@ static class StructuralFramingHelper
         if (element is not FamilyInstance fi) return;
 
         if (fi.Location is LocationCurve lc)
-            lc.Curve = Parse3DLine(row);
+            lc.Curve = TableImporterBase.Parse3DLine(row);
 
         TableImporterBase.SetMark(fi, row);
     }
@@ -538,7 +521,10 @@ class RaftFoundationImporter() : TableImporterBase(
             {
                 var csvId = row.GetValueOrDefault("id");
                 if (csvId is not null)
+                {
+                    BimDownParameter.Set(newFloor, csvId);
                     IdMap.Register(csvId, newFloor.Id);
+                }
             }
             return;
         }

@@ -105,7 +105,7 @@ static class GeometryUtils
         if (loops.Count == 0) return null;
 
         // Use the outermost loop (largest perimeter)
-        var outerLoop = loops[0];
+        var outerLoop = loops.OrderByDescending(l => l.GetExactLength()).First();
         var points = new List<XYZ>();
         foreach (var curve in outerLoop)
         {

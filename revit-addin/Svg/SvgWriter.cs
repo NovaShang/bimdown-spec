@@ -397,18 +397,6 @@ static class SvgWriter
         }
     }
 
-    static string SanitizePath(string name)
-    {
-        var invalid = Path.GetInvalidFileNameChars();
-        var chars = name.ToCharArray();
-        for (var i = 0; i < chars.Length; i++)
-        {
-            if (Array.IndexOf(invalid, chars[i]) >= 0)
-                chars[i] = '_';
-        }
-        return new string(chars);
-    }
-
     static double Parse(string s) => double.Parse(s, CultureInfo.InvariantCulture);
     static double ParseOr(string? s, double fallback) =>
         s is not null && double.TryParse(s, CultureInfo.InvariantCulture, out var v) ? v : fallback;

@@ -8,17 +8,6 @@ namespace BimDown.RevitAddin.Import;
 
 static class MepHelper
 {
-    internal static Line Parse3DLine(Dictionary<string, string?> row)
-    {
-        var sx = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["start_x"]!));
-        var sy = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["start_y"]!));
-        var sz = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["start_z"]!));
-        var ex = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["end_x"]!));
-        var ey = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["end_y"]!));
-        var ez = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["end_z"]!));
-        return Line.CreateBound(new XYZ(sx, sy, sz), new XYZ(ex, ey, ez));
-    }
-
     internal static void SetSectionSize(Element element, Dictionary<string, string?> row)
     {
         var shape = row.GetValueOrDefault("shape");
@@ -44,7 +33,7 @@ class DuctImporter() : TableImporterBase("duct", 25, [BuiltInCategory.OST_DuctCu
 {
     protected override Element? CreateElement(Document doc, Dictionary<string, string?> row)
     {
-        var line = MepHelper.Parse3DLine(row);
+        var line = Parse3DLine(row);
         var levelId = IdMap.Resolve(doc, row.GetValueOrDefault("level_id"))
             ?? throw new InvalidOperationException("level_id is required");
 
@@ -71,7 +60,7 @@ class DuctImporter() : TableImporterBase("duct", 25, [BuiltInCategory.OST_DuctCu
     protected override void UpdateElement(Document doc, Dictionary<string, string?> row, Element element)
     {
         if (element.Location is LocationCurve lc)
-            lc.Curve = MepHelper.Parse3DLine(row);
+            lc.Curve = Parse3DLine(row);
 
         MepHelper.SetSectionSize(element, row);
         SetMark(element, row);
@@ -82,7 +71,7 @@ class PipeImporter() : TableImporterBase("pipe", 25, [BuiltInCategory.OST_PipeCu
 {
     protected override Element? CreateElement(Document doc, Dictionary<string, string?> row)
     {
-        var line = MepHelper.Parse3DLine(row);
+        var line = Parse3DLine(row);
         var levelId = IdMap.Resolve(doc, row.GetValueOrDefault("level_id"))
             ?? throw new InvalidOperationException("level_id is required");
 
@@ -113,7 +102,7 @@ class PipeImporter() : TableImporterBase("pipe", 25, [BuiltInCategory.OST_PipeCu
     protected override void UpdateElement(Document doc, Dictionary<string, string?> row, Element element)
     {
         if (element.Location is LocationCurve lc)
-            lc.Curve = MepHelper.Parse3DLine(row);
+            lc.Curve = Parse3DLine(row);
 
         var sizeXStr = row.GetValueOrDefault("size_x");
         if (sizeXStr is not null)
@@ -128,7 +117,7 @@ class CableTrayImporter() : TableImporterBase("cable_tray", 25, [BuiltInCategory
 {
     protected override Element? CreateElement(Document doc, Dictionary<string, string?> row)
     {
-        var line = MepHelper.Parse3DLine(row);
+        var line = Parse3DLine(row);
         var levelId = IdMap.Resolve(doc, row.GetValueOrDefault("level_id"))
             ?? throw new InvalidOperationException("level_id is required");
 
@@ -149,7 +138,7 @@ class CableTrayImporter() : TableImporterBase("cable_tray", 25, [BuiltInCategory
     protected override void UpdateElement(Document doc, Dictionary<string, string?> row, Element element)
     {
         if (element.Location is LocationCurve lc)
-            lc.Curve = MepHelper.Parse3DLine(row);
+            lc.Curve = Parse3DLine(row);
 
         MepHelper.SetSectionSize(element, row);
         SetMark(element, row);
@@ -160,7 +149,7 @@ class ConduitImporter() : TableImporterBase("conduit", 25, [BuiltInCategory.OST_
 {
     protected override Element? CreateElement(Document doc, Dictionary<string, string?> row)
     {
-        var line = MepHelper.Parse3DLine(row);
+        var line = Parse3DLine(row);
         var levelId = IdMap.Resolve(doc, row.GetValueOrDefault("level_id"))
             ?? throw new InvalidOperationException("level_id is required");
 
@@ -181,7 +170,7 @@ class ConduitImporter() : TableImporterBase("conduit", 25, [BuiltInCategory.OST_
     protected override void UpdateElement(Document doc, Dictionary<string, string?> row, Element element)
     {
         if (element.Location is LocationCurve lc)
-            lc.Curve = MepHelper.Parse3DLine(row);
+            lc.Curve = Parse3DLine(row);
 
         MepHelper.SetSectionSize(element, row);
         SetMark(element, row);
@@ -226,7 +215,10 @@ class EquipmentImporter() : TableImporterBase(
         {
             var x = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["x"]!));
             var y = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["y"]!));
-            lp.Point = new XYZ(x, y, lp.Point.Z);
+            var target = new XYZ(x, y, lp.Point.Z);
+            var delta = target - lp.Point;
+            if (delta.GetLength() > 1e-10)
+                ElementTransformUtils.MoveElement(doc, element.Id, delta);
         }
 
         var rotationStr = row.GetValueOrDefault("rotation");
@@ -234,11 +226,11 @@ class EquipmentImporter() : TableImporterBase(
         {
             var targetAngle = UnitConverter.AngleToRadians(UnitConverter.ParseDouble(rotationStr));
             var currentAngle = locPt.Rotation;
-            var delta = targetAngle - currentAngle;
-            if (Math.Abs(delta) > 1e-10)
+            var angleDelta = targetAngle - currentAngle;
+            if (Math.Abs(angleDelta) > 1e-10)
             {
                 var axis = Line.CreateBound(locPt.Point, locPt.Point + XYZ.BasisZ);
-                ElementTransformUtils.RotateElement(doc, element.Id, axis, delta);
+                ElementTransformUtils.RotateElement(doc, element.Id, axis, angleDelta);
             }
         }
 
@@ -306,7 +298,10 @@ class TerminalImporter() : TableImporterBase(
         {
             var x = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["x"]!));
             var y = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["y"]!));
-            lp.Point = new XYZ(x, y, lp.Point.Z);
+            var target = new XYZ(x, y, lp.Point.Z);
+            var delta = target - lp.Point;
+            if (delta.GetLength() > 1e-10)
+                ElementTransformUtils.MoveElement(doc, element.Id, delta);
         }
 
         var rotationStr = row.GetValueOrDefault("rotation");
@@ -314,11 +309,11 @@ class TerminalImporter() : TableImporterBase(
         {
             var targetAngle = UnitConverter.AngleToRadians(UnitConverter.ParseDouble(rotationStr));
             var currentAngle = locPt.Rotation;
-            var delta = targetAngle - currentAngle;
-            if (Math.Abs(delta) > 1e-10)
+            var angleDelta = targetAngle - currentAngle;
+            if (Math.Abs(angleDelta) > 1e-10)
             {
                 var axis = Line.CreateBound(locPt.Point, locPt.Point + XYZ.BasisZ);
-                ElementTransformUtils.RotateElement(doc, element.Id, axis, delta);
+                ElementTransformUtils.RotateElement(doc, element.Id, axis, angleDelta);
             }
         }
 
