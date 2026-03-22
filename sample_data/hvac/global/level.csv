@@ -1,12 +1,7 @@
 ﻿id,number,name,elevation
-lv-1,,L1 - Block 43,0
-lv-2,,L2,2.464
-lv-3,,L1 - Block 35,-1.803
-lv-4,,Parking,-5.156
-lv-5,,M1,1.676
-lv-6,,L3,5.74
-lv-7,,L4,9.804
-lv-8,,L5,13.868
-lv-9,,R1,16.053
-lv-10,,L1 - Block 37,-1.054
-lv-11,,R2,17.932
+lv-1,,Level 0,4.267
+lv-2,,Level 1,8.839
+lv-3,,Level 2,13.411
+lv-4,,Level 3,17.983
+lv-5,,Level 4,22.555
+lv-6,,Level 5,27.127

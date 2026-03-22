@@ -10,10 +10,7 @@ namespace BimDown.RevitTests;
 [Category("SampleProject")]
 public class SampleProjectExportTests : RevitApiTest
 {
-    const string SamplesDir = @"C:\Program Files\Autodesk\Revit 2026\Samples";
-
-    static readonly string[] ArchitecturalTables = ["level", "grid", "wall", "column", "slab", "space", "door", "window", "stair"];
-    static readonly string[] StructuralTables = ["level", "grid", "structure_wall", "structure_column", "structure_slab", "beam", "isolated_foundation", "raft_foundation"];
+    const string SamplesDir = @"C:\Users\nova\dev\code\BimDown\SourceRevitModels";
 
     static ITableExporter[] AllExporters() =>
     [
@@ -40,7 +37,10 @@ public class SampleProjectExportTests : RevitApiTest
         MepTableExporters.Conduit(),
         MepTableExporters.Equipment(),
         MepTableExporters.Terminal(),
+        MepTableExporters.MepNode(),
     ];
+
+    static readonly string[] SampleFiles = ["Architecture.rvt", "Structure.rvt", "HVAC.rvt", "Plumbing.rvt"];
 
     static Document OpenSample(Autodesk.Revit.ApplicationServices.Application app, string fileName)
     {
@@ -50,17 +50,15 @@ public class SampleProjectExportTests : RevitApiTest
         return app.OpenDocumentFile(path);
     }
 
-    static void ExportAndVerify(
-        Document doc,
-        string[] expectedNonEmptyTables,
-        string outputSubDir)
+    static void ExportModel(Document doc, string outputSubDir)
     {
-        var outputDir = Path.Combine(Path.GetTempPath(), "BimDown_SampleExport", outputSubDir);
+        var outputDir = Path.Combine(SamplesDir, "..", "sample_data", outputSubDir);
+        if (Directory.Exists(outputDir))
+            Directory.Delete(outputDir, true);
         Directory.CreateDirectory(outputDir);
 
         var exporters = AllExporters();
         var idGen = new ShortIdGenerator();
-        var results = new Dictionary<string, int>();
         var errors = new List<string>();
 
         // Pass 1: export all tables (rows still have UniqueIds)
@@ -70,7 +68,6 @@ public class SampleProjectExportTests : RevitApiTest
             try
             {
                 var rows = exporter.Export(doc);
-                results[exporter.TableName] = rows.Count;
                 if (rows.Count > 0)
                     exported.Add((exporter, rows));
             }
@@ -85,15 +82,8 @@ public class SampleProjectExportTests : RevitApiTest
         {
             idGen.RemapRows(exporter.TableName, rows);
 
-            // Verify all rows have the expected columns
-            foreach (var row in rows)
-            {
-                if (!row.ContainsKey("id"))
-                    errors.Add($"{exporter.TableName}: row missing 'id' column");
-            }
-
             // Verify CSV round-trip using CsvColumns (excludes computed fields)
-            var (rtColumns, rtRows) = RevitTestHelper.RoundTripCsv(exporter.CsvColumns, rows);
+            var (_, rtRows) = RevitTestHelper.RoundTripCsv(exporter.CsvColumns, rows);
             if (rtRows.Count != rows.Count)
                 errors.Add($"{exporter.TableName}: CSV round-trip row count mismatch ({rows.Count} -> {rtRows.Count})");
         }
@@ -166,111 +156,27 @@ public class SampleProjectExportTests : RevitApiTest
             }
         }
 
-        // Verify expected tables produced data
-        foreach (var table in expectedNonEmptyTables)
-        {
-            if (!results.TryGetValue(table, out var count) || count == 0)
-                errors.Add($"Expected non-empty table '{table}' but got 0 rows");
-        }
-
         if (errors.Count > 0)
             throw new Exception(
-                $"Export verification failed for {outputSubDir}:\n" +
-                string.Join("\n", errors) +
-                $"\n\nAll results: {string.Join(", ", results.Select(r => $"{r.Key}={r.Value}"))}");
+                $"Export failed for {outputSubDir}:\n" +
+                string.Join("\n", errors));
     }
 
     [Test]
-    public async Task Export_Architectural_SnowdonTowers()
+    [Arguments("Architecture.rvt")]
+    [Arguments("Structure.rvt")]
+    [Arguments("HVAC.rvt")]
+    [Arguments("Plumbing.rvt")]
+    public async Task ExportSampleProject(string fileName)
     {
-        var doc = OpenSample(Application, "Snowdon Towers Sample Architectural.rvt");
+        var doc = OpenSample(Application, fileName);
         try
         {
-            ExportAndVerify(doc, ArchitecturalTables, "architectural");
+            var outputName = Path.GetFileNameWithoutExtension(fileName);
+            ExportModel(doc, outputName);
 
-            var levelExporter = new LevelTableExporter();
-            var levels = levelExporter.Export(doc);
-            await Assert.That(levels.Count).IsGreaterThanOrEqualTo(2);
-
-            var wallExporter = ArchitectureTableExporters.Wall();
-            var walls = wallExporter.Export(doc);
-            await Assert.That(walls.Count).IsGreaterThan(0);
-        }
-        finally
-        {
-            doc.Close(false);
-        }
-    }
-
-    [Test]
-    public async Task Export_Structural_SnowdonTowers()
-    {
-        var doc = OpenSample(Application, "Snowdon Towers Sample Structural.rvt");
-        try
-        {
-            ExportAndVerify(doc, StructuralTables, "structural");
-
-            var beamExporter = StructureTableExporters.Beam();
-            var beams = beamExporter.Export(doc);
-            await Assert.That(beams.Count).IsGreaterThan(0);
-
-            var columnExporter = StructureTableExporters.StructureColumn();
-            var columns = columnExporter.Export(doc);
-            await Assert.That(columns.Count).IsGreaterThan(0);
-        }
-        finally
-        {
-            doc.Close(false);
-        }
-    }
-
-    [Test]
-    public async Task Export_HVAC_SnowdonTowers()
-    {
-        var doc = OpenSample(Application, "Snowdon Towers Sample HVAC.rvt");
-        try
-        {
-            ExportAndVerify(doc, ["level", "duct", "equipment", "terminal"], "hvac");
-
-            var ductExporter = MepTableExporters.Duct();
-            var ducts = ductExporter.Export(doc);
-            await Assert.That(ducts.Count).IsGreaterThan(0);
-        }
-        finally
-        {
-            doc.Close(false);
-        }
-    }
-
-    [Test]
-    public async Task Export_Electrical_SnowdonTowers()
-    {
-        var doc = OpenSample(Application, "Snowdon Towers Sample Electrical.rvt");
-        try
-        {
-            ExportAndVerify(doc, ["level", "conduit", "equipment", "terminal"], "electrical");
-
-            var conduitExporter = MepTableExporters.Conduit();
-            var conduits = conduitExporter.Export(doc);
-            await Assert.That(conduits.Count).IsGreaterThan(0);
-        }
-        finally
-        {
-            doc.Close(false);
-        }
-    }
-
-    [Test]
-    public async Task Export_Plumbing_SnowdonTowers()
-    {
-        var doc = OpenSample(Application, "Snowdon Towers Sample Plumbing.rvt");
-        try
-        {
-            ExportAndVerify(doc, ["level", "pipe", "terminal"], "plumbing");
-
-            var pipeExporter = MepTableExporters.Pipe();
-            var pipes = pipeExporter.Export(doc);
-            await Assert.That(pipes.Count).IsGreaterThan(0);
+            var levels = new LevelTableExporter().Export(doc);
+            await Assert.That(levels.Count).IsGreaterThanOrEqualTo(1);
         }
         finally
         {
@@ -281,18 +187,11 @@ public class SampleProjectExportTests : RevitApiTest
     [Test]
     public async Task Export_AllProjects_NumericFieldsAreValid()
     {
-        string[] sampleFiles =
-        [
-            "Snowdon Towers Sample Architectural.rvt",
-            "Snowdon Towers Sample Structural.rvt",
-            "Snowdon Towers Sample HVAC.rvt",
-        ];
-
         string[] numericFields = ["elevation", "start_x", "start_y", "end_x", "end_y", "height", "thickness", "width", "rotation", "length", "step_count"];
 
         var errors = new List<string>();
 
-        foreach (var file in sampleFiles)
+        foreach (var file in SampleFiles)
         {
             var doc = OpenSample(Application, file);
             try

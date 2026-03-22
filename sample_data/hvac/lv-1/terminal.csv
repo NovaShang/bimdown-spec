@@ -1,4 +1,8 @@
 ﻿id,number,base_offset,system_type,terminal_type
-tm-24,39,0,hvac,
-tm-25,40,0,hvac,
-tm-29,51,0,hvac,
+tm-8,,3.048,hvac,
+tm-9,,3.048,hvac,
+tm-10,,3.048,hvac,
+tm-11,,3.048,hvac,
+tm-12,,3.048,hvac,
+tm-13,,3.048,hvac,
+tm-14,,3.048,hvac,

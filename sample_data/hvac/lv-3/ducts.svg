@@ -1,19 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="-33.918 -13.687 55.2 23.839">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-132.909 190.877 21.419 23.638">
   <g transform="scale(1,-1)">
-    <line id="du-341" x1="-15.895" y1="5.384" x2="-25.273" y2="5.384" stroke="black" stroke-width="0.203" stroke-linecap="square" />
-    <line id="du-352" x1="-15.891" y1="3.061" x2="-25.273" y2="3.061" stroke="black" stroke-width="0.203" stroke-linecap="square" />
-    <line id="du-934" x1="-21.213" y1="10.072" x2="-21.213" y2="9.945" stroke="black" stroke-width="0.203" stroke-linecap="square" />
-    <line id="du-935" x1="-21.07" y1="9.742" x2="-21.044" y2="9.742" stroke="black" stroke-width="0.203" stroke-linecap="square" />
-    <line id="du-936" x1="-20.9" y1="9.742" x2="-20.324" y2="9.742" stroke="black" stroke-width="0.203" stroke-linecap="square" />
-    <line id="du-937" x1="-20.172" y1="9.59" x2="-20.172" y2="8.917" stroke="black" stroke-width="0.203" stroke-linecap="square" />
-    <line id="du-938" x1="-20.172" y1="9.894" x2="-20.172" y2="12.333" stroke="black" stroke-width="0.203" stroke-linecap="square" />
-    <line id="du-939" x1="-23.622" y1="12.061" x2="-20.858" y2="12.061" stroke="black" stroke-width="0.102" stroke-linecap="square" />
-    <line id="du-940" x1="-23.774" y1="12.405" x2="-23.774" y2="12.405" stroke="black" stroke-width="0.102" stroke-linecap="square" />
-    <line id="du-941" x1="-23.774" y1="13.037" x2="-23.774" y2="12.557" stroke="black" stroke-width="0.102" stroke-linecap="square" />
-    <line id="du-942" x1="-23.774" y1="12.213" x2="-23.774" y2="12.253" stroke="black" stroke-width="0.102" stroke-linecap="square" />
-    <line id="du-943" x1="-20.705" y1="12.061" x2="-20.705" y2="12.061" stroke="black" stroke-width="0.102" stroke-linecap="square" />
-    <line id="du-992" x1="-20.705" y1="11.502" x2="-20.705" y2="11.909" stroke="black" stroke-width="0.102" stroke-linecap="square" />
-    <line id="du-1050" x1="-26.09" y1="13.037" x2="-26.09" y2="12.555" stroke="black" stroke-width="0.102" stroke-linecap="square" />
+    <line id="du-31" x1="-128.831" y1="-195.158" x2="-112.597" y2="-195.158" stroke="black" stroke-width="0.305" stroke-linecap="square" />
+    <line id="du-32" x1="-129.288" y1="-195.158" x2="-129.288" y2="-195.158" stroke="black" stroke-width="0.305" stroke-linecap="square" />
+    <line id="du-33" x1="-121.649" y1="-195.158" x2="-121.649" y2="-195.158" stroke="black" stroke-width="0.305" stroke-linecap="square" />
+    <line id="du-34" x1="-112.14" y1="-195.615" x2="-112.14" y2="-200.471" stroke="black" stroke-width="0.305" stroke-linecap="square" />
+    <line id="du-35" x1="-112.14" y1="-197.749" x2="-112.14" y2="-197.749" stroke="black" stroke-width="0.254" stroke-linecap="square" />
+    <line id="du-36" x1="-112.902" y1="-193.355" x2="-112.902" y2="-193.355" stroke="black" stroke-width="0.254" stroke-linecap="square" />
+    <line id="du-37" x1="-112.902" y1="-194.904" x2="-112.902" y2="-193.507" stroke="black" stroke-width="0.254" stroke-linecap="square" />
+    <line id="du-38" x1="-112.14" y1="-201.182" x2="-112.14" y2="-211.901" stroke="black" stroke-width="0.305" stroke-linecap="square" />
+    <line id="du-39" x1="-113.469" y1="-204.855" x2="-113.469" y2="-204.855" stroke="black" stroke-width="0.305" stroke-linecap="square" />
+    <line id="du-40" x1="-112.394" y1="-204.855" x2="-113.012" y2="-204.855" stroke="black" stroke-width="0.305" stroke-linecap="square" />
+    <line id="du-58" x1="-113.469" y1="-211.752" x2="-113.469" y2="-211.752" stroke="black" stroke-width="0.305" stroke-linecap="square" />
+    <line id="du-59" x1="-112.394" y1="-211.752" x2="-113.012" y2="-211.752" stroke="black" stroke-width="0.305" stroke-linecap="square" />
+    <line id="du-60" x1="-127.917" y1="-204.702" x2="-127.917" y2="-204.702" stroke="black" stroke-width="0.305" stroke-linecap="square" />
+    <line id="du-61" x1="-127.917" y1="-195.412" x2="-127.917" y2="-204.245" stroke="black" stroke-width="0.305" stroke-linecap="square" />
   </g>
 </svg>

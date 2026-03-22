@@ -1,9 +1,0 @@
-﻿id,number,base_offset,material,function,thickness
-sl-7,,0.038,"Steel, Paint Finish, Dark Gray",floor,0.006
-sl-68,,0,"Concrete, Precast",floor,0.152
-sl-74,,-0.508,"Asphalt, Pavement, Light Grey",floor,0.305
-sl-75,,0.038,"Asphalt, Pavement, Light Grey",floor,0.305
-sl-76,,-0.051,"Asphalt, Pavement, Light Grey",floor,0.305
-sl-128,,0,"Concrete, Cast-in-Place gray",floor,0.102
-sl-134,,0,"Concrete, Precast Smooth, Light Grey",floor,0.152
-sl-183,,-0.005,"Concrete, Cast-in-Place gray",floor,0.152

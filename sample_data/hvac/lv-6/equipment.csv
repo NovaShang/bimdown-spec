@@ -1,11 +1,2 @@
 ﻿id,number,base_offset,system_type,equipment_type
-eq-3,HRU204,3.146,hvac,
-eq-7,HRU303,3.095,hvac,
-eq-8,HRU106A,3.505,hvac,
-eq-9,HRU308,3.095,hvac,
-eq-10,HRU309,3.146,hvac,
-eq-11,HRU307,2.994,hvac,
-eq-12,HRU304,3.502,hvac,
-eq-15,HRU301A,3.451,hvac,
-eq-16,HRU301B,3.502,hvac,
-eq-19,HRU306,3.095,hvac,
+eq-1,,1.219,hvac,

@@ -1,9 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="-30.829 -13.68 52.812 25.292">
-  <g transform="scale(1,-1)">
-    <rect id="tm-13" x="5.765" y="12.88" width="0.3" height="0.3" fill="black" transform="rotate(180,5.915,13.03)" />
-    <rect id="tm-14" x="-0.661" y="12.88" width="0.3" height="0.3" fill="black" transform="rotate(180,-0.511,13.03)" />
-    <rect id="tm-15" x="-9.5" y="12.88" width="0.3" height="0.3" fill="black" transform="rotate(180,-9.35,13.03)" />
-    <rect id="tm-20" x="-6.994" y="-9.043" width="0.3" height="0.3" fill="black" transform="rotate(90,-6.844,-8.893)" />
-  </g>
-</svg>

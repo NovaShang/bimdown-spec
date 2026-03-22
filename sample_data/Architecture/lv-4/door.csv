@@ -1,0 +1,11 @@
+﻿id,number,base_offset,host_id,material,width,height,operation
+d-8,183,-13.411,,Glass,1.803,3.562,double_swing
+d-9,184,-13.411,,Glass,1.803,3.562,double_swing
+d-10,185,-13.411,,Glass,1.803,3.562,double_swing
+d-11,186,-13.411,,Glass,1.803,3.562,double_swing
+d-15,145,0,w-31,Aluminum,0.914,2.134,single_swing
+d-16,146,0,w-36,Aluminum,0.914,2.134,single_swing
+d-17,147,0,w-25,Glass,2.54,2.54,double_swing
+d-18,148,0,w-25,Glass,2.54,2.54,double_swing
+d-19,149,0,w-26,Glass,2.54,2.54,double_swing
+d-33,163,0,w-27,Glass,2.54,2.54,double_swing

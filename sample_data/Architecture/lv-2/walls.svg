@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-134.847 188.218 26.744 34.612">
+  <g transform="scale(1,-1)">
+    <line id="w-1" x1="-109.094" y1="-189.208" x2="-133.681" y2="-189.208" stroke="black" stroke-width="0.371" stroke-linecap="square" />
+    <line id="w-2" x1="-109.094" y1="-219.891" x2="-109.094" y2="-189.208" stroke="black" stroke-width="0.371" stroke-linecap="square" />
+    <line id="w-3" x1="-133.681" y1="-219.891" x2="-109.094" y2="-219.891" stroke="black" stroke-width="0.371" stroke-linecap="square" />
+    <line id="w-4" x1="-133.681" y1="-189.208" x2="-133.681" y2="-219.891" stroke="black" stroke-width="0.371" stroke-linecap="square" />
+    <line id="w-23" x1="-111.64" y1="-201.502" x2="-125.502" y2="-201.502" stroke="black" stroke-width="0.114" stroke-linecap="square" />
+    <line id="w-24" x1="-109.094" y1="-208.379" x2="-125.502" y2="-208.379" stroke="black" stroke-width="0.114" stroke-linecap="square" />
+    <line id="w-40" x1="-111.64" y1="-189.208" x2="-111.64" y2="-195.158" stroke="black" stroke-width="0.114" stroke-linecap="square" />
+    <line id="w-41" x1="-111.64" y1="-195.158" x2="-115.298" y2="-195.158" stroke="black" stroke-width="0.114" stroke-linecap="square" />
+    <line id="w-42" x1="-115.298" y1="-195.158" x2="-115.298" y2="-189.208" stroke="black" stroke-width="0.114" stroke-linecap="square" />
+    <line id="w-43" x1="-115.298" y1="-195.158" x2="-115.298" y2="-201.502" stroke="black" stroke-width="0.114" stroke-linecap="square" />
+    <line id="w-44" x1="-115.298" y1="-199.12" x2="-111.64" y2="-199.12" stroke="black" stroke-width="0.114" stroke-linecap="square" />
+    <line id="w-45" x1="-111.64" y1="-195.158" x2="-111.64" y2="-199.12" stroke="black" stroke-width="0.114" stroke-linecap="square" />
+    <line id="w-46" x1="-111.64" y1="-199.12" x2="-111.64" y2="-201.502" stroke="black" stroke-width="0.114" stroke-linecap="square" />
+    <line id="w-47" x1="-111.64" y1="-201.502" x2="-115.298" y2="-201.502" stroke="black" stroke-width="0.114" stroke-linecap="square" />
+    <line id="w-48" x1="-112.612" y1="-199.12" x2="-112.612" y2="-201.502" stroke="black" stroke-width="0.114" stroke-linecap="square" />
+    <line id="w-76" x1="-125.502" y1="-189.208" x2="-125.502" y2="-208.379" stroke="black" stroke-width="0.114" stroke-linecap="square" />
+    <line id="w-90" x1="-123.007" y1="-208.379" x2="-123.007" y2="-219.891" stroke="black" stroke-width="0.114" stroke-linecap="square" />
+  </g>
+</svg>

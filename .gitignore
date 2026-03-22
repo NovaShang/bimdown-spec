@@ -13,6 +13,9 @@ libs/
 # Claude Code
 .claude/
 
+# Source Revit models (large binaries)
+SourceRevitModels/
+
 # OS
 .DS_Store
 Thumbs.db

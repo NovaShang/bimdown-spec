@@ -29,6 +29,7 @@ class ShortIdGenerator
         ["conduit"] = "co",
         ["equipment"] = "eq",
         ["terminal"] = "tm",
+        ["mep_node"] = "mn",
     };
 
     static readonly string[] ReferenceFields = ["level_id", "host_id", "top_level_id", "start_node_id", "end_node_id"];

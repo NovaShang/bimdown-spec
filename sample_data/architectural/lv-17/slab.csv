@@ -1,8 +1,0 @@
-﻿id,number,base_offset,material,function,thickness
-sl-22,,0.572,Stone Tiles,floor,0.051
-sl-88,,0.381,Stone Tiles,floor,0.051
-sl-90,,0.406,"Concrete, Cast-in-Place gray",floor,0.102
-sl-91,,0.635,"Concrete, Cast-in-Place gray",floor,0.102
-sl-98,,0.406,"Concrete, Cast-in-Place gray",floor,0.102
-sl-100,,0.635,"Concrete, Cast-in-Place gray",floor,0.102
-sl-197,,,Rigid insulation,roof,0
