@@ -14,6 +14,7 @@ record SvgTableMapping(string TableName, string SvgFileName, SvgRenderType Rende
         new("door", "doors.svg", SvgRenderType.Hosted),
         new("window", "windows.svg", SvgRenderType.Hosted),
         new("stair", "stairs.svg", SvgRenderType.Line),
+        new("curtain_wall", "curtain_walls.svg", SvgRenderType.Line),
         // Structure
         new("structure_wall", "structure_walls.svg", SvgRenderType.Line),
         new("structure_column", "structure_columns.svg", SvgRenderType.Point),

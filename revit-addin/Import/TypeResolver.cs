@@ -189,6 +189,15 @@ static class TypeResolver
         return newType;
     }
 
+    public static WallType FindCurtainWallType(Document doc)
+    {
+        return new FilteredElementCollector(doc)
+            .OfClass(typeof(WallType))
+            .Cast<WallType>()
+            .FirstOrDefault(wt => wt.Kind == WallKind.Curtain)
+            ?? throw new InvalidOperationException("No curtain WallType found");
+    }
+
     public static FamilySymbol FindFirstFamilySymbol(Document doc, BuiltInCategory category)
     {
         var symbol = new FilteredElementCollector(doc)

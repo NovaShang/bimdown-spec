@@ -1,5 +1,4 @@
 using Autodesk.Revit.DB;
-using Autodesk.Revit.DB.Architecture;
 using BimDown.RevitAddin.Extractors;
 using static BimDown.RevitAddin.Extractors.ParameterUtils;
 
@@ -129,6 +128,72 @@ public static class ArchitectureTableExporters
                 fields["step_count"] = steps?.ToString();
                 return fields;
             }));
+
+    public static ITableExporter CurtainWall() => new TableExporter(
+        "curtain_wall",
+        [BuiltInCategory.OST_Walls],
+        new CompositeExtractor(
+            [..CompositeExtractor.ExpandLineElement(), new VerticalSpanExtractor(), new MaterializedExtractor()],
+            ["u_grid_count", "v_grid_count", "u_spacing", "v_spacing", "panel_count", "panel_material"],
+            e =>
+            {
+                var fields = new Dictionary<string, string?>();
+                if (e is not Wall w || w.CurtainGrid is not { } grid) return fields;
+
+                fields["u_grid_count"] = grid.NumULines.ToString();
+                fields["v_grid_count"] = grid.NumVLines.ToString();
+                fields["u_spacing"] = ComputeUniformSpacing(grid.GetUGridLineIds(), e.Document);
+                fields["v_spacing"] = ComputeUniformSpacing(grid.GetVGridLineIds(), e.Document);
+
+                var panelIds = grid.GetPanelIds();
+                fields["panel_count"] = panelIds.Count.ToString();
+                fields["panel_material"] = GetDominantPanelMaterial(e.Document, panelIds);
+
+                return fields;
+            },
+            ["panel_count"]),
+        e => e is Wall w && w.WallType.Kind == WallKind.Curtain);
+
+    static string? ComputeUniformSpacing(ICollection<ElementId> gridLineIds, Document doc)
+    {
+        if (gridLineIds.Count < 2) return null;
+
+        // Get midpoints of each grid line's full curve
+        var midpoints = gridLineIds
+            .Select(id => doc.GetElement(id) as CurtainGridLine)
+            .Where(gl => gl is not null)
+            .Select(gl => gl!.FullCurve.Evaluate(0.5, true))
+            .ToList();
+
+        if (midpoints.Count < 2) return null;
+
+        // Grid lines are parallel — project onto perpendicular direction to get 1D offsets
+        // Perpendicular = direction from first to second midpoint (approximately)
+        var dir = (midpoints[1] - midpoints[0]).Normalize();
+        var offsets = midpoints.Select(p => dir.DotProduct(p)).OrderBy(o => o).ToList();
+
+        var spacing = offsets[1] - offsets[0];
+        for (var i = 2; i < offsets.Count; i++)
+        {
+            if (Math.Abs((offsets[i] - offsets[i - 1]) - spacing) > 0.001)
+                return null;
+        }
+
+        return UnitConverter.FormatDouble(UnitConverter.Length(spacing));
+    }
+
+    static string? GetDominantPanelMaterial(Document doc, ICollection<ElementId> panelIds)
+    {
+        return panelIds
+            .Select(id => doc.GetElement(id))
+            .Where(p => p is not null)
+            .SelectMany(p => p.GetMaterialIds(false))
+            .Select(id => doc.GetElement(id) as Material)
+            .Where(m => m is not null)
+            .GroupBy(m => m!.Name)
+            .OrderByDescending(g => g.Count())
+            .FirstOrDefault()?.Key;
+    }
 
     static string? GetDoorOperation(Element e)
     {

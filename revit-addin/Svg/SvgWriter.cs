@@ -89,6 +89,7 @@ static class SvgWriter
         var strokeWidth = tableName switch
         {
             "wall" or "structure_wall" => row.GetValueOrDefault("thickness"),
+            "curtain_wall" => "0.05",
             "beam" or "brace" => row.GetValueOrDefault("size_y"),
             "stair" => row.GetValueOrDefault("width"),
             "strip_foundation" => row.GetValueOrDefault("width"),

@@ -11,9 +11,9 @@ Exports Revit model elements to CSV files organized by category:
 | Category | Tables |
 |----------|--------|
 | Global | `level`, `grid` |
-| Architecture | `wall`, `column`, `slab`, `space`, `door`, `window`, `stair` |
+| Architecture | `wall`, `column`, `slab`, `space`, `door`, `window`, `stair`, `curtain_wall` |
 | Structure | `structure_wall`, `structure_column`, `structure_slab`, `beam`, `brace`, `isolated_foundation`, `strip_foundation`, `raft_foundation` |
-| MEP | `duct`, `pipe`, `cable_tray`, `conduit`, `equipment`, `terminal` |
+| MEP | `duct`, `pipe`, `cable_tray`, `conduit`, `mep_node`, `equipment`, `terminal` |
 
 Each CSV uses `element.UniqueId` as the `id` field. Units are metric (meters, square meters, degrees).
 
@@ -25,7 +25,7 @@ Reads CSV files from a folder and performs a three-way diff against the current 
 - **Create** — CSV row `id` not found in the model: a new element is created
 - **Delete** — model element not present in any CSV row: element is deleted
 
-**Supported element types (v1):** Level, Grid, Wall, Column, Slab, Space, Door, Window.
+**Supported element types (v1):** Level, Grid, Wall, Curtain Wall, Column, Slab, Space, Door, Window.
 
 Each table is imported in a separate transaction, so a failure in one table does not affect others. Import order respects dependencies (levels before walls, walls before doors).
 
@@ -89,7 +89,9 @@ revit-addin/
 │   ├── TypeResolver.cs        # Auto-create family types by dimension
 │   ├── IdMap.cs               # Cross-table ID resolution for references
 │   ├── GlobalImporters.cs     # Level, Grid importers
-│   └── ArchitectureImporters.cs # Wall, Column, Slab, Space, Door, Window importers
+│   ├── ArchitectureImporters.cs # Wall, CurtainWall, Column, Slab, Space, Door, Window importers
+│   ├── StructureImporters.cs  # Structure wall, column, slab, beam, brace, foundation importers
+│   └── MepImporters.cs        # Duct, pipe, cable tray, conduit, equipment, terminal importers
 ├── BimDown.addin              # Revit add-in manifest
 └── BimDown.RevitAddin.csproj
 ```

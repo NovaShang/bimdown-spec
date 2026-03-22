@@ -1,0 +1,31 @@
+name: curtain_wall
+bases:
+  - line_element
+  - vertical_span
+  - materialized
+
+fields:
+  - name: u_grid_count
+    type: integer
+    description: Number of horizontal (U) grid lines
+
+  - name: v_grid_count
+    type: integer
+    description: Number of vertical (V) grid lines
+
+  - name: u_spacing
+    type: float
+    description: Uniform U grid spacing in meters (null if irregular)
+
+  - name: v_spacing
+    type: float
+    description: Uniform V grid spacing in meters (null if irregular)
+
+  - name: panel_count
+    type: integer
+    computed: true
+    description: Total number of curtain panels
+
+  - name: panel_material
+    type: string
+    description: Dominant panel material name

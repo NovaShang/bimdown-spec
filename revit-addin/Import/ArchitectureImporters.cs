@@ -429,6 +429,74 @@ class StairImporter() : TableImporterBase("stair", 15, [BuiltInCategory.OST_Stai
     }
 }
 
+class CurtainWallImporter() : TableImporterBase(
+    "curtain_wall",
+    10,
+    [BuiltInCategory.OST_Walls],
+    e => e is Wall w && w.WallType.Kind == WallKind.Curtain)
+{
+    protected override Element? CreateElement(Document doc, Dictionary<string, string?> row)
+    {
+        var line = ParseLine2D(row);
+        var levelId = IdMap.Resolve(doc, row.GetValueOrDefault("level_id"))
+            ?? throw new InvalidOperationException("level_id is required");
+
+        var wallType = TypeResolver.FindCurtainWallType(doc);
+        var heightStr = row.GetValueOrDefault("height");
+        var heightFeet = heightStr is not null
+            ? UnitConverter.LengthToFeet(UnitConverter.ParseDouble(heightStr))
+            : 10.0;
+
+        var wall = Wall.Create(doc, line, wallType.Id, levelId, heightFeet, 0, false, false);
+
+        var baseOffsetStr = row.GetValueOrDefault("base_offset");
+        if (baseOffsetStr is not null)
+            wall.get_Parameter(BuiltInParameter.WALL_BASE_OFFSET)?.Set(
+                UnitConverter.LengthToFeet(UnitConverter.ParseDouble(baseOffsetStr)));
+
+        var topLevelId = IdMap.Resolve(doc, row.GetValueOrDefault("top_level_id"));
+        if (topLevelId is not null)
+            wall.get_Parameter(BuiltInParameter.WALL_HEIGHT_TYPE)?.Set(topLevelId);
+
+        var topOffsetStr = row.GetValueOrDefault("top_offset");
+        if (topOffsetStr is not null)
+            wall.get_Parameter(BuiltInParameter.WALL_TOP_OFFSET)?.Set(
+                UnitConverter.LengthToFeet(UnitConverter.ParseDouble(topOffsetStr)));
+
+        SetMark(wall, row);
+        return wall;
+    }
+
+    protected override void UpdateElement(Document doc, Dictionary<string, string?> row, Element element)
+    {
+        if (element is not Wall wall) return;
+
+        if (wall.Location is LocationCurve lc)
+            lc.Curve = ParseLine2D(row);
+
+        var heightStr = row.GetValueOrDefault("height");
+        if (heightStr is not null)
+            wall.get_Parameter(BuiltInParameter.WALL_USER_HEIGHT_PARAM)?.Set(
+                UnitConverter.LengthToFeet(UnitConverter.ParseDouble(heightStr)));
+
+        var baseOffsetStr = row.GetValueOrDefault("base_offset");
+        if (baseOffsetStr is not null)
+            wall.get_Parameter(BuiltInParameter.WALL_BASE_OFFSET)?.Set(
+                UnitConverter.LengthToFeet(UnitConverter.ParseDouble(baseOffsetStr)));
+
+        var topLevelId = IdMap.Resolve(doc, row.GetValueOrDefault("top_level_id"));
+        if (topLevelId is not null)
+            wall.get_Parameter(BuiltInParameter.WALL_HEIGHT_TYPE)?.Set(topLevelId);
+
+        var topOffsetStr = row.GetValueOrDefault("top_offset");
+        if (topOffsetStr is not null)
+            wall.get_Parameter(BuiltInParameter.WALL_TOP_OFFSET)?.Set(
+                UnitConverter.LengthToFeet(UnitConverter.ParseDouble(topOffsetStr)));
+
+        SetMark(wall, row);
+    }
+}
+
 static class HostedOpeningHelper
 {
     internal static Element? CreateHostedOpening(Document doc, Dictionary<string, string?> row,

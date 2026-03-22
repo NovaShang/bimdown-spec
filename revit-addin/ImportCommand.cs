@@ -50,6 +50,7 @@ public class ImportCommand : IExternalCommand
             // Order 10
             new WallImporter(),
             new StructureWallImporter(),
+            new CurtainWallImporter(),
             new ColumnImporter(),
             new StructureColumnImporter(),
             // Order 15

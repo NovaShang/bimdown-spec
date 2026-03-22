@@ -39,6 +39,7 @@ public class ExportCommand : IExternalCommand
             ArchitectureTableExporters.Door(),
             ArchitectureTableExporters.Window(),
             ArchitectureTableExporters.Stair(),
+            ArchitectureTableExporters.CurtainWall(),
             // Structure
             StructureTableExporters.StructureWall(),
             StructureTableExporters.StructureColumn(),
