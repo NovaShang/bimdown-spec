@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "workspaces": ["cli", "editor", "api", "web"],
+  "dependencies": {
+    "three-bvh-csg": "^0.0.18"
+  }
+}
