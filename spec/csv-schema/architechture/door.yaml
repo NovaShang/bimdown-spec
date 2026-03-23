@@ -15,7 +15,20 @@ fields:
   - name: operation
     type: enum
     values:
-      - swing
+      - single_swing
+      - double_swing
       - sliding
       - folding
       - revolving
+
+  - name: hinge_position
+    type: enum
+    values:
+      - start
+      - end
+
+  - name: swing_side
+    type: enum
+    values:
+      - left
+      - right
