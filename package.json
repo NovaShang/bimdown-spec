@@ -1,7 +1,13 @@
 {
   "private": true,
-  "workspaces": ["cli", "editor", "api", "web"],
+  "workspaces": [
+    "cli",
+    "editor",
+    "api",
+    "web"
+  ],
   "dependencies": {
+    "dotenv": "^17.3.1",
     "three-bvh-csg": "^0.0.18"
   }
 }
