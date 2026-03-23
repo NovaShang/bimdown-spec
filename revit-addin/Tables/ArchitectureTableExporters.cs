@@ -75,7 +75,7 @@ public static class ArchitectureTableExporters
         [BuiltInCategory.OST_Doors],
         new CompositeExtractor(
             [..CompositeExtractor.ExpandHostedElement(), new MaterializedExtractor()],
-            ["width", "height", "operation"],
+            ["width", "height", "operation", "hinge_position", "swing_side"],
             e =>
             {
                 var fields = new Dictionary<string, string?>();
@@ -88,6 +88,12 @@ public static class ArchitectureTableExporters
                 fields["width"] = w is { } wv ? UnitConverter.FormatDouble(UnitConverter.Length(wv)) : null;
                 fields["height"] = h is { } hv ? UnitConverter.FormatDouble(UnitConverter.Length(hv)) : null;
                 fields["operation"] = GetDoorOperation(e);
+                // Hinge side and swing direction from FamilyInstance flip state
+                if (e is FamilyInstance fi)
+                {
+                    fields["hinge_position"] = fi.HandFlipped ? "end" : "start";
+                    fields["swing_side"] = fi.FacingFlipped ? "right" : "left";
+                }
                 return fields;
             }));
 
