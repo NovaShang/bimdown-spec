@@ -3,4 +3,20 @@ abstract: true
 
 fields:
   - name: material
-    type: string
+    type: enum
+    values:
+      - concrete
+      - concrete_precast
+      - steel
+      - aluminum
+      - glass
+      - wood
+      - brick
+      - gypsum
+      - metal_panel
+      - insulation
+      - stone
+      - ceramic
+      - copper
+      - pvc
+      - galvanized_steel

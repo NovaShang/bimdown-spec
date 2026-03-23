@@ -70,7 +70,7 @@ The YAML schemas use two critical tags to define field behavior across the CSV a
 | `polygon_element`         | `points` (serialized polygon)                     |
 | `hosted_element`          | `host_id` (reference to host element), `location_param` |
 | `vertical_span`           | `top_level_id`, `top_offset`                      |
-| `materialized`            | `material`                                        |
+| `materialized`            | `material` (enum: concrete, concrete_precast, steel, aluminum, glass, wood, brick, gypsum, metal_panel, insulation, stone, ceramic, copper, pvc, galvanized_steel) |
 | `section_profile`         | `shape` (rect/round), `size_x`, `size_y`          |
 | `structural_section_profile` | `shape` (rect/round/l_shape/t_shape/…), `size_x`, `size_y` |
 | `mep_system`              | `system_type` (enum)                              |
