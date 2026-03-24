@@ -160,3 +160,100 @@ export function extractCircleGeometry(el: SvgElement): CircleGeometry {
   const r = parseFloat(el.attrs.r ?? '0');
   return { x: cx, y: cy, size_x: r * 2, size_y: r * 2 };
 }
+
+// ─── SVG writing / merging ───────────────────────────────
+
+function formatSvgAttrs(attrs: Record<string, string>, idOverride?: string): string {
+  const parts: string[] = [];
+  for (const [k, v] of Object.entries(attrs)) {
+    const val = k === 'id' && idOverride ? idOverride : v;
+    parts.push(`${k}="${val}"`);
+  }
+  return parts.join(' ');
+}
+
+function elementBounds(el: SvgElement): { minX: number; minY: number; maxX: number; maxY: number } {
+  switch (el.tag) {
+    case 'line': {
+      const x1 = parseFloat(el.attrs.x1 ?? '0'), y1 = parseFloat(el.attrs.y1 ?? '0');
+      const x2 = parseFloat(el.attrs.x2 ?? '0'), y2 = parseFloat(el.attrs.y2 ?? '0');
+      return { minX: Math.min(x1, x2), minY: Math.min(y1, y2), maxX: Math.max(x1, x2), maxY: Math.max(y1, y2) };
+    }
+    case 'rect': {
+      const x = parseFloat(el.attrs.x ?? '0'), y = parseFloat(el.attrs.y ?? '0');
+      const w = parseFloat(el.attrs.width ?? '0'), h = parseFloat(el.attrs.height ?? '0');
+      return { minX: x, minY: y, maxX: x + w, maxY: y + h };
+    }
+    case 'circle': {
+      const cx = parseFloat(el.attrs.cx ?? '0'), cy = parseFloat(el.attrs.cy ?? '0');
+      const r = parseFloat(el.attrs.r ?? '0');
+      return { minX: cx - r, minY: cy - r, maxX: cx + r, maxY: cy + r };
+    }
+    case 'polygon': {
+      const pts = (el.attrs.points ?? '').trim().split(/\s+/).map((p) => {
+        const [x, y] = p.split(',').map(Number);
+        return { x: x ?? 0, y: y ?? 0 };
+      });
+      if (pts.length === 0) return { minX: 0, minY: 0, maxX: 0, maxY: 0 };
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      for (const p of pts) {
+        minX = Math.min(minX, p.x); minY = Math.min(minY, p.y);
+        maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y);
+      }
+      return { minX, minY, maxX, maxY };
+    }
+    default:
+      return { minX: 0, minY: 0, maxX: 0, maxY: 0 };
+  }
+}
+
+export interface MergeSvgInput {
+  elements: SvgElement[];
+  idRemap: Map<string, string>;
+}
+
+export function writeMergedSvg(inputs: MergeSvgInput[]): string {
+  const allElements: { el: SvgElement; newId: string }[] = [];
+
+  for (const input of inputs) {
+    for (const el of input.elements) {
+      const newId = input.idRemap.get(el.id) ?? el.id;
+      allElements.push({ el, newId });
+    }
+  }
+
+  if (allElements.length === 0) {
+    return '<?xml version="1.0" encoding="utf-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 0 0">\n  <g transform="scale(1,-1)">\n  </g>\n</svg>';
+  }
+
+  // Compute union viewBox from element bounds (coordinates are in flipped space)
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const { el } of allElements) {
+    const b = elementBounds(el);
+    minX = Math.min(minX, b.minX); minY = Math.min(minY, b.minY);
+    maxX = Math.max(maxX, b.maxX); maxY = Math.max(maxY, b.maxY);
+  }
+
+  // viewBox uses positive-Y-up after scale(1,-1), so negate Y bounds
+  const vbX = minX;
+  const vbY = -maxY;
+  const vbW = maxX - minX;
+  const vbH = maxY - minY;
+
+  const pad = Math.max(vbW, vbH) * 0.02;
+  const viewBox = `${(vbX - pad).toFixed(3)} ${(vbY - pad).toFixed(3)} ${(vbW + pad * 2).toFixed(3)} ${(vbH + pad * 2).toFixed(3)}`;
+
+  const lines: string[] = [
+    '<?xml version="1.0" encoding="utf-8"?>',
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}">`,
+    '  <g transform="scale(1,-1)">',
+  ];
+
+  for (const { el, newId } of allElements) {
+    lines.push(`    <${el.tag} ${formatSvgAttrs(el.attrs, newId)} />`);
+  }
+
+  lines.push('  </g>');
+  lines.push('</svg>');
+  return lines.join('\n');
+}

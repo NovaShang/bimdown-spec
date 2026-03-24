@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-115.545 188.928 6.730 12.820">
+  <g transform="scale(1,-1)">
+    <line id="sw-13" x1="-109.061" y1="-189.175" x2="-109.061" y2="-201.502" stroke="black" stroke-width="0.305" stroke-linecap="square" />
+    <line id="sw-14" x1="-115.298" y1="-189.175" x2="-109.061" y2="-189.175" stroke="black" stroke-width="0.305" stroke-linecap="square" />
+    <line id="sw-15" x1="-115.298" y1="-189.175" x2="-115.298" y2="-201.502" stroke="black" stroke-width="0.305" stroke-linecap="square" />
+    <line id="sw-16" x1="-115.298" y1="-201.502" x2="-109.061" y2="-201.502" stroke="black" stroke-width="0.305" stroke-linecap="square" />
+  </g>
+</svg>

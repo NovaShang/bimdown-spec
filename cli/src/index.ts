@@ -138,6 +138,24 @@ program
     console.log(`  TOTAL: ${grand}`);
   });
 
+// ─── merge ───────────────────────────────────────────────
+program
+  .command('merge')
+  .argument('<dirs...>', 'Two or more BimDown project directories to merge')
+  .requiredOption('-o, --output <dir>', 'Output directory for merged project')
+  .description('Merge multiple BimDown project directories into one, resolving ID conflicts')
+  .action(async (dirs: string[], opts: { output: string }) => {
+    if (dirs.length < 2) {
+      console.error('At least 2 source directories are required.');
+      process.exitCode = 1;
+      return;
+    }
+    const absDirs = dirs.map((d) => resolve(d));
+    const absOut = resolve(opts.output);
+    const { merge } = await import('./commands/merge.js');
+    await merge(absDirs, absOut);
+  });
+
 // ─── schema ─────────────────────────────────────────────
 program
   .command('schema')
