@@ -25,3 +25,7 @@ node_modules/
 dist/
 package-lock.json
 .env
+
+# API local data
+api/.data/
+api/api-log.txt
