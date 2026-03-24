@@ -51,6 +51,44 @@ export function validateSvgFile(
     if (isHosted && !el.attrs['data-host']) {
       issues.push(`${displayPath}  hosted element "${el.id}" missing data-host attribute`);
     }
+
+    // Check coordinate ranges — values > 1000 likely millimeters
+    const coordAttrs = ['x1', 'y1', 'x2', 'y2', 'x', 'y', 'cx', 'cy', 'r', 'width', 'height'];
+    for (const attr of coordAttrs) {
+      const raw = el.attrs[attr];
+      if (raw === undefined) continue;
+      const val = Number(raw);
+      if (!isNaN(val) && Math.abs(val) > 1000) {
+        issues.push(
+          `${displayPath}  element "${el.id}" ${attr}=${raw} looks like millimeters — SVG coordinates must be in meters`,
+        );
+      }
+    }
+
+    // Check stroke-width range
+    const sw = el.attrs['stroke-width'];
+    if (sw !== undefined) {
+      const val = Number(sw);
+      if (!isNaN(val) && val > 10) {
+        issues.push(
+          `${displayPath}  element "${el.id}" stroke-width=${sw} looks like millimeters — must be in meters (typical: 0.1-0.3)`,
+        );
+      }
+    }
+
+    // Check polygon points range
+    if (el.attrs['points']) {
+      const points = el.attrs['points'].trim().split(/\s+/);
+      for (const pt of points) {
+        const [px, py] = pt.split(',').map(Number);
+        if ((!isNaN(px) && Math.abs(px) > 1000) || (!isNaN(py) && Math.abs(py) > 1000)) {
+          issues.push(
+            `${displayPath}  element "${el.id}" polygon point ${pt} looks like millimeters — coordinates must be in meters`,
+          );
+          break; // one warning per element is enough
+        }
+      }
+    }
   }
 
   return issues;

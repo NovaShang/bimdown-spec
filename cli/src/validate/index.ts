@@ -8,6 +8,7 @@ import { validateStructure } from './structure.js';
 import { validateCsvHeaders, validateCsvRequired, validateCsvEnums } from './csv.js';
 import { validateIdFormat, createIdRegistry, registerIds, type IdRegistry } from './ids.js';
 import { validateReferences } from './references.js';
+import { validateRanges } from './ranges.js';
 import { validateSvgFile } from './svg.js';
 
 interface CsvEntry {
@@ -86,7 +87,12 @@ export function validate(dir: string): string[] {
     issues.push(...validateReferences(entry.path, entry.table, entry.data, idRegistry));
   }
 
-  // 8. SVG validation
+  // 8. Value range validation (catches mm vs m mistakes)
+  for (const entry of csvEntries) {
+    issues.push(...validateRanges(entry.path, entry.table, entry.data));
+  }
+
+  // 9. SVG validation
   for (const d of allDirs) {
     if (!existsSync(d.path) || d.name === 'global') continue;
     const files = listFiles(d.path);
