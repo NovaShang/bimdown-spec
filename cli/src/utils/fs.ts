@@ -13,7 +13,7 @@ export function discoverLayout(dir: string): ProjectLayout {
 
   if (existsSync(dir) && statSync(dir).isDirectory()) {
     for (const entry of readdirSync(dir)) {
-      if (entry === 'global') continue;
+      if (entry === 'global' || entry.startsWith('.')) continue;
       const full = join(dir, entry);
       if (statSync(full).isDirectory()) {
         levelDirs.push({ name: entry, path: full });
