@@ -76,6 +76,7 @@ export function buildRegistry(specDir: string): Map<string, ResolvedTable> {
 }
 
 export function getSpecDir(): string {
+  if (process.env.SPEC_DIR) return process.env.SPEC_DIR;
   // Resolve spec dir relative to this package (cli/ is sibling to spec/)
   const thisFile = fileURLToPath(import.meta.url);
   const thisDir = dirname(thisFile);
