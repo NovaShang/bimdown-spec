@@ -57,7 +57,7 @@ To prevent "Floating Point / Math Hallucinations":
 1. The CSV `door.yaml` defines `width` as `required: true` (a semantic definition), meaning the CSV is the absolute **Source of Truth** for the door size.
 2. During Sync-Out, the CLI tool notices the SVG line length (`0.887`) does not match the semantic truth (`0.9`).
 3. The parser takes the SVG line's **midpoint** (as the pure intention of *placement/location*).
-4. **Auto-corrects** the SVG: The tool re-draws the SVG `<line>` symmetrically around that midpoint so that its length perfectly snaps to `0.9`, and writes to `doors.svg`.
+4. **Auto-corrects** the SVG: The tool re-draws the SVG `<line>` symmetrically around that midpoint so that its length perfectly snaps to `0.9`, and writes to `door.svg`.
 
 This creates an extremely resilient **Twin-Engine**: 
 - **CSV enforces Standard Typifications** (e.g., width = 0.9).

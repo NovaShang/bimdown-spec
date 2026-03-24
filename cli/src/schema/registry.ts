@@ -25,17 +25,12 @@ export const GLOBAL_ALLOWED_TABLES = new Set([
 ]);
 
 // SVG file name mapping: table name -> svg file name (without extension)
-export const SVG_FILE_NAMES: Record<string, string> = {
-  wall: 'walls', column: 'columns', slab: 'slabs', space: 'spaces',
-  door: 'doors', window: 'windows', stair: 'stairs',
-  structure_wall: 'structure_walls', structure_column: 'structure_columns',
-  structure_slab: 'structure_slabs',
-  beam: 'beams', brace: 'braces',
-  isolated_foundation: 'isolated_foundations',
-  strip_foundation: 'strip_foundations', raft_foundation: 'raft_foundations',
-  duct: 'ducts', pipe: 'pipes', cable_tray: 'cable_trays', conduit: 'conduits',
-  equipment: 'equipment', terminal: 'terminals',
-};
+// SVG files use the same name as the CSV (both singular): wall.csv + wall.svg
+export const SVG_FILE_NAMES: Record<string, string> = Object.fromEntries(
+  Object.keys(ID_PREFIXES)
+    .filter((k) => k !== 'level' && k !== 'grid')
+    .map((k) => [k, k]),
+);
 
 // Tables that have SVG geometry (not level/grid)
 export const TABLES_WITH_SVG = new Set(Object.keys(SVG_FILE_NAMES));

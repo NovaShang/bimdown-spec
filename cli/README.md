@@ -25,7 +25,7 @@ Output is one issue per line, prefixed with the file path:
 ```
 lv-1/door.csv:3  id "x-1" has wrong prefix, expected "d-"
 global/level.csv:5  required field "elevation" is empty
-lv-2/walls.svg  forbidden tag <path> found
+lv-2/wall.svg  forbidden tag <path> found
 ```
 
 ### `bimdown query <dir> <sql>`

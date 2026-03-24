@@ -13,17 +13,17 @@ SVGs are organized hierarchically by level (floor) and element category. This st
 ```text
 📁 {project-id}/
   📁 {level_name_or_id}/       (e.g., 1F, Level_1)
-    📄 walls.svg          (All line-based walls for this level)
-    📄 columns.svg        (Point-based structure)
-    📄 slabs.svg          (Polygon floors/slabs)
-    📄 spaces.svg         (Room polygons)
-    📄 doors.svg          (Hosted elements)
-    📄 stairs.svg         (Projected slices of global staircases)
+    📄 wall.svg          (All line-based walls for this level)
+    📄 column.svg        (Point-based structure)
+    📄 slab.svg          (Polygon floors/slabs)
+    📄 space.svg         (Room polygons)
+    📄 door.svg          (Hosted elements)
+    📄 stair.svg         (Projected slices of global staircases)
 ```
 
-By decoupling these into separate SVG files, an AI agent or renderer can easily overlay geometries like toggling layers: `walls.svg` + `columns.svg` + `doors.svg`.
+By decoupling these into separate SVG files, an AI agent or renderer can easily overlay geometries like toggling layers: `wall.svg` + `column.svg` + `door.svg`.
 
-*(Note on Cross-Floor Elements: While the CSV Attribute Layer introduces a `global/` folder for multi-story elements like stairs or MEP risers to preserve topology, the SVG Geometry Layer remains **strictly 2D slices**. A multistory stair in `global/stair.csv` is *projected* down by the parser tools and rendered into corresponding floor files like `1F/stairs.svg` and `2F/stairs.svg`. No `global/` SVG folder should exist.)*
+*(Note on Cross-Floor Elements: While the CSV Attribute Layer introduces a `global/` folder for multi-story elements like stairs or MEP risers to preserve topology, the SVG Geometry Layer remains **strictly 2D slices**. A multistory stair in `global/stair.csv` is *projected* down by the parser tools and rendered into corresponding floor files like `1F/stair.svg` and `2F/stair.svg`. No `global/` SVG folder should exist.)*
 
 ---
 
@@ -71,7 +71,7 @@ Instead of drawing the boundary of a wall as a complex polygon, we draw its **ce
     *   `(x1, y1)` to `(x2, y2)` matches the CSV axis.
     *   `stroke-width` = `thickness` (in meters).
     *   `stroke-linecap="square"` is recommended to maintain wall-end volume.
-*   **Example (`walls.svg`)**:
+*   **Example (`wall.svg`)**:
     ```xml
     <!-- A wall that is 0.2m thick connecting (0,0) and (5,0) -->
     <line id="w-1" x1="0" y1="0" x2="5" y2="0" stroke="black" stroke-width="0.2" stroke-linecap="square" />
@@ -85,7 +85,7 @@ Elements placed at a single point `(x, y)` with a defined profile (e.g., rectang
     *   Positioned directly by the insertion point `(x, y)` from CSV.
     *   Dimensions are mapped to `width` and `height`.
     *   Rotation is applied via `transform="rotate(angle, center_x, center_y)"`.
-*   **Example (`columns.svg`)**:
+*   **Example (`column.svg`)**:
     ```xml
     <!-- A 0.4m x 0.4m column at (2, 2). Rendered centered -->
     <rect id="c-1" x="1.8" y="1.8" width="0.4" height="0.4" fill="black" />
@@ -97,7 +97,7 @@ Elements defined by a closed loop of points.
 *   **SVG Tag**: `<polygon>`
 *   **Mapping**:
     *   `points` attribute contains the space-separated list of `x,y` coordinates.
-*   **Example (`spaces.svg`)**:
+*   **Example (`space.svg`)**:
     ```xml
     <!-- A simple 5x5m room -->
     <polygon id="sp-1" points="0,0 5,0 5,5 0,5" fill="rgba(0,0,255,0.1)" stroke="blue" stroke-width="0.05" />
@@ -107,7 +107,7 @@ Elements defined by a closed loop of points.
 Hosted elements rely on parametric locations in the CSV (`host_id` and `location_param`) rather than absolute global coordinates. 
 
 To maintain BIMDown's **"Flattened"** data philosophy, we do **not** nest doors inside a wall's `<g>` tag. Instead, we use a **Flat Parallel Structure**:
-1. Hosted elements live in their own isolated file (e.g., `doors.svg`) mirroring the CSV structure (`door.csv` -> `doors.svg`).
+1. Hosted elements live in their own isolated file (e.g., `door.svg`) mirroring the CSV structure (`door.csv` -> `door.svg`).
 2. They are placed at their absolute computed `(x, y)` coordinates by the serialization engine. 
 3. The relationship is preserved via an explicit `data-host` attribute, functioning as a foreign key.
 
@@ -116,9 +116,9 @@ To maintain BIMDown's **"Flattened"** data philosophy, we do **not** nest doors 
     *   `data-host` = `host_id` (the short ID of the parent wall).
     *   `(x1, y1)` to `(x2, y2)` represents the opening cut along the host wall's axis.
     *   `stroke` defines the visual "cut" (e.g., background color like `white`), and `stroke-width` is slightly wider than the host wall to visually occlude it.
-*   **Example (`doors.svg`)**:
+*   **Example (`door.svg`)**:
     ```xml
     <!-- A 1m door hosted on 'w-1', visualized as a white line cutting the black wall -->
     <line id="d-1" data-host="w-1" x1="4.5" y1="0" x2="5.5" y2="0" stroke="white" stroke-width="0.22" />
     ```
-*(Note: To prevent Agent hallucinations when modifying topologies, workflows should provide predefined Tools for LLMs. For example, if an AI moves a wall, it shouldn't manually update every door coordinate. Instead, it runs an update command to automatically sync the absolute `x,y` coordinates in `doors.svg` based on the unchanged `location_param` logic).*
+*(Note: To prevent Agent hallucinations when modifying topologies, workflows should provide predefined Tools for LLMs. For example, if an AI moves a wall, it shouldn't manually update every door coordinate. Instead, it runs an update command to automatically sync the absolute `x,y` coordinates in `door.svg` based on the unchanged `location_param` logic).*

@@ -5,22 +5,22 @@ import { parseSvgFile, extractLineGeometry, extractRectGeometry } from './svg.js
 const sampleDir = join(import.meta.dirname, '..', '..', '..', 'sample_data', 'architectural');
 
 describe('SVG parser', () => {
-  it('parses walls.svg', () => {
-    const svg = parseSvgFile(join(sampleDir, 'lv-1', 'walls.svg'));
+  it('parses wall.svg', () => {
+    const svg = parseSvgFile(join(sampleDir, 'lv-1', 'wall.svg'));
     expect(svg.hasYFlip).toBe(true);
     expect(svg.elements.length).toBeGreaterThan(0);
     expect(svg.elements[0].tag).toBe('line');
     expect(svg.elements[0].id).toMatch(/^w-/);
   });
 
-  it('parses columns.svg with rect elements', () => {
-    const svg = parseSvgFile(join(sampleDir, 'lv-1', 'columns.svg'));
+  it('parses column.svg with rect elements', () => {
+    const svg = parseSvgFile(join(sampleDir, 'lv-1', 'column.svg'));
     expect(svg.elements.length).toBeGreaterThan(0);
     expect(svg.elements[0].tag).toBe('rect');
   });
 
   it('extracts line geometry', () => {
-    const svg = parseSvgFile(join(sampleDir, 'lv-1', 'walls.svg'));
+    const svg = parseSvgFile(join(sampleDir, 'lv-1', 'wall.svg'));
     const wallEl = svg.elements[0];
     const geo = extractLineGeometry(wallEl);
     expect(geo.length).toBeGreaterThan(0);
@@ -28,7 +28,7 @@ describe('SVG parser', () => {
   });
 
   it('extracts rect geometry', () => {
-    const svg = parseSvgFile(join(sampleDir, 'lv-1', 'columns.svg'));
+    const svg = parseSvgFile(join(sampleDir, 'lv-1', 'column.svg'));
     const colEl = svg.elements[0];
     const geo = extractRectGeometry(colEl);
     expect(geo.size_x).toBeGreaterThan(0);
@@ -36,7 +36,7 @@ describe('SVG parser', () => {
   });
 
   it('detects data-host on doors', () => {
-    const svg = parseSvgFile(join(sampleDir, 'lv-1', 'doors.svg'));
+    const svg = parseSvgFile(join(sampleDir, 'lv-1', 'door.svg'));
     for (const el of svg.elements) {
       expect(el.attrs['data-host']).toBeDefined();
     }

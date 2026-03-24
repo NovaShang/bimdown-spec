@@ -109,11 +109,11 @@ export function generateSkill(): string {
   lines.push('    level.csv          # Building levels (required)');
   lines.push('    grid.csv           # Structural grids (optional)');
   lines.push('  lv-1/                # One directory per level');
-  lines.push('    wall.csv + walls.svg');
-  lines.push('    door.csv + doors.svg');
-  lines.push('    column.csv + columns.svg');
-  lines.push('    slab.csv + slabs.svg');
-  lines.push('    space.csv + spaces.svg');
+  lines.push('    wall.csv + wall.svg');
+  lines.push('    door.csv + door.svg');
+  lines.push('    column.csv + column.svg');
+  lines.push('    slab.csv + slab.svg');
+  lines.push('    space.csv + space.svg');
   lines.push('    ...more element types');
   lines.push('  lv-2/');
   lines.push('    ...');
@@ -124,7 +124,7 @@ export function generateSkill(): string {
   lines.push('## Key Rules');
   lines.push('');
   lines.push('1. **CSV and SVG are linked by `id`**: Every element has a unique id in both CSV row and SVG element `id` attribute.');
-  lines.push('2. **SVG file name is plural** of the CSV: `wall.csv` pairs with `walls.svg`.');
+  lines.push('2. **CSV and SVG use the same file name** (both singular): `wall.csv` pairs with `wall.svg`.');
   lines.push('3. **Coordinates are in meters**, Y-axis points up. SVG uses `<g transform="scale(1,-1)">` to flip Y.');
   lines.push('4. **IDs use prefix + number**: e.g. `w-1`, `d-2`, `c-3`. See each table for its prefix.');
   lines.push('5. **Every CSV+SVG pair must pass `bimdown validate`** before considering the task complete.');
@@ -224,7 +224,7 @@ export function generateSkill(): string {
   lines.push('w-4,,0,lv-2,0,concrete,0.2');
   lines.push('```');
   lines.push('');
-  lines.push('### lv-1/walls.svg');
+  lines.push('### lv-1/wall.svg');
   lines.push('```xml');
   lines.push('<?xml version="1.0" encoding="utf-8"?>');
   lines.push('<svg xmlns="http://www.w3.org/2000/svg" viewBox="-1 -9 12 10">');

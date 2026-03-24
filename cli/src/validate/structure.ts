@@ -62,14 +62,7 @@ export function validateStructure(dir: string): string[] {
         }
       } else if (ext === '.svg') {
         if (!KNOWN_SVG_NAMES.has(f)) {
-          // Give a helpful hint for the common singular mistake
-          const base = f.replace('.svg', '');
-          const correctEntry = Object.entries(SVG_FILE_NAMES).find(([k]) => k === base);
-          if (correctEntry) {
-            issues.push(`${ld.name}/${f}  wrong SVG file name — should be "${correctEntry[1]}.svg" (plural), not "${f}"`);
-          } else {
-            issues.push(`${ld.name}/${f}  unknown file — not a recognized BimDown SVG name`);
-          }
+          issues.push(`${ld.name}/${f}  unknown SVG file — not a recognized BimDown table name`);
         }
         // SVG must have matching CSV
         const svgBase = f.replace('.svg', '');
