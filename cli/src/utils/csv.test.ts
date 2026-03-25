@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { join } from 'node:path';
 import { readCsv } from './csv.js';
 
-const sampleDir = join(import.meta.dirname, '..', '..', '..', 'sample_data', 'architectural');
+const sampleDir = join(import.meta.dirname, '..', '..', '..', 'sample_data', 'Architecture');
 
 describe('CSV reader', () => {
   it('reads level.csv with BOM', () => {
@@ -14,15 +14,14 @@ describe('CSV reader', () => {
   });
 
   it('reads wall.csv with correct headers', () => {
-    const data = readCsv(join(sampleDir, 'lv-1', 'wall.csv'));
+    const data = readCsv(join(sampleDir, 'lv-2', 'wall.csv'));
     expect(data.headers).toContain('id');
     expect(data.headers).toContain('material');
     expect(data.rows.length).toBeGreaterThan(0);
   });
 
   it('handles quoted CSV values', () => {
-    const data = readCsv(join(sampleDir, 'lv-1', 'slab.csv'));
-    // slab.csv has quoted values like "Steel, Paint Finish, Dark Gray"
+    const data = readCsv(join(sampleDir, 'lv-2', 'slab.csv'));
     const row = data.rows.find((r) => r.material?.includes(','));
     expect(row).toBeDefined();
   });
