@@ -1,6 +1,6 @@
 ---
 name: bimdown
-description: BimDown format specification and CLI tools. Covers project structure, file formats (CSV + SVG pairs), and how to use bimdown_schema/bimdown_validate/bimdown_query/bimdown_info/bimdown_render tools to inspect, validate, and visualize projects.
+description: BimDown format specification and CLI tools. Covers project structure, file formats (CSV + SVG pairs), and how to use bimdown_schema/bimdown_build/bimdown_query/bimdown_info/bimdown_render tools to inspect, validate, and visualize projects.
 ---
 
 # BimDown Format
@@ -40,7 +40,7 @@ project/
 You have 5 BimDown tools available. Use them — don't try to parse files manually:
 
 - **`bimdown_schema`** — Look up exact column names and types before writing CSV files. Use `bimdown_schema wall` for one table, or `bimdown_schema` for all.
-- **`bimdown_validate`** — Check the project for errors after any file changes. Fix all issues before reporting success.
+- **`bimdown_build`** — Build: validates files and syncs to cloud. **Call after writing each CSV+SVG pair** (like compiling after each module). The user only sees your work after a successful build.
 - **`bimdown_info`** — Get a project overview: levels, element counts per level, totals.
 - **`bimdown_query`** — Run SQL (DuckDB) on project data. Tables match CSV names. Each has a `_partition` column (`global`, `lv-1`, etc.).
 - **`bimdown_render`** — Render a floor plan of a level as a PNG image. Use after creating or modifying geometry to visually verify walls, doors, windows, and spaces look correct. Pass `level` param (e.g. `"lv-1"`). If the render shows overlapping or misaligned elements, fix and render again. **This is for your internal verification only — never share the image with the user.**

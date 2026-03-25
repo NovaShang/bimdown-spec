@@ -35,23 +35,21 @@ Run `bimdown_schema` for each table you plan to use. **Do not guess column names
 - Forgetting `host_id` for doors/windows
 - Wrong enum values for `operation`, `shape`, `function`
 
-### Step 4: Create Files in This Order
+### Step 4: Create Files — Build After Each Pair
 
-**Order matters.** References must point to existing IDs.
+**Order matters.** References must point to existing IDs. **Run `bimdown_build` after each CSV+SVG pair** to catch errors early — do not write all files then build once at the end.
 
-1. **`global/level.csv`** — Define all levels with elevations
-2. **`global/grid.csv`** — Define structural grids (can be header-only if not needed)
+1. **`global/level.csv`** — Define all levels with elevations → `bimdown_build`
+2. **`global/grid.csv`** — Define structural grids (can be header-only if not needed) → `bimdown_build`
 3. **For each level directory (`lv-N/`):**
-   1. `wall.csv` + `wall.svg` — Walls first (doors/windows reference them)
-   2. `slab.csv` + `slab.svg` — Floor slab
-   3. `column.csv` + `column.svg` — If needed
-   4. `door.csv` + `door.svg` — After walls (needs `host_id` referencing wall IDs)
-   5. `window.csv` + `window.svg` — After walls (needs `host_id`)
-   6. `space.csv` + `space.svg` — Room definitions
+   1. `wall.csv` + `wall.svg` → `bimdown_build`
+   2. `slab.csv` + `slab.svg` → `bimdown_build`
+   3. `column.csv` + `column.svg` (if needed) → `bimdown_build`
+   4. `door.csv` + `door.svg` → `bimdown_build`
+   5. `window.csv` + `window.svg` → `bimdown_build`
+   6. `space.csv` + `space.svg` → `bimdown_build`
 
-### Step 5: Validate
-
-Run `bimdown_validate` and fix every error. Do not skip this step.
+If a build fails, fix the errors before writing the next pair.
 
 ### Step 6: Render, Evaluate, and Iterate
 
@@ -68,7 +66,7 @@ Run `bimdown_render` for each level to see the floor plan as an image. This is f
 **Iterate until the layout is correct.** This is a loop, not a single pass:
 1. Render → evaluate against requirements → identify issues
 2. Fix geometry (adjust coordinates, reposition walls/doors/spaces)
-3. Re-validate with `bimdown_validate`
+3. Run `bimdown_build` to validate and sync
 4. Render again → re-evaluate
 5. Repeat until the floor plan matches the user's intent
 
