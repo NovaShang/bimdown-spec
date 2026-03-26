@@ -121,7 +121,7 @@ export function validate(dir: string): string[] {
       const svgFullPath = join(d.path, f);
       const relPath = `${d.name}/${f}`;
       const isHosted = !!table.hostType;
-      issues.push(...validateSvgFile(relPath, svgFullPath, csvIds, isHosted));
+      issues.push(...validateSvgFile(relPath, svgFullPath, csvIds, isHosted, tableName));
     }
   }
 

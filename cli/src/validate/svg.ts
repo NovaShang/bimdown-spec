@@ -3,11 +3,28 @@ import { parseSvgFile } from '../utils/svg.js';
 const ALLOWED_TAGS = new Set(['svg', 'g', 'line', 'rect', 'polygon', 'circle', 'text']);
 const FORBIDDEN_TAGS = new Set(['path', 'defs', 'use', 'script', 'linearGradient', 'radialGradient', 'filter']);
 
+/** Expected SVG element tag(s) per table type */
+const EXPECTED_TAGS: Record<string, Set<string>> = {
+  wall: new Set(['line']),
+  door: new Set(['line']),
+  window: new Set(['line']),
+  column: new Set(['rect', 'circle']),
+  structure_column: new Set(['rect', 'circle']),
+  slab: new Set(['polygon']),
+  structure_slab: new Set(['polygon']),
+  space: new Set(['polygon']),
+  stair: new Set(['line']),
+  beam: new Set(['line']),
+  duct: new Set(['line']),
+  pipe: new Set(['line']),
+};
+
 export function validateSvgFile(
   displayPath: string,
   fullPath: string,
   csvIds: Set<string>,
   isHosted: boolean,
+  tableName?: string,
 ): string[] {
   const issues: string[] = [];
 
@@ -45,6 +62,12 @@ export function validateSvgFile(
 
     if (!csvIds.has(el.id)) {
       issues.push(`${displayPath}  SVG element "${el.id}" has no matching CSV row`);
+    }
+
+    // Check element uses correct SVG tag for this table type
+    if (tableName && EXPECTED_TAGS[tableName] && !EXPECTED_TAGS[tableName].has(el.tag)) {
+      const expected = [...EXPECTED_TAGS[tableName]].join(' or ');
+      issues.push(`${displayPath}  element "${el.id}" uses <${el.tag}> but ${tableName} requires <${expected}>`);
     }
 
     // Hosted elements must have data-host
