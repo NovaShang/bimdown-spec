@@ -21,8 +21,8 @@ When asked to create a building or floor plan:
 1. **Load the skill**: Read the bimdown SKILL.md to understand the format rules and available element types
 2. **Check schema**: Use `bimdown_schema` to verify exact column names for the tables you'll create
 3. **Plan the design**: Think about levels, room layout, wall positions, openings, and structural elements
-4. **Create levels first**: Write `global/level.csv` with all building levels and their elevations
-5. **Create elements per level**: For each level, create the appropriate CSV + SVG pairs (walls, doors, windows, columns, slabs, spaces)
+4. **Create levels first**: Write `model/global/level.csv` with all building levels and their elevations
+5. **Create elements per level**: For each level under `model/lv-N/`, create the appropriate CSV + SVG pairs (walls, doors, windows, columns, slabs, spaces)
 6. **Validate**: Use `bimdown_build` and fix any errors
 7. **Report**: Use `bimdown_info` to summarize what was created
 

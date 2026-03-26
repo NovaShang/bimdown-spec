@@ -9,8 +9,10 @@ BimDown is an AI-native building data format using paired CSV (attributes) and S
 
 ## Project Structure
 
+All model files live inside the `model/` subdirectory of your workspace. **Always write files under `model/`.**
+
 ```
-project/
+model/
   global/
     level.csv          # Required — building levels
     grid.csv           # Required — structural grids (can be empty header-only)
