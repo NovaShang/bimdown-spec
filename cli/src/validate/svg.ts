@@ -10,6 +10,8 @@ const EXPECTED_TAGS: Record<string, Set<string>> = {
   column: new Set(['rect', 'circle']),
   structure_column: new Set(['rect', 'circle']),
   slab: new Set(['polygon']),
+  roof: new Set(['polygon']),
+  ceiling: new Set(['polygon']),
   structure_slab: new Set(['polygon']),
   stair: new Set(['line']),
   beam: new Set(['line']),

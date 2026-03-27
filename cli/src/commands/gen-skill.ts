@@ -11,6 +11,8 @@ const SVG_GEOMETRY: Record<string, string> = {
   room_separator: '<line> with x1,y1,x2,y2 (virtual room boundary line, no thickness).',
   column: '<circle> (round) or <rect> (rectangular) at column center.',
   slab: '<polygon> with points attribute outlining the slab boundary.',
+  roof: '<polygon> outlining the roof footprint. 3D shape derived from roof_type + slope.',
+  ceiling: '<polygon> outlining the ceiling boundary.',
   stair: '<polygon> outlining the stair footprint.',
   curtain_wall: '<line> with x1,y1,x2,y2 (curtain wall centerline).',
   structure_wall: '<line> with x1,y1,x2,y2 (structural wall centerline).',
@@ -149,10 +151,10 @@ export function generateSkill(): string {
   lines.push('');
 
   // Group tables by discipline
-  const architecture = ['wall', 'door', 'window', 'column', 'slab', 'space', 'room_separator', 'stair', 'curtain_wall'];
+  const architecture = ['wall', 'door', 'window', 'column', 'slab', 'roof', 'ceiling', 'space', 'opening', 'room_separator', 'stair', 'curtain_wall'];
   const structure = ['structure_wall', 'structure_column', 'structure_slab', 'beam', 'brace', 'isolated_foundation', 'strip_foundation', 'raft_foundation'];
   const mep = ['duct', 'pipe', 'cable_tray', 'conduit', 'equipment', 'terminal'];
-  const global = ['level', 'grid'];
+  const global = ['level', 'grid', 'mesh'];
 
   lines.push('## Global Tables');
   lines.push('');

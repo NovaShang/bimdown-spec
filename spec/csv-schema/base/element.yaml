@@ -26,6 +26,10 @@ fields:
     type: float
     default: 0
 
+  - name: mesh_file
+    type: string
+    description: Optional GLB mesh path for precise 3D visualization
+
   - name: volume
     type: float
     computed: true

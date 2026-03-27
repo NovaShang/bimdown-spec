@@ -84,6 +84,21 @@ id,number,start_x,start_y,end_x,end_y
 - end_x (required)
 - end_y (required)
 
+### mesh
+
+- File: `global/mesh.csv`
+- ID prefix: `mesh-` (e.g. `mesh-1`, `mesh-2`)
+
+**CSV columns:**
+```
+id,category,name,level_id,mesh_file,x,y,z,rotation
+```
+
+- id (required)
+- category (required, enum: railing | generic_model | topography | planting | site | import | other)
+- level_id (ref → level)
+- mesh_file (required)
+
 ## Architecture
 
 ### wall
@@ -94,7 +109,7 @@ id,number,start_x,start_y,end_x,end_y
 
 **CSV columns:**
 ```
-id,number,base_offset,top_level_id,top_offset,material,thickness
+id,number,base_offset,mesh_file,top_level_id,top_offset,material,thickness
 ```
 
 - id (required)
@@ -112,7 +127,7 @@ id,number,base_offset,top_level_id,top_offset,material,thickness
 
 **CSV columns:**
 ```
-id,number,base_offset,host_id,position,material,width,height,operation,hinge_position,swing_side
+id,number,base_offset,mesh_file,host_id,position,material,width,height,operation,hinge_position,swing_side
 ```
 
 - id (required)
@@ -132,7 +147,7 @@ id,number,base_offset,host_id,position,material,width,height,operation,hinge_pos
 
 **CSV columns:**
 ```
-id,number,base_offset,host_id,position,material,width,height
+id,number,base_offset,mesh_file,host_id,position,material,width,height
 ```
 
 - id (required)
@@ -149,7 +164,7 @@ id,number,base_offset,host_id,position,material,width,height
 
 **CSV columns:**
 ```
-id,number,base_offset,top_level_id,top_offset,material,shape,size_x,size_y
+id,number,base_offset,mesh_file,top_level_id,top_offset,material,shape,size_x,size_y
 ```
 
 - id (required)
@@ -167,7 +182,7 @@ id,number,base_offset,top_level_id,top_offset,material,shape,size_x,size_y
 
 **CSV columns:**
 ```
-id,number,base_offset,material,function,thickness
+id,number,base_offset,mesh_file,material,function,thickness
 ```
 
 - id (required)
@@ -176,6 +191,39 @@ id,number,base_offset,material,function,thickness
 
 **SVG geometry:** <polygon> with points attribute outlining the slab boundary.
 
+### roof
+
+- CSV: `lv-{n}/roof.csv`
+- SVG: `lv-{n}/roof.svg`
+- ID prefix: `ro-` (e.g. `ro-1`, `ro-2`)
+
+**CSV columns:**
+```
+id,number,base_offset,mesh_file,material,roof_type,slope,thickness
+```
+
+- id (required)
+- material (enum: concrete | steel | wood | clt | glass | aluminum | brick | stone | gypsum | insulation | copper | pvc | ceramic | fiber_cement | composite)
+- roof_type (required, enum: flat | gable | hip | shed | mansard)
+
+**SVG geometry:** <polygon> outlining the roof footprint. 3D shape derived from roof_type + slope.
+
+### ceiling
+
+- CSV: `lv-{n}/ceiling.csv`
+- SVG: `lv-{n}/ceiling.svg`
+- ID prefix: `cl-` (e.g. `cl-1`, `cl-2`)
+
+**CSV columns:**
+```
+id,number,base_offset,mesh_file,material,height_offset
+```
+
+- id (required)
+- material (enum: concrete | steel | wood | clt | glass | aluminum | brick | stone | gypsum | insulation | copper | pvc | ceramic | fiber_cement | composite)
+
+**SVG geometry:** <polygon> outlining the ceiling boundary.
+
 ### space
 
 - CSV: `lv-{n}/space.csv`
@@ -183,12 +231,29 @@ id,number,base_offset,material,function,thickness
 
 **CSV columns:**
 ```
-id,number,base_offset,x,y,name
+id,number,base_offset,mesh_file,x,y,name
 ```
 
 - id (required)
 - x (required)
 - y (required)
+
+### opening
+
+- CSV: `lv-{n}/opening.csv`
+- ID prefix: `op-` (e.g. `op-1`, `op-2`)
+- Hosted on: wall
+
+**CSV columns:**
+```
+id,number,base_offset,mesh_file,host_id,position,width,height,shape
+```
+
+- id (required)
+- host_id (required, ref → element)
+- position (required)
+- width (required)
+- shape (enum: rect | round | arch)
 
 ### room_separator
 
@@ -198,7 +263,7 @@ id,number,base_offset,x,y,name
 
 **CSV columns:**
 ```
-id,number,base_offset
+id,number,base_offset,mesh_file
 ```
 
 - id (required)
@@ -213,7 +278,7 @@ id,number,base_offset
 
 **CSV columns:**
 ```
-id,number,base_offset,start_z,end_z,top_level_id,top_offset,width,step_count
+id,number,base_offset,mesh_file,start_z,end_z,top_level_id,top_offset,width,step_count
 ```
 
 - id (required)
@@ -233,7 +298,7 @@ id,number,base_offset,start_z,end_z,top_level_id,top_offset,width,step_count
 
 **CSV columns:**
 ```
-id,number,base_offset,top_level_id,top_offset,material,thickness
+id,number,base_offset,mesh_file,top_level_id,top_offset,material,thickness
 ```
 
 - id (required)
@@ -250,7 +315,7 @@ id,number,base_offset,top_level_id,top_offset,material,thickness
 
 **CSV columns:**
 ```
-id,number,base_offset,top_level_id,top_offset,material,shape,size_x,size_y
+id,number,base_offset,mesh_file,top_level_id,top_offset,material,shape,size_x,size_y
 ```
 
 - id (required)
@@ -268,7 +333,7 @@ id,number,base_offset,top_level_id,top_offset,material,shape,size_x,size_y
 
 **CSV columns:**
 ```
-id,number,base_offset,material,function,thickness
+id,number,base_offset,mesh_file,material,function,thickness
 ```
 
 - id (required)
@@ -285,7 +350,7 @@ id,number,base_offset,material,function,thickness
 
 **CSV columns:**
 ```
-id,number,base_offset,start_z,end_z,shape,size_x,size_y,material
+id,number,base_offset,mesh_file,start_z,end_z,shape,size_x,size_y,material
 ```
 
 - id (required)
@@ -304,7 +369,7 @@ id,number,base_offset,start_z,end_z,shape,size_x,size_y,material
 
 **CSV columns:**
 ```
-id,number,base_offset,start_z,end_z,shape,size_x,size_y,material
+id,number,base_offset,mesh_file,start_z,end_z,shape,size_x,size_y,material
 ```
 
 - id (required)
@@ -323,7 +388,7 @@ id,number,base_offset,start_z,end_z,shape,size_x,size_y,material
 
 **CSV columns:**
 ```
-id,number,base_offset,material,length,width,thickness
+id,number,base_offset,mesh_file,material,length,width,thickness
 ```
 
 - id (required)
@@ -339,7 +404,7 @@ id,number,base_offset,material,length,width,thickness
 
 **CSV columns:**
 ```
-id,number,base_offset,material,width,thickness
+id,number,base_offset,mesh_file,material,width,thickness
 ```
 
 - id (required)
@@ -355,7 +420,7 @@ id,number,base_offset,material,width,thickness
 
 **CSV columns:**
 ```
-id,number,base_offset,material,thickness
+id,number,base_offset,mesh_file,material,thickness
 ```
 
 - id (required)
@@ -373,7 +438,7 @@ id,number,base_offset,material,thickness
 
 **CSV columns:**
 ```
-id,number,base_offset,start_z,end_z,shape,size_x,size_y,system_type,start_node_id,end_node_id
+id,number,base_offset,mesh_file,start_z,end_z,shape,size_x,size_y,system_type,start_node_id,end_node_id
 ```
 
 - id (required)
@@ -392,7 +457,7 @@ id,number,base_offset,start_z,end_z,shape,size_x,size_y,system_type,start_node_i
 
 **CSV columns:**
 ```
-id,number,base_offset,start_z,end_z,shape,size_x,size_y,system_type,start_node_id,end_node_id
+id,number,base_offset,mesh_file,start_z,end_z,shape,size_x,size_y,system_type,start_node_id,end_node_id
 ```
 
 - id (required)
@@ -411,7 +476,7 @@ id,number,base_offset,start_z,end_z,shape,size_x,size_y,system_type,start_node_i
 
 **CSV columns:**
 ```
-id,number,base_offset,start_z,end_z,shape,size_x,size_y,system_type
+id,number,base_offset,mesh_file,start_z,end_z,shape,size_x,size_y,system_type
 ```
 
 - id (required)
@@ -430,7 +495,7 @@ id,number,base_offset,start_z,end_z,shape,size_x,size_y,system_type
 
 **CSV columns:**
 ```
-id,number,base_offset,start_z,end_z,shape,size_x,size_y,system_type
+id,number,base_offset,mesh_file,start_z,end_z,shape,size_x,size_y,system_type
 ```
 
 - id (required)
@@ -449,7 +514,7 @@ id,number,base_offset,start_z,end_z,shape,size_x,size_y,system_type
 
 **CSV columns:**
 ```
-id,number,base_offset,system_type,equipment_type
+id,number,base_offset,mesh_file,system_type,equipment_type
 ```
 
 - id (required)
@@ -466,7 +531,7 @@ id,number,base_offset,system_type,equipment_type
 
 **CSV columns:**
 ```
-id,number,base_offset,system_type,terminal_type
+id,number,base_offset,mesh_file,system_type,terminal_type
 ```
 
 - id (required)

@@ -1,0 +1,48 @@
+name: mesh
+abstract: false
+
+fields:
+  - name: id
+    type: string
+    required: true
+
+  - name: category
+    type: enum
+    required: true
+    values:
+      - railing
+      - generic_model
+      - topography
+      - planting
+      - site
+      - import
+      - other
+
+  - name: name
+    type: string
+
+  - name: level_id
+    type: reference
+    reference: level
+
+  - name: mesh_file
+    type: string
+    required: true
+    description: Path to GLB file relative to project root
+
+  - name: x
+    type: float
+    default: 0
+
+  - name: y
+    type: float
+    default: 0
+
+  - name: z
+    type: float
+    default: 0
+
+  - name: rotation
+    type: float
+    default: 0
+    description: Rotation around Z axis in degrees

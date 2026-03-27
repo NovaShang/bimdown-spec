@@ -1,0 +1,9 @@
+name: ceiling
+bases:
+  - polygon_element
+  - materialized
+
+fields:
+  - name: height_offset
+    type: float
+    description: Offset below level elevation (e.g. -0.3 for 30cm dropped ceiling)

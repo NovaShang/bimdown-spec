@@ -1,0 +1,22 @@
+name: roof
+bases:
+  - polygon_element
+  - materialized
+
+fields:
+  - name: roof_type
+    type: enum
+    required: true
+    values:
+      - flat
+      - gable
+      - hip
+      - shed
+      - mansard
+
+  - name: slope
+    type: float
+    description: Slope angle in degrees (0 = flat roof)
+
+  - name: thickness
+    type: float

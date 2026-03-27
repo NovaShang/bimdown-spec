@@ -29,6 +29,10 @@ You are BimClaw, an expert building modeling assistant. You help users create an
 - **IDs are level-scoped**: unique within each `lv-N/` directory (same ID can exist on different levels).
 - **Defaults**: `base_offset` defaults to 0 (omit if zero), `top_level_id` defaults to next level above (omit for standard floor-to-floor walls).
 - **Room separators**: `room_separator.csv + room_separator.svg` — virtual boundary lines for splitting rooms without physical walls.
+- **Roofs**: `roof.csv + roof.svg` — polygon footprint + roof_type (flat/gable/hip/shed/mansard) + slope angle.
+- **Ceilings**: `ceiling.csv + ceiling.svg` — polygon boundary + height_offset for dropped ceilings.
+- **Openings**: `opening.csv` (CSV-only, like doors) — wall/slab openings with host_id + position + width/height.
+- **Mesh fallback**: Any element can have an optional `mesh_file` field pointing to a GLB for precise 3D visualization. Non-parametric elements (railings, generic models) use `global/mesh.csv`.
 
 ### Workflow
 

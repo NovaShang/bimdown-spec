@@ -12,10 +12,12 @@ export const ID_PREFIXES: Record<string, string> = {
   duct: 'du', pipe: 'pi', cable_tray: 'ct', conduit: 'co',
   equipment: 'eq', terminal: 'tm',
   room_separator: 'rs',
+  roof: 'ro', ceiling: 'cl', opening: 'op',
+  mesh: 'mesh',
 };
 
 // Tables whose CSV lives only in global/ (not per-level)
-export const GLOBAL_ONLY_TABLES = new Set(['level', 'grid']);
+export const GLOBAL_ONLY_TABLES = new Set(['level', 'grid', 'mesh']);
 
 // Tables that can appear in global/ (cross-floor elements)
 export const GLOBAL_ALLOWED_TABLES = new Set([
@@ -26,7 +28,7 @@ export const GLOBAL_ALLOWED_TABLES = new Set([
 ]);
 
 // Tables without SVG geometry (level/grid are global-only, door/window use CSV position)
-const TABLES_WITHOUT_SVG = new Set(['level', 'grid', 'door', 'window', 'space']);
+const TABLES_WITHOUT_SVG = new Set(['level', 'grid', 'door', 'window', 'space', 'opening', 'mesh']);
 
 // SVG file name mapping: table name -> svg file name (without extension)
 // SVG files use the same name as the CSV (both singular): wall.csv + wall.svg

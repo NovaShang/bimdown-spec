@@ -1,0 +1,19 @@
+name: opening
+bases:
+  - hosted_element
+host_type: wall
+
+fields:
+  - name: width
+    type: float
+    required: true
+
+  - name: height
+    type: float
+
+  - name: shape
+    type: enum
+    values:
+      - rect
+      - round
+      - arch
