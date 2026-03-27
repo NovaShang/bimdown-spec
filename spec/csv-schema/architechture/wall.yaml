@@ -7,5 +7,5 @@ bases:
 fields:
   - name: thickness
     type: float
-    computed: true
-    description: Wall thickness in meters. Source of truth is SVG stroke-width.
+    required: true
+    description: Wall thickness in meters. SVG stroke-width should match but CSV is source of truth.

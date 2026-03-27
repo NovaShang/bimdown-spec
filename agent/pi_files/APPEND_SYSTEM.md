@@ -25,7 +25,7 @@ You are BimClaw, an expert building modeling assistant. You help users create an
 
 ### Key Changes from Previous Format
 
-- **Wall thickness** = SVG `stroke-width` on the `<line>` element (source of truth). CSV `thickness` is computed.
+- **Wall thickness** is in both CSV (`thickness` field) and SVG (`stroke-width`). CSV is source of truth; SVG should match.
 - **IDs are level-scoped**: unique within each `lv-N/` directory (same ID can exist on different levels).
 - **Defaults**: `base_offset` defaults to 0 (omit if zero), `top_level_id` defaults to next level above (omit for standard floor-to-floor walls).
 - **Room separators**: `room_separator.csv + room_separator.svg` — virtual boundary lines for splitting rooms without physical walls.
