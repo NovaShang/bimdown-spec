@@ -7,5 +7,5 @@ bases:
 fields:
   - name: thickness
     type: float
-    required: true
-    description: Wall thickness in meters. SVG stroke-width is for rendering only.
+    computed: true
+    description: Wall thickness in meters. Source of truth is SVG stroke-width.

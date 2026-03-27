@@ -35,7 +35,7 @@ project/
 4. **IDs are unique within each level** and use prefix + number: e.g. `w-1`, `d-2`, `c-3`.
 5. **Doors/windows are CSV-only** — no SVG file. Use `host_id` + `position` (0.0-1.0 along host wall, center of opening).
 6. **Spaces are CSV-only** — seed point (x, y) inside the room, boundary auto-derived from walls + room_separators.
-7. **Wall thickness is a CSV field** — SVG `stroke-width` is for rendering only.
+7. **Wall thickness = SVG `stroke-width`** — set it on the `<line>` element.
 8. **Defaults**: `base_offset` defaults to 0, `top_level_id` defaults to next level above.
 
 ## SVG Template
@@ -109,15 +109,14 @@ id,category,name,level_id,mesh_file,x,y,z,rotation
 
 **CSV columns:**
 ```
-id,number,base_offset,mesh_file,top_level_id,top_offset,material,thickness
+id,number,base_offset,mesh_file,top_level_id,top_offset,material
 ```
 
 - id (required)
 - top_level_id (ref → level)
 - material (enum: concrete | steel | wood | clt | glass | aluminum | brick | stone | gypsum | insulation | copper | pvc | ceramic | fiber_cement | composite)
-- thickness (required)
 
-**SVG geometry:** <line> with x1,y1,x2,y2 (wall centerline). stroke-width for rendering only, thickness is in CSV.
+**SVG geometry:** <line> with x1,y1,x2,y2 (wall centerline). stroke-width = wall thickness.
 
 ### door
 

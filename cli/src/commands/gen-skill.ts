@@ -7,7 +7,7 @@ import { buildRegistry, getSpecDir, ID_PREFIXES, SVG_FILE_NAMES, GLOBAL_ONLY_TAB
 import type { ResolvedTable, ResolvedField } from '../schema/types.js';
 
 const SVG_GEOMETRY: Record<string, string> = {
-  wall: '<line> with x1,y1,x2,y2 (wall centerline). stroke-width for rendering only, thickness is in CSV.',
+  wall: '<line> with x1,y1,x2,y2 (wall centerline). stroke-width = wall thickness.',
   room_separator: '<line> with x1,y1,x2,y2 (virtual room boundary line, no thickness).',
   column: '<circle> (round) or <rect> (rectangular) at column center.',
   slab: '<polygon> with points attribute outlining the slab boundary.',
@@ -131,7 +131,7 @@ export function generateSkill(): string {
   lines.push('4. **IDs are unique within each level** and use prefix + number: e.g. `w-1`, `d-2`, `c-3`.');
   lines.push('5. **Doors/windows are CSV-only** — no SVG file. Use `host_id` + `position` (0.0-1.0 along host wall, center of opening).');
   lines.push('6. **Spaces are CSV-only** — seed point (x, y) inside the room, boundary auto-derived from walls + room_separators.');
-  lines.push('7. **Wall thickness is a CSV field** — SVG `stroke-width` is for rendering only.');
+  lines.push('7. **Wall thickness = SVG `stroke-width`** — set it on the `<line>` element.');
   lines.push('8. **Defaults**: `base_offset` defaults to 0, `top_level_id` defaults to next level above.');
   lines.push('');
 

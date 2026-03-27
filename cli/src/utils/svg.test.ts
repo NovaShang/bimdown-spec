@@ -24,7 +24,7 @@ describe('SVG parser', () => {
     const wallEl = svg.elements[0];
     const geo = extractLineGeometry(wallEl);
     expect(geo.length).toBeGreaterThan(0);
-    expect(geo.start_x).toBeDefined();
+    expect(geo.thickness).toBeGreaterThan(0);
   });
 
   it('extracts rect geometry', () => {
