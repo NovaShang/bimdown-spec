@@ -24,6 +24,7 @@ fields:
 
   - name: base_offset
     type: float
+    default: 0
 
   - name: volume
     type: float

@@ -187,7 +187,7 @@ program
         console.log(`    ${f.name}: ${f.type}${tagStr}`);
       }
       if (resolved.computedFields.length > 0) {
-        console.log('  Computed fields (from SVG):');
+        console.log('  Computed fields:');
         for (const f of resolved.computedFields) {
           console.log(`    ${f.name}: ${f.type}`);
         }

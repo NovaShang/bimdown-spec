@@ -11,6 +11,7 @@ export const ID_PREFIXES: Record<string, string> = {
   strip_foundation: 'sf', raft_foundation: 'rf',
   duct: 'du', pipe: 'pi', cable_tray: 'ct', conduit: 'co',
   equipment: 'eq', terminal: 'tm',
+  room_separator: 'rs',
 };
 
 // Tables whose CSV lives only in global/ (not per-level)
@@ -24,15 +25,18 @@ export const GLOBAL_ALLOWED_TABLES = new Set([
   'structure_column', 'beam', 'brace',
 ]);
 
+// Tables without SVG geometry (level/grid are global-only, door/window use CSV position)
+const TABLES_WITHOUT_SVG = new Set(['level', 'grid', 'door', 'window', 'space']);
+
 // SVG file name mapping: table name -> svg file name (without extension)
 // SVG files use the same name as the CSV (both singular): wall.csv + wall.svg
 export const SVG_FILE_NAMES: Record<string, string> = Object.fromEntries(
   Object.keys(ID_PREFIXES)
-    .filter((k) => k !== 'level' && k !== 'grid')
+    .filter((k) => !TABLES_WITHOUT_SVG.has(k))
     .map((k) => [k, k]),
 );
 
-// Tables that have SVG geometry (not level/grid)
+// Tables that have SVG geometry
 export const TABLES_WITH_SVG = new Set(Object.keys(SVG_FILE_NAMES));
 
 let _registry: Map<string, ResolvedTable> | null = null;

@@ -18,7 +18,7 @@ export function validateReferences(
       const val = row[f.name];
       if (!val) continue; // empty is OK if not required (required check handles that)
 
-      const entry = idRegistry.ids.get(val);
+      const entry = idRegistry.allIds.get(val);
       if (!entry) {
         issues.push(`${path}:${i + 2}  ${f.name} "${val}" references non-existent id`);
         continue;

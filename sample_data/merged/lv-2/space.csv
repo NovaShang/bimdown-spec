@@ -1,12 +1,12 @@
-id,number,base_offset,name
-sp-1,106,,Exhibition 4 106
-sp-2,107,,Storage 107
-sp-3,125,,Restroom 125
-sp-4,126,,Restroom 126
-sp-5,127,,Elevator 127
-sp-6,132,,Mechanic 132
-sp-7,140,,Restroom 140
-sp-8,141,,Restroom 141
-sp-9,142,,Elevator 142
-sp-10,143,,Mechanics 143
-sp-11,161,,Exhibit 4 161
+id,number,base_offset,x,y,name
+sp-1,106,,-127.114,-205.225,Exhibition 4 106
+sp-2,107,,-116.115,-214.071,Storage 107
+sp-3,125,,0,0,Restroom 125
+sp-4,126,,0,0,Restroom 126
+sp-5,127,,0,0,Elevator 127
+sp-6,132,,0,0,Mechanic 132
+sp-7,140,,-113.469,-192.248,Restroom 140
+sp-8,141,,-113.298,-197.524,Restroom 141
+sp-9,142,,-113.955,-200.311,Elevator 142
+sp-10,143,,-118.718,-195.993,Mechanics 143
+sp-11,161,,-127.114,-205.225,Exhibit 4 161

@@ -23,13 +23,15 @@ export function validateIdFormat(
 }
 
 export interface IdRegistry {
-  // id -> { table, path, row }
+  // "level/id" -> { table, path, row } for level-scoped uniqueness
   ids: Map<string, { table: string; path: string; row: number }>;
+  // All ids across the project (for reference lookups)
+  allIds: Map<string, { table: string; path: string; row: number }>;
   issues: string[];
 }
 
 export function createIdRegistry(): IdRegistry {
-  return { ids: new Map(), issues: [] };
+  return { ids: new Map(), allIds: new Map(), issues: [] };
 }
 
 export function registerIds(
@@ -38,11 +40,16 @@ export function registerIds(
   tableName: string,
   data: CsvData,
 ): void {
+  // Extract level scope from path (e.g., "lv-1/wall.csv" -> "lv-1")
+  const level = path.split('/')[0];
+
   for (let i = 0; i < data.rows.length; i++) {
     const id = data.rows[i].id;
     if (!id) continue;
 
-    const existing = registry.ids.get(id);
+    // Level-scoped uniqueness check
+    const scopedKey = `${level}/${id}`;
+    const existing = registry.ids.get(scopedKey);
     if (existing) {
       if (existing.table === tableName) {
         registry.issues.push(
@@ -54,7 +61,10 @@ export function registerIds(
         );
       }
     } else {
-      registry.ids.set(id, { table: tableName, path, row: i + 2 });
+      registry.ids.set(scopedKey, { table: tableName, path, row: i + 2 });
     }
+
+    // Also register in global lookup (for reference resolution)
+    registry.allIds.set(id, { table: tableName, path, row: i + 2 });
   }
 }

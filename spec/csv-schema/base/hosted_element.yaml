@@ -9,6 +9,7 @@ fields:
     reference: element
     required: true
 
-  - name: location_param
+  - name: position
     type: float
-    computed: true
+    required: true
+    description: Parametric position along host element (0.0 = start, 1.0 = end, center of opening)

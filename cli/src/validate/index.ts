@@ -92,6 +92,22 @@ export function validate(dir: string): string[] {
     issues.push(...validateRanges(entry.path, entry.table, entry.data));
   }
 
+  // 8b. Hosted element position validation (0-1 range)
+  for (const entry of csvEntries) {
+    if (!entry.table.hostType) continue;
+    for (let i = 0; i < entry.data.rows.length; i++) {
+      const row = entry.data.rows[i];
+      const pos = row.position;
+      if (pos === undefined || pos === '') continue;
+      const val = Number(pos);
+      if (isNaN(val) || val < 0 || val > 1) {
+        issues.push(
+          `${entry.path}:${i + 2}  position=${pos} must be between 0.0 and 1.0`,
+        );
+      }
+    }
+  }
+
   // 9. SVG validation
   for (const d of allDirs) {
     if (!existsSync(d.path) || d.name === 'global') continue;

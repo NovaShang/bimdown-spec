@@ -6,13 +6,11 @@ const FORBIDDEN_TAGS = new Set(['path', 'defs', 'use', 'script', 'linearGradient
 /** Expected SVG element tag(s) per table type */
 const EXPECTED_TAGS: Record<string, Set<string>> = {
   wall: new Set(['line']),
-  door: new Set(['line']),
-  window: new Set(['line']),
+  room_separator: new Set(['line']),
   column: new Set(['rect', 'circle']),
   structure_column: new Set(['rect', 'circle']),
   slab: new Set(['polygon']),
   structure_slab: new Set(['polygon']),
-  space: new Set(['polygon']),
   stair: new Set(['line']),
   beam: new Set(['line']),
   duct: new Set(['line']),

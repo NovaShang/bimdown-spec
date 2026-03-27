@@ -1,7 +1,17 @@
 name: space
 bases:
-  - polygon_element
+  - element
 
 fields:
+  - name: x
+    type: float
+    required: true
+    description: Seed point X coordinate (room interior point)
+
+  - name: y
+    type: float
+    required: true
+    description: Seed point Y coordinate (room interior point)
+
   - name: name
     type: string

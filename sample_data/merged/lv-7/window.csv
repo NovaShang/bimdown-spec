@@ -1,7 +1,7 @@
-id,number,base_offset,host_id,material,width,height
-wn-60,235,27.121,sl-6,Glass,0.61,1.524
-wn-61,236,27.137,sl-6,Glass,0.61,1.524
-wn-62,237,27.127,sl-6,Glass,0.61,1.524
-wn-63,250,27.126,sl-6,Glass,1.016,2.54
-wn-64,251,27.367,sl-6,Glass,1.016,2.54
-wn-65,252,27.126,sl-6,Glass,1.016,2.54
+id,number,base_offset,host_id,position,material,width,height
+wn-60,235,27.121,sl-6,0.5,glass,0.61,1.524
+wn-61,236,27.137,sl-6,0.5,glass,0.61,1.524
+wn-62,237,27.127,sl-6,0.5,glass,0.61,1.524
+wn-63,250,27.126,sl-6,0.5,glass,1.016,2.54
+wn-64,251,27.367,sl-6,0.5,glass,1.016,2.54
+wn-65,252,27.126,sl-6,0.5,glass,1.016,2.54

@@ -1,17 +1,17 @@
-id,number,base_offset,name
-sp-47,116,,Restroom 116
-sp-48,117,,Restroom 117
-sp-49,118,,Elevator 118
-sp-50,119,,Conference Room 119
-sp-51,120,,Conference Room 120
-sp-52,121,,Private Office 121
-sp-53,122,,Private Office 122
-sp-54,123,,Private Office 123
-sp-55,124,,Open Office 124
-sp-56,135,,Room Name 135
-sp-57,153,,Conference Room 153
-sp-58,154,,Conference Room 154
-sp-59,155,,Restroom 155
-sp-60,156,,Restroom 156
-sp-61,157,,Elevator 157
-sp-62,160,,Hallway 160
+id,number,base_offset,x,y,name
+sp-47,116,,0,0,Restroom 116
+sp-48,117,,0,0,Restroom 117
+sp-49,118,,0,0,Elevator 118
+sp-50,119,,0,0,Conference Room 119
+sp-51,120,,0,0,Conference Room 120
+sp-52,121,,-122.153,-191.683,Private Office 121
+sp-53,122,,-117.718,-191.683,Private Office 122
+sp-54,123,,-126.462,-192.14,Private Office 123
+sp-55,124,,-129.78,-195.044,Open Office 124
+sp-56,135,,0,0,Room Name 135
+sp-57,153,,-121.211,-198.785,Conference Room 153
+sp-58,154,,-113.159,-206.705,Conference Room 154
+sp-59,155,,-113.824,-192.604,Restroom 155
+sp-60,156,,-113.298,-197.524,Restroom 156
+sp-61,157,,-113.955,-200.311,Elevator 157
+sp-62,160,,0,0,Hallway 160

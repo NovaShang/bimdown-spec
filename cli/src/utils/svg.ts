@@ -79,7 +79,6 @@ export interface LineGeometry {
   end_x: number;
   end_y: number;
   length: number;
-  thickness: number;
 }
 
 export interface RectGeometry {
@@ -107,14 +106,12 @@ export function extractLineGeometry(el: SvgElement): LineGeometry {
   const y1 = parseFloat(el.attrs.y1 ?? '0');
   const x2 = parseFloat(el.attrs.x2 ?? '0');
   const y2 = parseFloat(el.attrs.y2 ?? '0');
-  const sw = parseFloat(el.attrs['stroke-width'] ?? '0');
   const dx = x2 - x1;
   const dy = y2 - y1;
   return {
     start_x: x1, start_y: y1,
     end_x: x2, end_y: y2,
     length: Math.sqrt(dx * dx + dy * dy),
-    thickness: sw,
   };
 }
 

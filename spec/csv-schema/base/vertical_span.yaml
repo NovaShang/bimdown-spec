@@ -5,9 +5,12 @@ fields:
   - name: top_level_id
     type: reference
     reference: level
+    description: Top constraint level. Empty = next level above current level.
 
   - name: top_offset
     type: float
+    default: 0
+    description: Offset from top level. Default 0.
 
   - name: height
     type: float

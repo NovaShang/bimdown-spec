@@ -1,5 +1,5 @@
-id,number,base_offset,top_level_id,top_offset,material
-sw-13,,0,lv-4,0,"Concrete, Cast-in-Place gray"
-sw-14,,0,lv-4,0,"Concrete, Cast-in-Place gray"
-sw-15,,0,lv-4,0,"Concrete, Cast-in-Place gray"
-sw-16,,0,lv-4,0,"Concrete, Cast-in-Place gray"
+id,number,base_offset,top_level_id,top_offset,material,thickness
+sw-13,,0,lv-4,0,concrete,0.305
+sw-14,,0,lv-4,0,concrete,0.305
+sw-15,,0,lv-4,0,concrete,0.305
+sw-16,,0,lv-4,0,concrete,0.305

@@ -7,12 +7,10 @@ import { buildRegistry, getSpecDir, ID_PREFIXES, SVG_FILE_NAMES, GLOBAL_ONLY_TAB
 import type { ResolvedTable, ResolvedField } from '../schema/types.js';
 
 const SVG_GEOMETRY: Record<string, string> = {
-  wall: '<line> with x1,y1,x2,y2 (wall centerline). stroke-width = thickness.',
-  door: '<line> on host wall, representing door position.',
-  window: '<line> on host wall, representing window position.',
+  wall: '<line> with x1,y1,x2,y2 (wall centerline). stroke-width for rendering only, thickness is in CSV.',
+  room_separator: '<line> with x1,y1,x2,y2 (virtual room boundary line, no thickness).',
   column: '<circle> (round) or <rect> (rectangular) at column center.',
   slab: '<polygon> with points attribute outlining the slab boundary.',
-  space: '<polygon> with points, fill="rgba(0,0,255,0.1)" stroke="blue".',
   stair: '<polygon> outlining the stair footprint.',
   curtain_wall: '<line> with x1,y1,x2,y2 (curtain wall centerline).',
   structure_wall: '<line> with x1,y1,x2,y2 (structural wall centerline).',
@@ -92,12 +90,12 @@ export function generateSkill(): string {
 
   lines.push('---');
   lines.push('name: bimdown');
-  lines.push('description: Create and modify building models in BimDown format (CSV + SVG dual-file). Covers architecture, structure, and MEP disciplines.');
+  lines.push('description: Create and modify building models in BimDown format. Most elements use CSV + SVG pairs; doors, windows, and spaces are CSV-only. Covers architecture, structure, and MEP disciplines.');
   lines.push('---');
   lines.push('');
   lines.push('# BimDown Format');
   lines.push('');
-  lines.push('BimDown is an AI-native building data format using paired CSV (attributes) and SVG (geometry) files.');
+  lines.push('BimDown is an AI-native building data format. Most elements use paired CSV (attributes) + SVG (2D geometry) files. Hosted elements (doors, windows) and spaces are CSV-only.');
   lines.push('');
 
   // Project structure
@@ -110,10 +108,12 @@ export function generateSkill(): string {
   lines.push('    grid.csv           # Structural grids (optional)');
   lines.push('  lv-1/                # One directory per level');
   lines.push('    wall.csv + wall.svg');
-  lines.push('    door.csv + door.svg');
+  lines.push('    door.csv              # CSV-only (position on host wall)');
+  lines.push('    window.csv            # CSV-only (position on host wall)');
   lines.push('    column.csv + column.svg');
   lines.push('    slab.csv + slab.svg');
-  lines.push('    space.csv + space.svg');
+  lines.push('    space.csv             # CSV-only (seed point x,y + name)');
+  lines.push('    room_separator.csv + room_separator.svg  # virtual boundary lines');
   lines.push('    ...more element types');
   lines.push('  lv-2/');
   lines.push('    ...');
@@ -123,11 +123,14 @@ export function generateSkill(): string {
   // Key rules
   lines.push('## Key Rules');
   lines.push('');
-  lines.push('1. **CSV and SVG are linked by `id`**: Every element has a unique id in both CSV row and SVG element `id` attribute.');
+  lines.push('1. **CSV and SVG are linked by `id`**: Elements with SVG have a unique id in both CSV row and SVG element `id` attribute.');
   lines.push('2. **CSV and SVG use the same file name** (both singular): `wall.csv` pairs with `wall.svg`.');
   lines.push('3. **Coordinates are in meters**, Y-axis points up. SVG uses `<g transform="scale(1,-1)">` to flip Y.');
-  lines.push('4. **IDs use prefix + number**: e.g. `w-1`, `d-2`, `c-3`. See each table for its prefix.');
-  lines.push('5. **Every CSV+SVG pair must pass `bimdown validate`** before considering the task complete.');
+  lines.push('4. **IDs are unique within each level** and use prefix + number: e.g. `w-1`, `d-2`, `c-3`.');
+  lines.push('5. **Doors/windows are CSV-only** — no SVG file. Use `host_id` + `position` (0.0-1.0 along host wall, center of opening).');
+  lines.push('6. **Spaces are CSV-only** — seed point (x, y) inside the room, boundary auto-derived from walls + room_separators.');
+  lines.push('7. **Wall thickness is a CSV field** — SVG `stroke-width` is for rendering only.');
+  lines.push('8. **Defaults**: `base_offset` defaults to 0, `top_level_id` defaults to next level above.');
   lines.push('');
 
   // SVG template
@@ -146,7 +149,7 @@ export function generateSkill(): string {
   lines.push('');
 
   // Group tables by discipline
-  const architecture = ['wall', 'door', 'window', 'column', 'slab', 'space', 'stair', 'curtain_wall'];
+  const architecture = ['wall', 'door', 'window', 'column', 'slab', 'space', 'room_separator', 'stair', 'curtain_wall'];
   const structure = ['structure_wall', 'structure_column', 'structure_slab', 'beam', 'brace', 'isolated_foundation', 'strip_foundation', 'raft_foundation'];
   const mep = ['duct', 'pipe', 'cable_tray', 'conduit', 'equipment', 'terminal'];
   const global = ['level', 'grid'];
@@ -187,11 +190,11 @@ export function generateSkill(): string {
   lines.push('bimdown validate /project');
   lines.push('```');
   lines.push('Fix all reported issues before proceeding. Common errors:');
-  lines.push('- Missing SVG file for a CSV (every CSV needs a paired SVG)');
+  lines.push('- Missing SVG file for a CSV that requires one (walls, columns, slabs need SVG; doors, windows, spaces do not)');
   lines.push('- Wrong column names (use `bimdown schema <table>` to check)');
   lines.push('- Missing required fields (id is always required)');
   lines.push('- Wrong ID prefix (e.g. `col-1` instead of `c-1`)');
-  lines.push('- SVG element IDs not matching CSV IDs');
+  lines.push('- Door/window position out of 0-1 range');
   lines.push('');
 
   // CLI tools
@@ -206,7 +209,7 @@ export function generateSkill(): string {
   lines.push('');
 
   // Example
-  lines.push('## Example: Simple Room');
+  lines.push('## Example: Simple Room with Door');
   lines.push('');
   lines.push('### global/level.csv');
   lines.push('```csv');
@@ -217,11 +220,11 @@ export function generateSkill(): string {
   lines.push('');
   lines.push('### lv-1/wall.csv');
   lines.push('```csv');
-  lines.push('id,number,base_offset,top_level_id,top_offset,material,thickness');
-  lines.push('w-1,,0,lv-2,0,concrete,0.2');
-  lines.push('w-2,,0,lv-2,0,concrete,0.2');
-  lines.push('w-3,,0,lv-2,0,concrete,0.2');
-  lines.push('w-4,,0,lv-2,0,concrete,0.2');
+  lines.push('id,material,thickness');
+  lines.push('w-1,concrete,0.2');
+  lines.push('w-2,concrete,0.2');
+  lines.push('w-3,concrete,0.2');
+  lines.push('w-4,concrete,0.2');
   lines.push('```');
   lines.push('');
   lines.push('### lv-1/wall.svg');
@@ -235,6 +238,18 @@ export function generateSkill(): string {
   lines.push('    <line id="w-4" x1="0" y1="8" x2="0" y2="0" stroke="black" stroke-width="0.2" stroke-linecap="square" />');
   lines.push('  </g>');
   lines.push('</svg>');
+  lines.push('```');
+  lines.push('');
+  lines.push('### lv-1/door.csv (no SVG needed)');
+  lines.push('```csv');
+  lines.push('id,host_id,position,material,width,height,operation');
+  lines.push('d-1,w-1,0.3,wood,0.9,2.1,single_swing');
+  lines.push('```');
+  lines.push('');
+  lines.push('### lv-1/space.csv (no SVG needed)');
+  lines.push('```csv');
+  lines.push('id,x,y,name');
+  lines.push('sp-1,5,4,Living Room');
   lines.push('```');
 
   return lines.join('\n');

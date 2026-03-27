@@ -1,12 +1,12 @@
-id,number,base_offset,name
-sp-36,109,,Exhibit 3 109
-sp-37,115,,Education Room 115
-sp-38,128,,Restroom 128
-sp-39,129,,Restroom 129
-sp-40,130,,Elevator 130
-sp-41,134,,Room Name 134
-sp-42,149,,Restroom 149
-sp-43,150,,Restroom 150
-sp-44,151,,Elevator 151
-sp-45,152,,Education Room 152
-sp-46,159,,Hallway 159
+id,number,base_offset,x,y,name
+sp-36,109,,-122.369,-196.782,Exhibit 3 109
+sp-37,115,,-112.985,-208.249,Education Room 115
+sp-38,128,,0,0,Restroom 128
+sp-39,129,,0,0,Restroom 129
+sp-40,130,,0,0,Elevator 130
+sp-41,134,,0,0,Room Name 134
+sp-42,149,,-113.298,-197.524,Restroom 149
+sp-43,150,,-113.469,-192.248,Restroom 150
+sp-44,151,,-113.955,-200.311,Elevator 151
+sp-45,152,,-128.206,-202.785,Education Room 152
+sp-46,159,,0,0,Hallway 159

@@ -1,15 +1,15 @@
 id,number,base_offset,top_level_id,top_offset,material,shape,size_x,size_y
-sc-23,,0,lv-5,0,Steel ASTM A992,,0.254,0.254
-sc-24,,0,lv-5,0,Steel ASTM A992,,0.254,0.254
-sc-25,,0,lv-5,0,Steel ASTM A992,,0.254,0.254
-sc-26,,0,lv-5,0,Steel ASTM A992,,0.254,0.254
-sc-27,,0,lv-5,0,Steel ASTM A992,,0.254,0.254
-sc-28,,0,lv-5,0,Steel ASTM A992,,0.254,0.254
-sc-29,,0,lv-5,0,Steel ASTM A992,,0.254,0.254
-sc-30,,0,lv-5,0,Steel ASTM A992,,0.254,0.254
-sc-31,,0,lv-5,0,Steel ASTM A992,,0.254,0.254
-sc-32,,0,lv-5,0,Steel ASTM A992,,0.254,0.254
-sc-33,,0,lv-5,0,Steel ASTM A992,,0.254,0.254
-sc-34,,0,lv-5,0,Steel ASTM A992,,0.254,0.254
-sc-35,,0,lv-5,0,Steel ASTM A992,,0.254,0.254
-sc-36,,0,lv-5,0,Steel ASTM A992,,0.254,0.254
+sc-23,,0,lv-5,0,steel,,0.254,0.254
+sc-24,,0,lv-5,0,steel,,0.254,0.254
+sc-25,,0,lv-5,0,steel,,0.254,0.254
+sc-26,,0,lv-5,0,steel,,0.254,0.254
+sc-27,,0,lv-5,0,steel,,0.254,0.254
+sc-28,,0,lv-5,0,steel,,0.254,0.254
+sc-29,,0,lv-5,0,steel,,0.254,0.254
+sc-30,,0,lv-5,0,steel,,0.254,0.254
+sc-31,,0,lv-5,0,steel,,0.254,0.254
+sc-32,,0,lv-5,0,steel,,0.254,0.254
+sc-33,,0,lv-5,0,steel,,0.254,0.254
+sc-34,,0,lv-5,0,steel,,0.254,0.254
+sc-35,,0,lv-5,0,steel,,0.254,0.254
+sc-36,,0,lv-5,0,steel,,0.254,0.254

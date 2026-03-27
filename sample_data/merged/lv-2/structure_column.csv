@@ -1,11 +1,11 @@
 id,number,base_offset,top_level_id,top_offset,material,shape,size_x,size_y
-sc-56,,0,lv-3,0,Steel ASTM A992,,0.254,0.254
-sc-57,,0,lv-3,0,Steel ASTM A992,,0.254,0.254
-sc-58,,0,lv-3,0,Steel ASTM A992,,0.254,0.254
-sc-59,,0,lv-3,0,Steel ASTM A992,,0.254,0.254
-sc-60,,0,lv-3,0,Steel ASTM A992,,0.254,0.254
-sc-61,,0,lv-3,0,Steel ASTM A992,,0.254,0.254
-sc-62,,0,lv-3,0,Steel ASTM A992,,0.254,0.254
-sc-63,,0,lv-3,0,Steel ASTM A992,,0.254,0.254
-sc-64,,0,lv-3,0,Steel ASTM A992,,0.254,0.254
-sc-65,,0,lv-3,0,Steel ASTM A992,,0.254,0.254
+sc-56,,0,lv-3,0,steel,,0.254,0.254
+sc-57,,0,lv-3,0,steel,,0.254,0.254
+sc-58,,0,lv-3,0,steel,,0.254,0.254
+sc-59,,0,lv-3,0,steel,,0.254,0.254
+sc-60,,0,lv-3,0,steel,,0.254,0.254
+sc-61,,0,lv-3,0,steel,,0.254,0.254
+sc-62,,0,lv-3,0,steel,,0.254,0.254
+sc-63,,0,lv-3,0,steel,,0.254,0.254
+sc-64,,0,lv-3,0,steel,,0.254,0.254
+sc-65,,0,lv-3,0,steel,,0.254,0.254

@@ -6,17 +6,17 @@ fields:
     type: enum
     values:
       - concrete
-      - concrete_precast
       - steel
-      - aluminum
-      - glass
       - wood
+      - clt
+      - glass
+      - aluminum
       - brick
-      - gypsum
-      - metal_panel
-      - insulation
       - stone
-      - ceramic
+      - gypsum
+      - insulation
       - copper
       - pvc
-      - galvanized_steel
+      - ceramic
+      - fiber_cement
+      - composite

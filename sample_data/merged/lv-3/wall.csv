@@ -1,17 +1,17 @@
-id,number,base_offset,top_level_id,top_offset,material
-w-18,,0,lv-4,0,Metal Stud Layer
-w-19,,0,lv-4,0,Metal Stud Layer
-w-20,,0,lv-4,0,Metal Stud Layer
-w-21,,0,lv-4,0,Glass
-w-22,,0,lv-4,0,Glass
-w-23,,0,lv-4,0,"Softwood, Lumber"
-w-24,,0,lv-4,0,"Softwood, Lumber"
-w-25,,0,lv-4,0,"Softwood, Lumber"
-w-26,,0,lv-4,0,"Softwood, Lumber"
-w-27,,0,lv-4,0,"Softwood, Lumber"
-w-28,,0,lv-4,0,"Softwood, Lumber"
-w-29,,0,lv-4,0,"Softwood, Lumber"
-w-30,,0,lv-4,0,"Softwood, Lumber"
-w-31,,0,lv-4,0,"Softwood, Lumber"
-w-32,,0,lv-4,0,"Softwood, Lumber"
-w-33,,0,lv-4,0,"Softwood, Lumber"
+id,number,base_offset,top_level_id,top_offset,material,thickness
+w-18,,0,lv-4,0,steel,0.371
+w-19,,0,lv-4,0,steel,0.371
+w-20,,0,lv-4,0,steel,0.371
+w-21,,0,lv-4,0,glass,0.114
+w-22,,0,lv-4,0,glass,0.114
+w-23,,0,lv-4,0,wood,0.114
+w-24,,0,lv-4,0,wood,0.114
+w-25,,0,lv-4,0,wood,0.114
+w-26,,0,lv-4,0,wood,0.114
+w-27,,0,lv-4,0,wood,0.114
+w-28,,0,lv-4,0,wood,0.114
+w-29,,0,lv-4,0,wood,0.114
+w-30,,0,lv-4,0,wood,0.114
+w-31,,0,lv-4,0,wood,0.114
+w-32,,0,lv-4,0,wood,0.114
+w-33,,0,lv-4,0,wood,0.114

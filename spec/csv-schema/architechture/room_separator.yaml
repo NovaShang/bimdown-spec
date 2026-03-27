@@ -1,0 +1,5 @@
+name: room_separator
+bases:
+  - line_element
+
+fields: []

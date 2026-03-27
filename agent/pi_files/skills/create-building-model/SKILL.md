@@ -25,19 +25,19 @@ Sketch out coordinates mentally before writing files:
 - Pick an origin (0,0) — typically the bottom-left corner of the building footprint
 - Determine overall building dimensions
 - Plan wall positions as line segments (start/end points)
-- Plan room polygons inside the walls
+- Plan door/window positions as parametric values (0-1) along host walls
 - All units in meters
 
 ### Step 3: Look Up Schemas
 
 Run `bimdown_schema` for each table you plan to use. **Do not guess column names.** Common mistakes:
-- Using `thickness` in wall.csv (it's a computed field from SVG `stroke-width`, not a CSV column)
-- Forgetting `host_id` for doors/windows
+- Forgetting `position` for doors/windows (required, 0.0-1.0)
+- Forgetting `thickness` in wall.csv (it's now a required CSV field)
 - Wrong enum values for `operation`, `shape`, `function`
 
-### Step 4: Create Files — Build After Each Pair
+### Step 4: Create Files — Build After Each Step
 
-**Order matters.** References must point to existing IDs. **Run `bimdown_build` after each CSV+SVG pair** to catch errors early — do not write all files then build once at the end.
+**Order matters.** References must point to existing IDs. **Run `bimdown_build` after each file or pair** to catch errors early.
 
 1. **`global/level.csv`** — Define all levels with elevations → `bimdown_build`
 2. **`global/grid.csv`** — Define structural grids (can be header-only if not needed) → `bimdown_build`
@@ -45,13 +45,14 @@ Run `bimdown_schema` for each table you plan to use. **Do not guess column names
    1. `wall.csv` + `wall.svg` → `bimdown_build`
    2. `slab.csv` + `slab.svg` → `bimdown_build`
    3. `column.csv` + `column.svg` (if needed) → `bimdown_build`
-   4. `door.csv` + `door.svg` → `bimdown_build`
-   5. `window.csv` + `window.svg` → `bimdown_build`
-   6. `space.csv` + `space.svg` → `bimdown_build`
+   4. `door.csv` (CSV only, no SVG) → `bimdown_build`
+   5. `window.csv` (CSV only, no SVG) → `bimdown_build`
+   6. `space.csv` (CSV only, no SVG) → `bimdown_build`
+   7. `room_separator.csv` + `room_separator.svg` (if needed) → `bimdown_build`
 
-If a build fails, fix the errors before writing the next pair.
+If a build fails, fix the errors before writing the next file.
 
-### Step 6: Render, Evaluate, and Iterate
+### Step 5: Render, Evaluate, and Iterate
 
 Run `bimdown_render` for each level to see the floor plan as an image. This is for your internal verification only — never share the rendered image with the user.
 
@@ -59,20 +60,12 @@ Run `bimdown_render` for each level to see the floor plan as an image. This is f
 - Do the room sizes and proportions match what was requested?
 - Are all requested rooms present and in sensible locations?
 - Do walls form a closed envelope (no gaps)?
-- Do doors and windows sit on their host walls (not floating)?
-- Are spaces filling the expected rooms without overlap?
-- Is the overall layout practical? (e.g. hallway connects rooms, bathroom not inside kitchen)
+- Are doors and windows positioned sensibly on their host walls?
+- Is the overall layout practical?
 
-**Iterate until the layout is correct.** This is a loop, not a single pass:
-1. Render → evaluate against requirements → identify issues
-2. Fix geometry (adjust coordinates, reposition walls/doors/spaces)
-3. Run `bimdown_build` to validate and sync
-4. Render again → re-evaluate
-5. Repeat until the floor plan matches the user's intent
+**Iterate until the layout is correct.** Expect 2-3 iterations minimum.
 
-Do not stop after the first render. Expect 2-3 iterations minimum. Only proceed to the next step when you are confident the layout is correct.
-
-### Step 7: Verify with Info
+### Step 6: Verify with Info
 
 Run `bimdown_info` to confirm the model looks correct — right number of levels, elements per floor, etc.
 
@@ -81,40 +74,38 @@ Run `bimdown_info` to confirm the model looks correct — right number of levels
 ### 1. Wrong units — ALL values in METERS, not millimeters
 This applies to BOTH SVG coordinates AND CSV fields. Common mistakes:
 - `elevation=3500` → WRONG, should be `3.5` (3.5 meters)
-- `top_offset=3000` → WRONG, should be `3.0`
 - `width=900` → WRONG, should be `0.9` (0.9 meters)
 - `x2="10000"` → WRONG, should be `x2="10"`
-- `stroke-width="200"` → WRONG, should be `stroke-width="0.2"`
 
 **Quick check**: if any number is > 100, you are almost certainly using millimeters. Divide by 1000.
 
-### 2. Duplicate IDs across levels
-IDs are **globally unique**. If lv-1 uses `w-1` to `w-10`, then lv-2 MUST start at `w-11`. Same for all types: `d-1`..`d-5` on lv-1 means lv-2 starts at `d-6`. Never reuse IDs.
+### 2. Door/window position out of range
+`position` must be between 0.0 and 1.0. It represents the center of the opening along the host wall:
+- `position=0.0` = start of wall
+- `position=0.5` = middle of wall
+- `position=1.0` = end of wall
 
-### 3. Missing viewBox in SVG
+### 3. IDs are level-scoped
+IDs must be unique within each `lv-N/` directory. You can reuse `w-1` on different levels. But within the same level, every ID must be unique across all tables.
+
+### 4. Missing viewBox in SVG
 Every SVG must have a `viewBox`. Compute from geometry + 1m padding. With `scale(1,-1)`:
 - Geometry x: 0 to 20, y: 0 to 15 → `viewBox="-1 -16 22 17"`
 
-### 4. Missing `scale(1,-1)` in SVG
+### 5. Missing `scale(1,-1)` in SVG
 Every SVG file **must** have `<g transform="scale(1,-1)">`. Without it validation fails.
 
-### 5. Mismatched IDs between CSV and SVG
-Every `id` in CSV must appear as `id` attribute on exactly one SVG element. Missing or extra IDs = validation error.
+### 6. Mismatched IDs between CSV and SVG
+For elements with SVG, every `id` in CSV must appear as `id` attribute on exactly one SVG element.
 
-### 6. Doors/Windows missing `data-host`
-Hosted elements must have `data-host="w-N"` on their SVG element, matching `host_id` in CSV.
-
-### 7. Door/Window geometry outside host wall
-The `<line>` for a door/window must lie along its host wall's centerline.
-
-### 8. Forgetting grid.csv
+### 7. Forgetting grid.csv
 `global/grid.csv` is required even if empty. At minimum:
 ```csv
 id,number,start_x,start_y,end_x,end_y
 ```
 
-### 9. Polygon point order
-Slab/space polygon points must form a valid closed shape (clockwise or counter-clockwise).
+### 8. Polygon point order
+Slab polygon points must form a valid closed shape (clockwise or counter-clockwise).
 
 ## Typical Dimensions (Reference)
 
