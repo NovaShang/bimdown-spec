@@ -28,4 +28,10 @@ package-lock.json
 
 # API local data
 api/.data/
+
+# CLI build output
+cli/src/**/*.js
+
+# Local runtime data
+.data/
 api/api-log.txt
