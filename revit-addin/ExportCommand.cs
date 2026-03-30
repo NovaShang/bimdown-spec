@@ -9,7 +9,7 @@ namespace BimDown.RevitAddin;
 [Transaction(TransactionMode.Manual)]
 public class ExportCommand : IExternalCommand
 {
-    static readonly HashSet<string> GlobalTableNames = ["level", "grid"];
+    static readonly HashSet<string> GlobalTableNames = ["level", "grid", "mesh"];
 
     public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
     {
@@ -40,6 +40,9 @@ public class ExportCommand : IExternalCommand
             ArchitectureTableExporters.Window(),
             ArchitectureTableExporters.Stair(),
             ArchitectureTableExporters.CurtainWall(),
+            ArchitectureTableExporters.Roof(),
+            ArchitectureTableExporters.Ceiling(),
+            ArchitectureTableExporters.Opening(),
             // Structure
             StructureTableExporters.StructureWall(),
             StructureTableExporters.StructureColumn(),
@@ -57,6 +60,8 @@ public class ExportCommand : IExternalCommand
             MepTableExporters.MepNode(),
             MepTableExporters.Equipment(),
             MepTableExporters.Terminal(),
+            // Mesh fallback
+            new MeshExporter(),
         ];
 
         var idGen = new ShortIdGenerator();
@@ -170,7 +175,21 @@ public class ExportCommand : IExternalCommand
         }).ToList();
         CsvWriter.Write(Path.Combine(globalFolder, "_IdMap.csv"), ["id", "uuid"], idMapRows);
 
-        // Pass 3: write SVG geometry layer
+        // Pass 3: export GLB mesh files (after ID remapping so filenames use short IDs)
+        var meshData = exported.FirstOrDefault(e => e.Exporter is MeshExporter);
+        if (meshData.Exporter is MeshExporter meshExporter && meshData.Rows is not null)
+        {
+            try
+            {
+                meshExporter.ExportGlbFiles(outputDir, meshData.Rows, idGen.Mappings);
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"GLB export: {ex.Message}");
+            }
+        }
+
+        // Pass 4: write SVG geometry layer
         if (levelData.Rows is not null)
         {
             try

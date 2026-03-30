@@ -178,7 +178,7 @@ static class SvgReader
     }
 
     /// <summary>
-    /// Reverse-computes location_param for hosted elements given wall geometry.
+    /// Reverse-computes position for hosted elements given wall geometry.
     /// Call after ReadAll + CSV merge so wall data is available.
     /// </summary>
     public static void ResolveHostedParameters(
@@ -233,7 +233,7 @@ static class SvgReader
             var owDy = y2 - y1;
             var width = Math.Sqrt(owDx * owDx + owDy * owDy);
 
-            fields["location_param"] = Fmt(t);
+            fields["position"] = Fmt(t);
             fields["width"] = Fmt(width);
 
             // Clean up temporary SVG coordinate fields

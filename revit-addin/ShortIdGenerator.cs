@@ -30,6 +30,11 @@ class ShortIdGenerator
         ["equipment"] = "eq",
         ["terminal"] = "tm",
         ["mep_node"] = "mn",
+        ["roof"] = "ro",
+        ["ceiling"] = "cl",
+        ["opening"] = "op",
+        ["mesh"] = "mesh",
+        ["curtain_wall"] = "cw",
     };
 
     static readonly string[] ReferenceFields = ["level_id", "host_id", "top_level_id", "start_node_id", "end_node_id"];

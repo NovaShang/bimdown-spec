@@ -123,7 +123,7 @@ public class SvgRoundTripTests : RevitApiTest
     }
 
     [Test]
-    public async Task HostedRoundTrip_ComputesAbsoluteCoordinates()
+    public async Task DoorWindowSpace_NoSvgGenerated()
     {
         var (outputDir, levelRows) = SetupTempDir();
         try
@@ -137,27 +137,29 @@ public class SvgRoundTripTests : RevitApiTest
             var doorRows = new List<Dictionary<string, string?>>
             {
                 Row("d-1", "lv-1", ("host_id", "w-1"),
-                    ("location_param", "0.5"), ("width", "1")),
+                    ("position", "0.5"), ("width", "1")),
+            };
+
+            var spaceRows = new List<Dictionary<string, string?>>
+            {
+                Row("sp-1", "lv-1", ("x", "2"), ("y", "3"), ("name", "Room")),
             };
 
             var tables = new List<(string, List<Dictionary<string, string?>>)>
             {
                 ("wall", wallRows),
                 ("door", doorRows),
+                ("space", spaceRows),
             };
 
             SvgWriter.WriteAll(outputDir, tables, levelRows);
-            var read = SvgReader.ReadAll(outputDir);
 
-            await Assert.That(read.ContainsKey("d-1")).IsTrue();
-            var fields = read["d-1"];
-            await Assert.That(fields["host_id"]).IsEqualTo("w-1");
-
-            // Resolve back to location_param
-            SvgReader.ResolveHostedParameters(read, wallRows, []);
-            var resolved = read["d-1"];
-            AssertClose(0.5, double.Parse(resolved["location_param"]!));
-            AssertClose(1.0, double.Parse(resolved["width"]!));
+            // Wall SVG should exist
+            await Assert.That(File.Exists(Path.Combine(outputDir, "lv-1", "wall.svg"))).IsTrue();
+            // Door, window, space SVG should NOT exist
+            await Assert.That(File.Exists(Path.Combine(outputDir, "lv-1", "door.svg"))).IsFalse();
+            await Assert.That(File.Exists(Path.Combine(outputDir, "lv-1", "window.svg"))).IsFalse();
+            await Assert.That(File.Exists(Path.Combine(outputDir, "lv-1", "space.svg"))).IsFalse();
         }
         finally { Cleanup(outputDir); }
     }

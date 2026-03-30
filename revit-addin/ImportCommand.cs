@@ -55,6 +55,8 @@ public class ImportCommand : IExternalCommand
             new StructureColumnImporter(),
             // Order 15
             new SlabImporter(),
+            new RoofImporter(),
+            new CeilingImporter(),
             new StructureSlabImporter(),
             new SpaceImporter(),
             new BeamImporter(),
@@ -66,6 +68,7 @@ public class ImportCommand : IExternalCommand
             // Order 20
             new DoorImporter(),
             new WindowImporter(),
+            new OpeningImporter(),
             // Order 25
             new DuctImporter(),
             new PipeImporter(),

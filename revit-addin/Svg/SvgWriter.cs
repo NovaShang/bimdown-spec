@@ -223,7 +223,7 @@ static class SvgWriter
     {
         var id = row.GetValueOrDefault("id");
         var hostId = row.GetValueOrDefault("host_id");
-        var locParam = row.GetValueOrDefault("location_param");
+        var locParam = row.GetValueOrDefault("position");
         var width = row.GetValueOrDefault("width");
 
         if (id is null || hostId is null || locParam is null)

@@ -228,7 +228,7 @@ class ColumnImporter() : TableImporterBase("column", 10, [BuiltInCategory.OST_Co
 class SlabImporter() : TableImporterBase(
     "slab",
     15,
-    [BuiltInCategory.OST_Floors, BuiltInCategory.OST_Roofs],
+    [BuiltInCategory.OST_Floors],
     e =>
     {
         if (e is Floor floor)
@@ -236,14 +236,11 @@ class SlabImporter() : TableImporterBase(
             var structural = floor.get_Parameter(BuiltInParameter.FLOOR_PARAM_IS_STRUCTURAL)?.AsInteger();
             return structural != 1;
         }
-        return true;
+        return false;
     })
 {
     protected override Element? CreateElement(Document doc, Dictionary<string, string?> row)
     {
-        var function = row.GetValueOrDefault("function") ?? "floor";
-        if (function == "roof") return null; // Skip roof creation in v1
-
         var pointsJson = row.GetValueOrDefault("points")
             ?? throw new InvalidOperationException("points is required for slab");
         var points = GeometryUtils.DeserializePolygon(pointsJson);
@@ -338,19 +335,30 @@ class SpaceImporter() : TableImporterBase("space", 15, [BuiltInCategory.OST_Room
             ?? throw new InvalidOperationException("level_id is required");
         var level = (Level)doc.GetElement(levelId);
 
-        // Parse centroid from polygon points for UV placement
-        var pointsJson = row.GetValueOrDefault("points");
+        // Parse seed point from x, y fields (V2) or polygon centroid (V1 fallback)
         UV uv;
-        if (pointsJson is not null)
+        var xStr = row.GetValueOrDefault("x");
+        var yStr = row.GetValueOrDefault("y");
+        if (xStr is not null && yStr is not null)
         {
-            var points = GeometryUtils.DeserializePolygon(pointsJson);
-            var cx = points.Average(p => p.X);
-            var cy = points.Average(p => p.Y);
-            uv = new UV(cx, cy);
+            var x = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(xStr));
+            var y = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(yStr));
+            uv = new UV(x, y);
         }
         else
         {
-            uv = new UV(0, 0);
+            var pointsJson = row.GetValueOrDefault("points");
+            if (pointsJson is not null)
+            {
+                var points = GeometryUtils.DeserializePolygon(pointsJson);
+                var cx = points.Average(p => p.X);
+                var cy = points.Average(p => p.Y);
+                uv = new UV(cx, cy);
+            }
+            else
+            {
+                uv = new UV(0, 0);
+            }
         }
 
         var room = doc.Create.NewRoom(level, uv);
@@ -497,6 +505,140 @@ class CurtainWallImporter() : TableImporterBase(
     }
 }
 
+class RoofImporter() : TableImporterBase("roof", 15, [BuiltInCategory.OST_Roofs])
+{
+    protected override Element? CreateElement(Document doc, Dictionary<string, string?> row)
+    {
+        var pointsJson = row.GetValueOrDefault("points")
+            ?? throw new InvalidOperationException("points is required for roof");
+        var points = GeometryUtils.DeserializePolygon(pointsJson);
+        if (points.Count < 3) throw new InvalidOperationException("Need at least 3 points for roof");
+
+        var levelId = IdMap.Resolve(doc, row.GetValueOrDefault("level_id"))
+            ?? throw new InvalidOperationException("level_id is required");
+        var level = (Level)doc.GetElement(levelId);
+
+        var roofType = new FilteredElementCollector(doc)
+            .OfClass(typeof(RoofType))
+            .Cast<RoofType>()
+            .First();
+
+        var curveArray = new CurveArray();
+        for (var i = 0; i < points.Count; i++)
+        {
+            var p1 = new XYZ(points[i].X, points[i].Y, level.Elevation);
+            var p2 = new XYZ(points[(i + 1) % points.Count].X, points[(i + 1) % points.Count].Y, level.Elevation);
+            curveArray.Append(Line.CreateBound(p1, p2));
+        }
+
+        var modelCurveArray = new ModelCurveArray();
+        var roof = doc.Create.NewFootPrintRoof(curveArray, level, roofType, out modelCurveArray);
+
+        var baseOffsetStr = row.GetValueOrDefault("base_offset");
+        if (baseOffsetStr is not null)
+            roof.get_Parameter(BuiltInParameter.ROOF_BASE_LEVEL_PARAM)?.Set(
+                UnitConverter.LengthToFeet(UnitConverter.ParseDouble(baseOffsetStr)));
+
+        SetMark(roof, row);
+        return roof;
+    }
+
+    protected override void UpdateElement(Document doc, Dictionary<string, string?> row, Element element)
+    {
+        SetMark(element, row);
+    }
+}
+
+class CeilingImporter() : TableImporterBase("ceiling", 15, [BuiltInCategory.OST_Ceilings])
+{
+    protected override Element? CreateElement(Document doc, Dictionary<string, string?> row)
+    {
+        var pointsJson = row.GetValueOrDefault("points")
+            ?? throw new InvalidOperationException("points is required for ceiling");
+        var points = GeometryUtils.DeserializePolygon(pointsJson);
+        if (points.Count < 3) throw new InvalidOperationException("Need at least 3 points for ceiling");
+
+        var levelId = IdMap.Resolve(doc, row.GetValueOrDefault("level_id"))
+            ?? throw new InvalidOperationException("level_id is required");
+        var level = (Level)doc.GetElement(levelId);
+
+        var ceilingType = new FilteredElementCollector(doc)
+            .OfClass(typeof(CeilingType))
+            .Cast<CeilingType>()
+            .First();
+
+        var curveLoop = new CurveLoop();
+        for (var i = 0; i < points.Count; i++)
+        {
+            var p1 = new XYZ(points[i].X, points[i].Y, level.Elevation);
+            var p2 = new XYZ(points[(i + 1) % points.Count].X, points[(i + 1) % points.Count].Y, level.Elevation);
+            curveLoop.Append(Line.CreateBound(p1, p2));
+        }
+
+        var ceiling = Ceiling.Create(doc, [curveLoop], ceilingType.Id, levelId);
+
+        var heightOffsetStr = row.GetValueOrDefault("height_offset");
+        if (heightOffsetStr is not null)
+            ceiling.get_Parameter(BuiltInParameter.CEILING_HEIGHTABOVELEVEL_PARAM)?.Set(
+                UnitConverter.LengthToFeet(UnitConverter.ParseDouble(heightOffsetStr)));
+
+        SetMark(ceiling, row);
+        return ceiling;
+    }
+
+    protected override void UpdateElement(Document doc, Dictionary<string, string?> row, Element element)
+    {
+        var heightOffsetStr = row.GetValueOrDefault("height_offset");
+        if (heightOffsetStr is not null)
+            element.get_Parameter(BuiltInParameter.CEILING_HEIGHTABOVELEVEL_PARAM)?.Set(
+                UnitConverter.LengthToFeet(UnitConverter.ParseDouble(heightOffsetStr)));
+
+        SetMark(element, row);
+    }
+}
+
+class OpeningImporter() : TableImporterBase("opening", 20, [BuiltInCategory.OST_SWallRectOpening])
+{
+    protected override Element? CreateElement(Document doc, Dictionary<string, string?> row)
+    {
+        var hostId = IdMap.Resolve(doc, row.GetValueOrDefault("host_id"))
+            ?? throw new InvalidOperationException("host_id is required");
+        var host = doc.GetElement(hostId) as Wall
+            ?? throw new InvalidOperationException("host must be a Wall");
+
+        var positionStr = row.GetValueOrDefault("position");
+        if (positionStr is null || host.Location is not LocationCurve hostCurve)
+            throw new InvalidOperationException("position and host wall curve required");
+
+        var param = UnitConverter.ParseDouble(positionStr);
+        var rawParam = hostCurve.Curve.ComputeRawParameter(param);
+        var insertPt = hostCurve.Curve.Evaluate(rawParam, false);
+
+        var widthStr = row.GetValueOrDefault("width") ?? "0.9";
+        var heightStr = row.GetValueOrDefault("height") ?? "2.1";
+        var width = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(widthStr));
+        var height = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(heightStr));
+
+        // Calculate opening rectangle on wall
+        var wallDir = (hostCurve.Curve.GetEndPoint(1) - hostCurve.Curve.GetEndPoint(0)).Normalize();
+        var baseZ = insertPt.Z;
+        var pt1 = insertPt - wallDir * (width / 2);
+        var pt2 = insertPt + wallDir * (width / 2) + XYZ.BasisZ * height;
+
+        var opening = doc.Create.NewOpening(host,
+            new XYZ(pt1.X, pt1.Y, baseZ),
+            new XYZ(pt2.X, pt2.Y, baseZ + height));
+
+        SetMark(opening, row);
+        return opening;
+    }
+
+    protected override void UpdateElement(Document doc, Dictionary<string, string?> row, Element element)
+    {
+        SetMark(element, row);
+    }
+}
+
 static class HostedOpeningHelper
 {
     internal static Element? CreateHostedOpening(Document doc, Dictionary<string, string?> row,
@@ -533,9 +675,9 @@ static class HostedOpeningHelper
             if (!symbol.IsActive) symbol.Activate();
         }
 
-        // Calculate insertion point from location_param on host curve
+        // Calculate insertion point from position on host curve
         XYZ insertPt;
-        var locationParamStr = row.GetValueOrDefault("location_param");
+        var locationParamStr = row.GetValueOrDefault("position");
         if (locationParamStr is not null && host.Location is LocationCurve hostCurve)
         {
             var param = UnitConverter.ParseDouble(locationParamStr);
@@ -575,8 +717,8 @@ static class HostedOpeningHelper
                 fi.Symbol = newSymbol;
         }
 
-        // Update location parameter on host
-        var locationParamStr = row.GetValueOrDefault("location_param");
+        // Update position on host
+        var locationParamStr = row.GetValueOrDefault("position");
         if (locationParamStr is not null && fi.Host is Wall host && host.Location is LocationCurve hostCurve
             && fi.Location is LocationPoint lp)
         {

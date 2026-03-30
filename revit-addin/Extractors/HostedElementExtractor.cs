@@ -4,8 +4,8 @@ namespace BimDown.RevitAddin.Extractors;
 
 public class HostedElementExtractor : IFieldExtractor
 {
-    public IReadOnlyList<string> FieldNames { get; } = ["host_id", "location_param"];
-    public IReadOnlyList<string> ComputedFieldNames { get; } = ["location_param"];
+    public IReadOnlyList<string> FieldNames { get; } = ["host_id", "position"];
+    public IReadOnlyList<string> ComputedFieldNames { get; } = [];
 
     public Dictionary<string, string?> Extract(Element element)
     {
@@ -22,7 +22,7 @@ public class HostedElementExtractor : IFieldExtractor
                 if (result is not null)
                 {
                     var normalized = hostCurve.Curve.ComputeNormalizedParameter(result.Parameter);
-                    fields["location_param"] = UnitConverter.FormatDouble(normalized);
+                    fields["position"] = UnitConverter.FormatDouble(normalized);
                 }
             }
         }

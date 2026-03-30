@@ -17,8 +17,7 @@ public static class StructureTableExporters
                 ["thickness"] = e is Wall w
                     ? UnitConverter.FormatDouble(UnitConverter.Length(w.Width))
                     : null
-            },
-            ["thickness"]),
+            }),
         e => e is Wall w && w.StructuralUsage != StructuralWallUsage.NonBearing);
 
     public static ITableExporter StructureColumn() => new TableExporter(

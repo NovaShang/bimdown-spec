@@ -32,6 +32,13 @@ static class BimDownParameter
         BuiltInCategory.OST_Sprinklers,
         BuiltInCategory.OST_LightingFixtures,
         BuiltInCategory.OST_ElectricalFixtures,
+        // V2 new categories
+        BuiltInCategory.OST_Ceilings,
+        BuiltInCategory.OST_SWallRectOpening,
+        BuiltInCategory.OST_StairsRailing,
+        BuiltInCategory.OST_GenericModel,
+        BuiltInCategory.OST_Planting,
+        BuiltInCategory.OST_Site,
     ];
 
     internal static void EnsureParameter(Document doc)

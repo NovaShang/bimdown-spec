@@ -38,7 +38,8 @@ public class ArchitectureTests : RevitApiTest
                     ["name"] = "Living Room",
                     ["number"] = "R-1",
                     ["level_id"] = BimDownParameter.Get(level)!,
-                    ["points"] = "[[0,0],[5,0],[5,4],[0,4]]",
+                    ["x"] = "2.5",
+                    ["y"] = "2",
                 }
             };
 
@@ -202,7 +203,7 @@ public class ArchitectureTests : RevitApiTest
                     ["number"] = "D-1",
                     ["level_id"] = BimDownParameter.Get(level)!,
                     ["host_id"] = wall.UniqueId,
-                    ["location_param"] = "0.5",
+                    ["position"] = "0.5",
                     ["width"] = "0.9",
                     ["height"] = "2.1",
                 }
@@ -337,7 +338,7 @@ public class ArchitectureTests : RevitApiTest
                     ["number"] = "W-1",
                     ["level_id"] = BimDownParameter.Get(level)!,
                     ["host_id"] = wall.UniqueId,
-                    ["location_param"] = "0.5",
+                    ["position"] = "0.5",
                     ["width"] = "1.2",
                     ["height"] = "1.5",
                 }

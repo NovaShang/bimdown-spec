@@ -17,8 +17,7 @@ public static class ArchitectureTableExporters
                 ["thickness"] = e is Wall w
                     ? UnitConverter.FormatDouble(UnitConverter.Length(w.Width))
                     : null
-            },
-            ["thickness"]),
+            }),
         e => e is Wall w && w.WallType.Kind == WallKind.Basic &&
              w.StructuralUsage == Autodesk.Revit.DB.Structure.StructuralWallUsage.NonBearing);
 
@@ -30,7 +29,7 @@ public static class ArchitectureTableExporters
 
     public static ITableExporter Slab() => new TableExporter(
         "slab",
-        [BuiltInCategory.OST_Floors, BuiltInCategory.OST_Roofs],
+        [BuiltInCategory.OST_Floors],
         new CompositeExtractor(
             [..CompositeExtractor.ExpandPolygonElement(), new MaterializedExtractor()],
             ["function", "thickness"],
@@ -43,32 +42,92 @@ public static class ArchitectureTableExporters
                     var thickness = floor.get_Parameter(BuiltInParameter.FLOOR_ATTR_THICKNESS_PARAM)?.AsDouble();
                     fields["thickness"] = thickness is { } t ? UnitConverter.FormatDouble(UnitConverter.Length(t)) : null;
                 }
-                else if (e is RoofBase)
-                {
-                    fields["function"] = "roof";
-                    var thickness = e.get_Parameter(BuiltInParameter.ROOF_ATTR_THICKNESS_PARAM)?.AsDouble();
-                    fields["thickness"] = thickness is { } t ? UnitConverter.FormatDouble(UnitConverter.Length(t)) : null;
-                }
                 return fields;
             }),
         e =>
         {
-            // Exclude structural floors
             if (e is Floor floor)
             {
                 var structural = floor.get_Parameter(BuiltInParameter.FLOOR_PARAM_IS_STRUCTURAL)?.AsInteger();
                 return structural != 1;
             }
-            return true; // Include all roofs as architecture slabs
+            return false;
         });
+
+    public static ITableExporter Roof() => new TableExporter(
+        "roof",
+        [BuiltInCategory.OST_Roofs],
+        new CompositeExtractor(
+            [..CompositeExtractor.ExpandPolygonElement(), new MaterializedExtractor()],
+            ["roof_type", "slope", "thickness"],
+            e =>
+            {
+                var fields = new Dictionary<string, string?>();
+                var slopeVal = e.get_Parameter(BuiltInParameter.ROOF_SLOPE)?.AsDouble();
+                if (slopeVal is { } s && Math.Abs(s) > 1e-6)
+                {
+                    fields["slope"] = UnitConverter.FormatDouble(Math.Atan(s) * 180 / Math.PI);
+                    fields["roof_type"] = "gable";
+                }
+                else
+                {
+                    fields["slope"] = "0";
+                    fields["roof_type"] = "flat";
+                }
+                var thickness = e.get_Parameter(BuiltInParameter.ROOF_ATTR_THICKNESS_PARAM)?.AsDouble();
+                fields["thickness"] = thickness is { } t ? UnitConverter.FormatDouble(UnitConverter.Length(t)) : null;
+                return fields;
+            }));
+
+    public static ITableExporter Ceiling() => new TableExporter(
+        "ceiling",
+        [BuiltInCategory.OST_Ceilings],
+        new CompositeExtractor(
+            [..CompositeExtractor.ExpandPolygonElement(), new MaterializedExtractor()],
+            ["height_offset"],
+            e =>
+            {
+                var fields = new Dictionary<string, string?>();
+                var offset = e.get_Parameter(BuiltInParameter.CEILING_HEIGHTABOVELEVEL_PARAM)?.AsDouble();
+                fields["height_offset"] = offset is { } o ? UnitConverter.FormatDouble(UnitConverter.Length(o)) : null;
+                return fields;
+            }));
+
+    public static ITableExporter Opening() => new TableExporter(
+        "opening",
+        [BuiltInCategory.OST_SWallRectOpening],
+        new CompositeExtractor(
+            CompositeExtractor.ExpandHostedElement(),
+            ["width", "height", "shape"],
+            e =>
+            {
+                var fields = new Dictionary<string, string?>();
+                var w = e.get_Parameter(BuiltInParameter.FAMILY_WIDTH_PARAM)?.AsDouble()
+                     ?? FindDoubleParameterByNames(e, "width", "w", "宽");
+                var h = e.get_Parameter(BuiltInParameter.FAMILY_HEIGHT_PARAM)?.AsDouble()
+                     ?? FindDoubleParameterByNames(e, "height", "h", "高");
+                fields["width"] = w is { } wv ? UnitConverter.FormatDouble(UnitConverter.Length(wv)) : null;
+                fields["height"] = h is { } hv ? UnitConverter.FormatDouble(UnitConverter.Length(hv)) : null;
+                fields["shape"] = "rect";
+                return fields;
+            }));
 
     public static ITableExporter Space() => new TableExporter(
         "space",
         [BuiltInCategory.OST_Rooms],
         new CompositeExtractor(
-            CompositeExtractor.ExpandPolygonElement(),
-            ["name"],
-            e => new Dictionary<string, string?> { ["name"] = e.Name }));
+            [new ElementExtractor()],
+            ["x", "y", "name"],
+            e =>
+            {
+                var fields = new Dictionary<string, string?> { ["name"] = e.Name };
+                if (e.Location is LocationPoint lp)
+                {
+                    fields["x"] = UnitConverter.FormatDouble(UnitConverter.Length(lp.Point.X));
+                    fields["y"] = UnitConverter.FormatDouble(UnitConverter.Length(lp.Point.Y));
+                }
+                return fields;
+            }));
 
     public static ITableExporter Door() => new TableExporter(
         "door",

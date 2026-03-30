@@ -10,9 +10,8 @@ record SvgTableMapping(string TableName, string SvgFileName, SvgRenderType Rende
         new("wall", "wall.svg", SvgRenderType.Line),
         new("column", "column.svg", SvgRenderType.Point),
         new("slab", "slab.svg", SvgRenderType.Polygon),
-        new("space", "space.svg", SvgRenderType.Polygon),
-        new("door", "door.svg", SvgRenderType.Hosted),
-        new("window", "window.svg", SvgRenderType.Hosted),
+        new("roof", "roof.svg", SvgRenderType.Polygon),
+        new("ceiling", "ceiling.svg", SvgRenderType.Polygon),
         new("stair", "stair.svg", SvgRenderType.Line),
         new("curtain_wall", "curtain_wall.svg", SvgRenderType.Line),
         // Structure
