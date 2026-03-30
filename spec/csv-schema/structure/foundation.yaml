@@ -1,0 +1,22 @@
+name: foundation
+bases:
+  - element
+  - materialized
+description: >
+  Unified foundation type. Geometry form is determined by the SVG element:
+  - <rect>/<circle> (point-based): isolated/pad footing
+  - <path> (line-based): strip/continuous footing
+  - <polygon> (polygon-based): raft/mat foundation
+  Computed geometry fields are hydrated from SVG at query time.
+
+fields:
+  - name: thickness
+    type: float
+
+  - name: width
+    type: float
+    description: Width of strip foundation or pad dimension
+
+  - name: length
+    type: float
+    description: Length of pad foundation

@@ -48,6 +48,7 @@ public class ImportCommand : IExternalCommand
             // Order 1
             new GridImporter(),
             // Order 10
+            new RoomSeparatorImporter(),
             new WallImporter(),
             new StructureWallImporter(),
             new CurtainWallImporter(),
@@ -61,10 +62,10 @@ public class ImportCommand : IExternalCommand
             new SpaceImporter(),
             new BeamImporter(),
             new BraceImporter(),
-            new IsolatedFoundationImporter(),
-            new StripFoundationImporter(),
-            new RaftFoundationImporter(),
+            new FoundationImporter(),
             new StairImporter(),
+            new RampImporter(),
+            new RailingImporter(),
             // Order 20
             new DoorImporter(),
             new WindowImporter(),
@@ -95,11 +96,6 @@ public class ImportCommand : IExternalCommand
 
         // Collect all CSV rows per table from level-partitioned directories
         var tableRows = ReadPartitionedCsvs(inputDir);
-
-        // Resolve hosted element parameters from wall geometry in CSVs
-        var wallCsvRows = tableRows.GetValueOrDefault("wall", []);
-        var swCsvRows = tableRows.GetValueOrDefault("structure_wall", []);
-        SvgReader.ResolveHostedParameters(svgGeometry, wallCsvRows, swCsvRows);
 
         // Parse _IdMap.csv if available to build uuid -> id map
         var uuidToIdMap = new Dictionary<string, string>();

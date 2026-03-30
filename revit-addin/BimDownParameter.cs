@@ -33,6 +33,7 @@ static class BimDownParameter
         BuiltInCategory.OST_LightingFixtures,
         BuiltInCategory.OST_ElectricalFixtures,
         // V2 new categories
+        BuiltInCategory.OST_Ramps,
         BuiltInCategory.OST_Ceilings,
         BuiltInCategory.OST_SWallRectOpening,
         BuiltInCategory.OST_StairsRailing,

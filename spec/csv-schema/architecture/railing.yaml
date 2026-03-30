@@ -1,0 +1,7 @@
+name: railing
+bases:
+  - spatial_line_element
+
+fields:
+  - name: height
+    type: float

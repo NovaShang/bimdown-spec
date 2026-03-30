@@ -20,9 +20,7 @@ class ShortIdGenerator
         ["structure_slab"] = "ss",
         ["beam"] = "bm",
         ["brace"] = "br",
-        ["isolated_foundation"] = "if",
-        ["strip_foundation"] = "sf",
-        ["raft_foundation"] = "rf",
+        ["foundation"] = "f",
         ["duct"] = "du",
         ["pipe"] = "pi",
         ["cable_tray"] = "ct",
@@ -33,8 +31,11 @@ class ShortIdGenerator
         ["roof"] = "ro",
         ["ceiling"] = "cl",
         ["opening"] = "op",
-        ["mesh"] = "mesh",
+        ["mesh"] = "ms",
         ["curtain_wall"] = "cw",
+        ["ramp"] = "rp",
+        ["railing"] = "rl",
+        ["room_separator"] = "rs",
     };
 
     static readonly string[] ReferenceFields = ["level_id", "host_id", "top_level_id", "start_node_id", "end_node_id"];

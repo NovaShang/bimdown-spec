@@ -1,124 +1,165 @@
-# BIMDown SVG Spec
+# BimDown SVG Spec
 
-This directory defines the **SVG schema** for BIMDown — the geometry representation layer ("The Eyes").
-
-Instead of a monolithic 3D or 2D file, BIMDown stores spatial data in standard, strictly-subset SVG files. This allows AI models to natively "see" geometry and parse coordinate data using text.
+SVG is the **geometry storage layer** for BimDown. It is not used for visualization — it is chosen because AI models have extensive training data on SVG and strong spatial reasoning with the format.
 
 ---
 
-## 1. File Structure & Organization
+## 1. File Organization
 
-SVGs are organized hierarchically by level (floor) and element category. This structural separation prevents files from becoming too large and makes selective loading easy.
+SVG files are co-located with their CSV counterparts, organized by level:
 
 ```text
-📁 {project-id}/
-  📁 {level_name_or_id}/       (e.g., 1F, Level_1)
-    📄 wall.svg          (All line-based walls for this level)
-    📄 column.svg        (Point-based structure)
-    📄 slab.svg          (Polygon floors/slabs)
-    📄 space.svg         (Room polygons)
-    📄 door.svg          (Hosted elements)
-    📄 stair.svg         (Projected slices of global staircases)
+{project-id}/
+  {level}/
+    wall.svg
+    column.svg
+    slab.svg
+    ...
+  global/
+    wall.svg       (multi-story walls)
+    ...
 ```
 
-By decoupling these into separate SVG files, an AI agent or renderer can easily overlay geometries like toggling layers: `wall.svg` + `column.svg` + `door.svg`.
+Each SVG file corresponds to one element table for one level. No `global/` SVG folder exists for cross-floor geometry — multi-story elements in `global/*.csv` are projected onto their base level's SVG by the CLI.
 
-*(Note on Cross-Floor Elements: While the CSV Attribute Layer introduces a `global/` folder for multi-story elements like stairs or MEP risers to preserve topology, the SVG Geometry Layer remains **strictly 2D slices**. A multistory stair in `global/stair.csv` is *projected* down by the parser tools and rendered into corresponding floor files like `1F/stair.svg` and `2F/stair.svg`. No `global/` SVG folder should exist.)*
+### Elements Without SVG
 
----
-
-## 2. Coordinate System & Units
-
-BIMDown aligns its coordinate system directly with standard architectural authoring tools (like Revit), ensuring seamless bidirectional sync:
-
-*   **Origin**: Uses the exact project Cartesian origin `(0,0)` defined in the source BIM/CSV.
-*   **Units**: **Meters (m)**. (A coordinate length of `5.5` means 5.5 meters).
-*   **Y-Axis Transformation**: 
-    *   Architectural/Revit convention: +Y is **Up** (North).
-    *   Standard SVG convention: +Y is **Down**.
-    *   **Rule**: We retain the true architectural coordinates in the raw numerical data. When rendering or wrapping these files, a global transform **must** be applied at the parent `<svg>` or `<g>` group to flip the Y-axis:
-      `<g transform="scale(1, -1)">`
+The following element types have **no SVG files**:
+- `door`, `window` — Parametric placement via `host_id` + `position` on wall
+- `space` — Seed point `(x, y)` in CSV; boundary auto-derived from walls
+- `opening` (wall mode) — Parametric placement via `host_id` + `position`
+- `level`, `grid` — Global reference data with coordinates in CSV
+- `mesh` — 3D geometry in GLB files
 
 ---
 
-## 3. Strict SVG Feature Subset
+## 2. Coordinate System
 
-To remain "AI-Friendly" and lightweight, BIMDown strictly limits allowed SVG features. Complex styling, gradients, animations, or redundant wrapper tags are forbidden.
+- **Origin**: Project Cartesian origin `(0, 0)`
+- **Units**: Meters
+- **Y-Axis**: Architectural convention (+Y = North). When rendering, apply `<g transform="scale(1, -1)">` to flip to SVG screen coordinates.
 
-### Allowed Tags
-*   **Structure**: `<svg>`, `<g>`
-*   **Geometry**: `<line>`, `<rect>`, `<polygon>`, `<circle>`
-*   *(Optional)* `<text>` for labels.
+---
+
+## 3. SVG Subset
+
+### Allowed Elements
+
+| SVG Element | BimDown Usage |
+|-------------|---------------|
+| `<svg>`, `<g>` | Structure and grouping |
+| `<path>` | Line elements (walls, beams, ducts, stairs, ramps, railings, etc.) |
+| `<rect>` | Point elements with rectangular profile |
+| `<circle>` | Point elements with round profile |
+| `<polygon>` | Polygon elements (slabs, ceilings, roofs, etc.) |
+| `<text>` | Optional labels |
+
+### Allowed `<path>` Commands
+
+Only the following path commands are permitted:
+- `M` / `m` — Move to (start point)
+- `L` / `l` — Line to (straight segment)
+- `A` / `a` — Arc to (circular arc segment)
+
+**Bezier curves (`C`, `Q`, `S`, `T`) are forbidden.** Arcs cover the curved geometry needed in architecture (curved walls, ramps).
 
 ### Forbidden Features
-*   `<path>` containing complex bezier curves (unless absolutely necessary for freeform organic shapes). We prefer discretized `<polygon>` arrays.
-*   `<defs>`, `<use>`, gradients, filters, animations.
-*   Embedded scripts (`<script>`).
+
+- `<defs>`, `<use>`, gradients, filters, animations
+- Embedded scripts (`<script>`)
+- Bezier path commands
+
+### Styling
+
+The spec does **not** require or read any styling attributes (`stroke`, `stroke-width`, `fill`, etc.). AI may write them freely for valid SVG, but they are ignored on import. Only geometric attributes and `id` are meaningful.
 
 ---
 
-## 4. Element Representation Rules
+## 4. Element Representation
 
-Geometries are mapped based on their placement paradigm in the CSV schema (`line_element`, `point_element`, `polygon_element`). 
+Every SVG element **must** have an `id` attribute matching the CSV short ID (e.g. `w-1`, `c-3`).
 
-Every drawn element **must** include its corresponding Attribute Layer short ID as the `id` property (e.g., `w-1`, `c-3`).
+### 4.1 Line Elements → `<path>`
 
-### 4.1 Line-Based Elements (e.g., Wall, Beam)
-Instead of drawing the boundary of a wall as a complex polygon, we draw its **centerline** and represent its physical thickness via `stroke-width`. This makes inferencing and modifying topology trivial for Large Language Models.
+Walls, beams, braces, ducts, pipes, stairs, ramps, railings, curtain walls, room separators, strip foundations.
 
-*   **SVG Tag**: `<line>`
-*   **Mapping**: 
-    *   `(x1, y1)` to `(x2, y2)` matches the CSV axis.
-    *   `stroke-width` = `thickness` (in meters).
-    *   `stroke-linecap="square"` is recommended to maintain wall-end volume.
-*   **Example (`wall.svg`)**:
-    ```xml
-    <!-- A wall that is 0.2m thick connecting (0,0) and (5,0) -->
-    <line id="w-1" x1="0" y1="0" x2="5" y2="0" stroke="black" stroke-width="0.2" stroke-linecap="square" />
-    ```
+```xml
+<!-- Straight wall from (0,0) to (5,0) -->
+<path id="w-1" d="M 0,0 L 5,0" />
 
-### 4.2 Point-Based Elements (e.g., Column, Equipment)
-Elements placed at a single point `(x, y)` with a defined profile (e.g., rectangular).
+<!-- Curved wall: arc from (0,0) to (5,0) -->
+<path id="w-2" d="M 0,0 A 3,3 0 0,1 5,0" />
+```
 
-*   **SVG Tag**: `<rect>` (or `<circle>` for round profiles).
-*   **Mapping**:
-    *   Positioned directly by the insertion point `(x, y)` from CSV.
-    *   Dimensions are mapped to `width` and `height`.
-    *   Rotation is applied via `transform="rotate(angle, center_x, center_y)"`.
-*   **Example (`column.svg`)**:
-    ```xml
-    <!-- A 0.4m x 0.4m column at (2, 2). Rendered centered -->
-    <rect id="c-1" x="1.8" y="1.8" width="0.4" height="0.4" fill="black" />
-    ```
+- Straight segments: `M x1,y1 L x2,y2`
+- Arcs: `M x1,y1 A rx,ry rotation large-arc-flag sweep-flag x2,y2`
+- One `<path>` per element (one-to-one mapping with CSV rows)
 
-### 4.3 Polygon-Based Elements (e.g., Space, Slab)
-Elements defined by a closed loop of points.
+### 4.2 Point Elements → `<rect>` or `<circle>`
 
-*   **SVG Tag**: `<polygon>`
-*   **Mapping**:
-    *   `points` attribute contains the space-separated list of `x,y` coordinates.
-*   **Example (`space.svg`)**:
-    ```xml
-    <!-- A simple 5x5m room -->
-    <polygon id="sp-1" points="0,0 5,0 5,5 0,5" fill="rgba(0,0,255,0.1)" stroke="blue" stroke-width="0.05" />
-    ```
+Columns, structure columns, equipment, terminals, mep_nodes, isolated foundations.
 
-### 4.4 Hosted Elements (e.g., Door, Window)
-Hosted elements rely on parametric locations in the CSV (`host_id` and `location_param`) rather than absolute global coordinates. 
+```xml
+<!-- Rectangular column 0.4×0.4 at (2,2) -->
+<rect id="c-1" x="1.8" y="1.8" width="0.4" height="0.4" />
 
-To maintain BIMDown's **"Flattened"** data philosophy, we do **not** nest doors inside a wall's `<g>` tag. Instead, we use a **Flat Parallel Structure**:
-1. Hosted elements live in their own isolated file (e.g., `door.svg`) mirroring the CSV structure (`door.csv` -> `door.svg`).
-2. They are placed at their absolute computed `(x, y)` coordinates by the serialization engine. 
-3. The relationship is preserved via an explicit `data-host` attribute, functioning as a foreign key.
+<!-- Round column at (5,3) with radius 0.2 -->
+<circle id="c-2" cx="5" cy="3" r="0.2" />
 
-*   **SVG Tag**: `<line>` (Openings are treated as coincident line segments overlapping the wall. This avoids forcing LLMs to compute rotation matrices for slanted `<rect>` angles).
-*   **Mapping**:
-    *   `data-host` = `host_id` (the short ID of the parent wall).
-    *   `(x1, y1)` to `(x2, y2)` represents the opening cut along the host wall's axis.
-    *   `stroke` defines the visual "cut" (e.g., background color like `white`), and `stroke-width` is slightly wider than the host wall to visually occlude it.
-*   **Example (`door.svg`)**:
-    ```xml
-    <!-- A 1m door hosted on 'w-1', visualized as a white line cutting the black wall -->
-    <line id="d-1" data-host="w-1" x1="4.5" y1="0" x2="5.5" y2="0" stroke="white" stroke-width="0.22" />
-    ```
-*(Note: To prevent Agent hallucinations when modifying topologies, workflows should provide predefined Tools for LLMs. For example, if an AI moves a wall, it shouldn't manually update every door coordinate. Instead, it runs an update command to automatically sync the absolute `x,y` coordinates in `door.svg` based on the unchanged `location_param` logic).*
+<!-- Rotated rectangular column -->
+<rect id="c-3" x="1.8" y="1.8" width="0.4" height="0.6" transform="rotate(45, 2, 2.1)" />
+```
+
+- `shape = "round"` → `<circle>`, otherwise → `<rect>`
+- Rotation via `transform="rotate(angle, center_x, center_y)"`
+
+### 4.3 Polygon Elements → `<polygon>`
+
+Slabs, structure slabs, ceilings, roofs, raft foundations, slab openings.
+
+```xml
+<!-- Floor slab -->
+<polygon id="sl-1" points="0,0 10,0 10,8 0,8" />
+```
+
+- `points` attribute: space-separated `x,y` coordinate pairs
+
+### 4.4 Foundation (Mixed Geometry)
+
+A single `foundation` table uses different SVG elements depending on the form:
+- Isolated (pad): `<rect>` or `<circle>` (point-based)
+- Strip (continuous): `<path>` (line-based)
+- Raft (mat): `<polygon>` (polygon-based)
+
+```xml
+<!-- Isolated foundation -->
+<rect id="f-1" x="0.4" y="0.4" width="1.2" height="1.2" />
+<!-- Strip foundation -->
+<path id="f-2" d="M 0,0 L 10,0" />
+<!-- Raft foundation -->
+<polygon id="f-3" points="0,0 10,0 10,8 0,8" />
+```
+
+### 4.5 Slab Opening
+
+When `opening.host_id` references a slab, the opening has SVG geometry:
+
+```xml
+<!-- Rectangular slab opening -->
+<rect id="op-1" x="3" y="3" width="2" height="1.5" />
+<!-- Irregular slab opening -->
+<polygon id="op-2" points="3,3 5,3 5,4.5 3,4.5" />
+```
+
+---
+
+## 5. Computed Field Hydration
+
+The CLI parses SVG elements and injects computed fields into DuckDB:
+
+| SVG Element | Computed Fields |
+|-------------|----------------|
+| `<path>` (line) | `start_x`, `start_y`, `end_x`, `end_y`, `length` |
+| `<rect>` | `x`, `y`, `size_x` (width), `size_y` (height), `rotation` |
+| `<circle>` | `x` (cx), `y` (cy), `size_x` (2r), `size_y` (2r), `shape="round"` |
+| `<polygon>` | `points` (serialized), `area` |

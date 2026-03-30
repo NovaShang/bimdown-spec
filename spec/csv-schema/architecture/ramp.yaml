@@ -1,0 +1,7 @@
+name: ramp
+bases:
+  - spatial_line_element
+
+fields:
+  - name: width
+    type: float

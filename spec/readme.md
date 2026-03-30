@@ -1,6 +1,44 @@
-# BIMDown Spec
+# BimDown Spec
 
-This directory defines the **CSV schema** for BIMDown — the canonical data model for a "Minimum Viable Building".
+This directory defines the **BimDown data format** — a "Minimum Viable Building" representation optimized for AI-native building design and bidirectional sync with BIM tools (Revit).
+
+BimDown uses **CSV for attributes** and **SVG for 2D geometry**, both human-readable and AI-friendly. A CLI tool with DuckDB provides relational query and auto-sync capabilities.
+
+---
+
+## Project Structure
+
+```text
+{project-id}/
+├── project_metadata.json        # Format version, project name, units, source
+├── global/
+│   ├── level.csv                # Floor level definitions
+│   ├── grid.csv                 # Structural grid lines
+│   ├── wall.csv / wall.svg      # Multi-story walls (span > 1 level above)
+│   ├── stair.csv / stair.svg    # Multi-story stairs
+│   └── ...                      # Any element spanning > 1 level above
+├── 1F/
+│   ├── wall.csv / wall.svg
+│   ├── column.csv / column.svg
+│   ├── slab.csv / slab.svg
+│   ├── door.csv                 # No SVG (hosted, parametric position)
+│   ├── window.csv               # No SVG (hosted, parametric position)
+│   ├── space.csv                # No SVG (seed point only)
+│   └── ...
+├── 2F/
+│   └── ...
+└── _IdMap.csv                   # UUID ↔ short ID mapping (Revit round-trip)
+```
+
+---
+
+## Partitioning Rules (Level vs Global)
+
+All elements belong to a **base level** (their `level_id`).
+
+- **Level directory**: Elements whose vertical extent stays within one level above their base (e.g. a 1F wall with `top_level_id` = 2F is normal single-story — goes in `1F/`).
+- **Global directory**: Elements that span **more than one level above** their base (e.g. a 1F wall with `top_level_id` = 3F). Also: `level.csv`, `grid.csv`.
+- **Elements without `vertical_span`**: Always go in their level directory.
 
 ---
 
@@ -8,84 +46,97 @@ This directory defines the **CSV schema** for BIMDown — the canonical data mod
 
 ### Global Tables
 
-| Table   | Description                                                   |
-|---------|---------------------------------------------------------------|
-| `level` | Defines floor levels by elevation. All elements reference a level. |
-| `grid`  | Defines structural/reference grid lines.                      |
+| Table   | SVG | Description |
+|---------|-----|-------------|
+| `level` | No  | Floor levels by elevation |
+| `grid`  | No  | Structural/reference grid lines |
 
 ### Architecture
 
-| Table    | Geometry      | Description                             |
-|----------|---------------|-----------------------------------------|
-| `wall`   | Line (2D)     | Architectural wall with thickness and vertical span. |
-| `column` | Point         | Architectural column with section profile and vertical span. |
-| `slab`   | Polygon       | Floor/roof/finish slab.                 |
-| `space`  | Polygon       | Named space (room/zone).                |
-| `door`   | Hosted on wall | Door with operation type.              |
-| `window` | Hosted on wall | Window with dimensions.                |
-| `stair`  | Spatial line (3D) | Stair with rise, run and vertical span. |
+| Table            | Geometry        | SVG     | Description |
+|------------------|-----------------|---------|-------------|
+| `wall`           | Line            | `<path>` | Architectural wall with thickness and vertical span |
+| `column`         | Point           | `<rect>`/`<circle>` | Architectural column with section profile |
+| `slab`           | Polygon         | `<polygon>` | Floor/roof/finish slab |
+| `space`          | Seed point      | No      | Named space/room (boundary derived from walls + room_separator) |
+| `door`           | Hosted on wall  | No      | Door with operation type |
+| `window`         | Hosted on wall  | No      | Window with dimensions |
+| `opening`        | Hosted          | Conditional | Wall opening (no SVG) or slab opening (`<rect>`/`<polygon>`) |
+| `stair`          | Spatial line    | `<path>` | Stair run with vertical span |
+| `ramp`           | Spatial line    | `<path>` | Accessibility ramp |
+| `railing`        | Spatial line    | `<path>` | Railing along path |
+| `curtain_wall`   | Line            | `<path>` | Curtain wall with grid parameters |
+| `ceiling`        | Polygon         | `<polygon>` | Ceiling surface |
+| `roof`           | Polygon         | `<polygon>` | Roof surface |
+| `room_separator` | Line            | `<path>` | Invisible boundary line for room separation |
 
 ### Structure
 
-| Table                | Geometry          | Description                            |
-|----------------------|-------------------|----------------------------------------|
-| `structure_wall`     | Line (2D)         | Structural wall (independent of arch). |
-| `structure_column`   | Point             | Structural column with structural section profile. |
-| `structure_slab`     | Polygon           | Structural slab (floor/roof only).     |
-| `beam`               | Spatial line (3D) | Structural beam.                        |
-| `brace`              | Spatial line (3D) | Structural brace.                       |
-| `isolated_foundation`| Point             | Pad/isolated footing.                   |
-| `strip_foundation`   | Line (2D)         | Strip/continuous footing.               |
-| `raft_foundation`    | Polygon           | Raft/mat foundation.                    |
+| Table              | Geometry   | SVG     | Description |
+|--------------------|------------|---------|-------------|
+| `structure_wall`   | Line       | `<path>` | Structural wall |
+| `structure_column` | Point      | `<rect>`/`<circle>` | Structural column |
+| `structure_slab`   | Polygon    | `<polygon>` | Structural slab |
+| `beam`             | Spatial line | `<path>` | Structural beam |
+| `brace`            | Spatial line | `<path>` | Structural brace |
+| `foundation`       | Mixed      | `<rect>`/`<circle>`, `<path>`, or `<polygon>` | Unified foundation (geometry determines form) |
 
 ### MEP
 
-| Table        | Geometry          | Description                            |
-|--------------|-------------------|----------------------------------------|
-| `duct`       | Spatial line (3D) | HVAC duct with section and connectivity. |
-| `pipe`       | Spatial line (3D) | Plumbing/process pipe with connectivity. |
-| `cable_tray` | Spatial line (3D) | Electrical cable tray.                  |
-| `conduit`    | Spatial line (3D) | Electrical conduit.                     |
-| `equipment`  | Point             | MEP equipment (AHU, chiller, pump…).    |
-| `terminal`   | Point             | MEP terminal device (diffuser, outlet…).|
+| Table        | Geometry     | SVG     | Description |
+|--------------|-------------|---------|-------------|
+| `duct`       | Spatial line | `<path>` | HVAC duct |
+| `pipe`       | Spatial line | `<path>` | Plumbing/process pipe |
+| `cable_tray` | Spatial line | `<path>` | Electrical cable tray |
+| `conduit`    | Spatial line | `<path>` | Electrical conduit |
+| `equipment`  | Point       | `<rect>`/`<circle>` | MEP equipment (AHU, chiller, pump...) |
+| `terminal`   | Point       | `<rect>`/`<circle>` | MEP terminal (diffuser, outlet...) |
+| `mep_node`   | Point       | `<rect>`/`<circle>` | Auto-generated topology node |
+
+### Fallback
+
+| Table  | SVG | Description |
+|--------|-----|-------------|
+| `mesh` | No  | Generic 3D model (GLB) for elements without parametric schema |
 
 ---
 
-## Schema Field Metadata (`required` vs `computed`)
+## Schema Field Metadata
 
-The YAML schemas use two critical tags to define field behavior across the CSV and SVG layers:
-- **`required: true`**: These are absolute semantic **Sources of Truth**. They *must* be physically written in the `.csv` file by the LLM (e.g., a door's `width` or a wall's `material`). If the SVG geometry visually contradicts a `required` field (like drawing a 0.8m line for a 0.9m door), the CLI tool uses this CSV field to **auto-correct** the SVG upon sync.
-- **`computed: true`**: These are spatial derivatives or pure geometry fields (e.g., `start_x`, `length`, `thickness`, `bbox`). They are **NOT** physically stored in the `.csv` file. Instead, the DuckDB CLI engine dynamically extracts them from the `.svg` ("Eyes") layer and injects them into the SQL runtime as virtual columns.
+### `required: true`
+
+Semantic **source of truth**. Written directly in `.csv` by AI. If SVG geometry contradicts a required field, the CLI uses the CSV value to auto-correct SVG on sync.
+
+### `computed: true`
+
+Spatial derivatives extracted from SVG at runtime. **Not stored in CSV**. The DuckDB CLI engine hydrates these as virtual columns during queries.
+
+**Rule**: Elements with SVG have their geometry fields as `computed`. Elements without SVG (door, window, space, grid, level) have geometry fields as `required`.
 
 ---
 
 ## Base Mixins
 
-| Mixin                     | Key Fields                                        |
-|---------------------------|---------------------------------------------------|
-| `element`                 | `id` (short ID, PK), `number`                      |
-| `line_element`            | `start_x/y`, `end_x/y`                            |
-| `spatial_line_element`    | extends `line_element` + `start_z`, `end_z`       |
-| `point_element`           | `x`, `y`, `rotation`                              |
-| `polygon_element`         | `points` (serialized polygon)                     |
-| `hosted_element`          | `host_id` (reference to host element), `location_param` |
-| `vertical_span`           | `top_level_id`, `top_offset`                      |
-| `materialized`            | `material` (enum: concrete, concrete_precast, steel, aluminum, glass, wood, brick, gypsum, metal_panel, insulation, stone, ceramic, copper, pvc, galvanized_steel) |
-| `section_profile`         | `shape` (rect/round), `size_x`, `size_y`          |
-| `structural_section_profile` | `shape` (rect/round/l_shape/t_shape/…), `size_x`, `size_y` |
-| `mep_system`              | `system_type` (enum)                              |
-| `mep_connected_segment`   | `start_node_id`, `end_node_id` (connectivity)     |
+| Mixin                        | Key Fields |
+|------------------------------|------------|
+| `element`                    | `id` (short ID, PK), `number`, `base_offset`, `mesh_file` |
+| `line_element`               | `start_x/y`, `end_x/y`, `length` (all computed from SVG `<path>`) |
+| `spatial_line_element`       | extends `line_element` + `start_z`, `end_z` (required, CSV) |
+| `point_element`              | `x`, `y`, `rotation` (all computed from SVG) |
+| `polygon_element`            | `points`, `area` (all computed from SVG) |
+| `hosted_element`             | `host_id` (reference), `position` (0-1 along host) |
+| `vertical_span`              | `top_level_id`, `top_offset`, `height` (computed) |
+| `materialized`               | `material` (enum: concrete, steel, wood, clt, glass, aluminum, brick, stone, gypsum, insulation, copper, pvc, ceramic, fiber_cement, composite) |
+| `section_profile`            | `shape` (rect/round), `size_x`, `size_y` |
+| `structural_section_profile` | `shape` (rect/round/i/t/l/c/cross), `size_x`, `size_y` |
+| `mep_system`                 | `system_type` (string, e.g. "CHWS", "SA", "DW") |
+| `mep_connected_segment`      | `start_node_id`, `end_node_id` (auto-resolved by CLI) |
 
 ---
 
-## Design Decisions
+## ID System
 
-- **Architecture vs Structure**: Architecture and structural elements are **decoupled**. Structural elements (`structure_column`, `structure_wall`, `structure_slab`) inherit directly from geometry base mixins, not from architecture classes. This prevents cross-discipline field conflicts.
-- **`section_profile` vs `structural_section_profile`**: Architecture columns use the simpler `section_profile` (rect/round). Structural elements use `structural_section_profile` which includes engineering shapes (I, T, L…).
-- **Stairs use `spatial_line_element`**: Stairs are 3D elements — they have a bottom landing point and a top landing point at different elevations, requiring `start_z`/`end_z`.
-- **`id` is prefixed short ID**: All tables include a required `id` field as the primary key, using the format `{prefix}-{n}` (e.g., `w-1`, `lv-3`, `d-12`). Each table has a unique prefix, and counters are 1-based per table. This format is compact (saving tokens), human-readable, and LLM-friendly — models can trivially generate valid new IDs. Round-trip fidelity is maintained via a `BimDown_Id` shared parameter stored on each Revit element. See the full prefix table below.
-
-#### ID Prefix Table
+All elements use prefixed short IDs: `{prefix}-{n}`. Counters are 1-based per table, scoped to the level directory.
 
 | Table | Prefix | Example |
 |---|---|---|
@@ -97,39 +148,89 @@ The YAML schemas use two critical tags to define field behavior across the CSV a
 | `space` | `sp` | `sp-1` |
 | `door` | `d` | `d-1` |
 | `window` | `wn` | `wn-1` |
+| `opening` | `op` | `op-1` |
 | `stair` | `st` | `st-1` |
+| `ramp` | `rp` | `rp-1` |
+| `railing` | `rl` | `rl-1` |
+| `curtain_wall` | `cw` | `cw-1` |
+| `ceiling` | `cl` | `cl-1` |
+| `roof` | `ro` | `ro-1` |
+| `room_separator` | `rs` | `rs-1` |
 | `structure_wall` | `sw` | `sw-1` |
 | `structure_column` | `sc` | `sc-1` |
 | `structure_slab` | `ss` | `ss-1` |
 | `beam` | `bm` | `bm-1` |
 | `brace` | `br` | `br-1` |
-| `isolated_foundation` | `if` | `if-1` |
-| `strip_foundation` | `sf` | `sf-1` |
-| `raft_foundation` | `rf` | `rf-1` |
+| `foundation` | `f` | `f-1` |
 | `duct` | `du` | `du-1` |
 | `pipe` | `pi` | `pi-1` |
 | `cable_tray` | `ct` | `ct-1` |
 | `conduit` | `co` | `co-1` |
 | `equipment` | `eq` | `eq-1` |
 | `terminal` | `tm` | `tm-1` |
-- **`mep_system.system_type` is enum**: Controlled vocabulary prevents free-form strings and enables reliable filtering.
+| `mep_node` | `mn` | `mn-1` |
+| `mesh` | `ms` | `ms-1` |
+
+Round-trip fidelity with Revit is maintained via a `BimDown_Id` shared parameter stored on each Revit element, and `_IdMap.csv` at the project root.
 
 ---
 
-## Storage & Agentic Architecture
+## Design Decisions
 
-To balance **pure-text LLM generation capabilities** and **robust relational queries**, BIMDown employs a dual-read strategy for CSV storage via an intelligent CLI tool/proxy:
+### Architecture vs Structure Decoupling
 
-### 1. Physical Storage (Partitioned by Level & Global)
-CSVs are physically partitioned by level into small, bounded files (e.g., `1F/wall.csv`, `2F/door.csv`). However, **cross-floor elements** (e.g., `stair`, MEP `pipe` networks, high-rise `structure_column`) must NOT be forcibly anchored to a single floor. They are placed in a dedicated `global/` directory (e.g., `global/stair.csv`).
-- **Why?** This is tailored for Agentic AI "from-scratch" generative design. Generating or editing a 5000-line monolithic CSV directly pushes context window limits and introduces high hallucination risks. By isolating each floor into a tiny file, Agents can read, generate, or overwrite a specific bounded local context flawlessly. Meanwhile, the `global/` folder preserves continuous topologies for entire-building systems (like piping or circulation), avoiding scattered graph logic.
+Architectural and structural elements are fully independent. `structure_column`, `structure_wall`, `structure_slab` inherit from geometry bases directly, not from architecture types. This prevents cross-discipline field conflicts and allows independent modeling.
 
-### 2. Logical View & Schema Hydration (In-Memory DuckDB)
-When an Agent needs to manipulate data relationally or handle complex spatial logic, it interfaces with a Backend CLI Tool wrapping an in-memory **DuckDB** instance.
+### Section Profiles
 
-The DuckDB Engine dynamically handles:
-1. **Partition Unioning**: Merging `1F/wall.csv` + `2F/wall.csv` + `global/wall.csv` into a single view.
-2. **Geometry Hydration**: Parsing `.svg` files to append `computed: true` spatial columns (e.g. lengths, thicknesses) directly into the SQL runtime.
-3. **Auto-Healing**: Using semantic CSV attributes (e.g., `width=0.9`) to auto-correct imprecise geometric lines drawn by LLMs in SVG files during Sync-Out.
+- Architecture columns use `section_profile` (rect/round).
+- Structural elements use `structural_section_profile` with engineering shapes (I, T, L, C, cross).
 
-👉 **[See the full DuckDB & CLI Strategy for detailed mechanisms](duckdb-strategy.md)**.
+### SVG as AI-Native Geometry Storage
+
+SVG is **not** used for visualization — it is a geometry storage format chosen because AI models have extensive training data on SVG and strong spatial reasoning with it. The spec uses standard SVG subset (`<path>`, `<rect>`, `<circle>`, `<polygon>`) without custom attributes or styling requirements.
+
+Line elements use `<path>` with `M`, `L`, `A` commands. This naturally supports both straight lines and arcs (curved walls, ramps) using standard SVG syntax that AI models already understand well.
+
+### Elements Without SVG
+
+Some elements have no SVG representation:
+- **Door/Window**: Fully defined by `host_id` + `position` (parametric placement on wall). Absolute coordinates would require re-syncing whenever the host wall moves.
+- **Space**: Defined by seed point `(x, y)`. Boundary is auto-derived from surrounding walls and room separators.
+- **Grid/Level**: Global reference data with coordinates in CSV.
+
+### Unified Foundation Type
+
+Rather than separate types for isolated/strip/raft foundations, a single `foundation` table covers all forms. The geometry type (point/line/polygon) is determined by the SVG element. This reduces table count while the SVG naturally disambiguates the form.
+
+### Opening: Wall and Slab Voids
+
+`opening` supports two modes via the same table:
+- **Wall opening**: `host_id` → wall, with `position`, `width`, `height`. No SVG.
+- **Slab opening**: `host_id` → slab, with SVG geometry (`<rect>` or `<polygon>`).
+
+For multi-story shaft openings: export one `opening` per level, each hosted on its respective slab.
+
+### MEP Topology
+
+AI designs MEP networks by placing duct/pipe segments with endpoint coordinates. Connectivity is implicit via coincident endpoints. The CLI `resolve-topology` command auto-generates `mep_node` entries at junctions and back-fills `start_node_id`/`end_node_id` on each segment. This enables DuckDB graph queries while keeping the AI authoring workflow simple.
+
+Design workflow: place equipment/terminals first (anchors), then draw duct/pipe segments to connect them.
+
+### Material Enum
+
+A fixed enum of 15 common structural/architectural materials. Represents the **primary material** of an element. Composite/multi-layer constructions are not modeled — the Revit plugin handles layer composition independently.
+
+### Format Versioning
+
+`project_metadata.json` at the project root includes `format_version` for forward compatibility.
+
+---
+
+## Storage & Query Architecture
+
+See **[DuckDB & CLI Strategy](duckdb-strategy.md)** for details on:
+1. **Hydration**: Merging partitioned CSVs + parsing SVG geometry into in-memory DuckDB tables.
+2. **Execution**: Standard SQL queries over unified, geometry-enriched views.
+3. **Sync-Out**: Stripping computed fields, auto-healing SVG from CSV source-of-truth, re-partitioning by level.
+4. **Resolve-Topology**: Auto-generating MEP connectivity graph from endpoint coordinates.

@@ -3,12 +3,5 @@ abstract: true
 
 fields:
   - name: system_type
-    type: enum
-    values:
-      - hvac
-      - plumbing
-      - fire_protection
-      - electrical
-      - data_comm
-      - gas
-      - other
+    type: string
+    description: Revit system classification (e.g. "CHWS", "CHR", "SA", "RA", "DW")

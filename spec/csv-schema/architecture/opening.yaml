@@ -1,0 +1,36 @@
+name: opening
+bases:
+  - element
+description: >
+  Opening (void) in a host element. host_id is always required.
+  Geometry form depends on the host type:
+  - Wall opening: host_id references a wall. Uses position (0-1 along wall),
+    width, and height. No SVG geometry.
+  - Slab opening: host_id references a slab. Uses SVG geometry
+    (<rect> or <polygon>) to define the void shape.
+
+fields:
+  - name: host_id
+    type: reference
+    reference: element
+    required: true
+
+  - name: position
+    type: float
+    description: Parametric position along host wall (0.0-1.0). Only for wall openings.
+
+  - name: width
+    type: float
+    description: Opening width. Required for wall openings.
+
+  - name: height
+    type: float
+    description: Opening height. Only for wall openings.
+
+  - name: shape
+    type: enum
+    values:
+      - rect
+      - round
+      - arch
+    description: Opening shape. Only for wall openings.

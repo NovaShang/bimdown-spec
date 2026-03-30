@@ -1,13 +1,16 @@
 name: mep_connected_segment
 abstract: true
+description: >
+  Connectivity fields auto-populated by the CLI resolve-topology command.
+  AI designs MEP networks by placing duct/pipe endpoints at matching coordinates.
+  The CLI detects coincident endpoints and generates mep_node entries,
+  back-filling start_node_id and end_node_id on each segment.
 
 fields:
   - name: start_node_id
     type: string
-    description: "ID of the upstream node (e.g., equipment or mep_node) where flow enters."
-    required: false
+    description: "Auto-resolved ID of the upstream node (equipment, terminal, or mep_node)."
 
   - name: end_node_id
     type: string
-    description: "ID of the downstream node (e.g., equipment or mep_node) where flow exits."
-    required: false
+    description: "Auto-resolved ID of the downstream node (equipment, terminal, or mep_node)."

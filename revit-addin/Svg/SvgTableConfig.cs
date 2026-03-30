@@ -1,6 +1,6 @@
 namespace BimDown.RevitAddin.Svg;
 
-enum SvgRenderType { Line, Point, Polygon, Hosted }
+enum SvgRenderType { Line, Point, Polygon, Mixed }
 
 record SvgTableMapping(string TableName, string SvgFileName, SvgRenderType RenderType)
 {
@@ -13,16 +13,18 @@ record SvgTableMapping(string TableName, string SvgFileName, SvgRenderType Rende
         new("roof", "roof.svg", SvgRenderType.Polygon),
         new("ceiling", "ceiling.svg", SvgRenderType.Polygon),
         new("stair", "stair.svg", SvgRenderType.Line),
+        new("ramp", "ramp.svg", SvgRenderType.Line),
+        new("railing", "railing.svg", SvgRenderType.Line),
+        new("room_separator", "room_separator.svg", SvgRenderType.Line),
         new("curtain_wall", "curtain_wall.svg", SvgRenderType.Line),
+        new("opening", "opening.svg", SvgRenderType.Mixed),
         // Structure
         new("structure_wall", "structure_wall.svg", SvgRenderType.Line),
         new("structure_column", "structure_column.svg", SvgRenderType.Point),
         new("structure_slab", "structure_slab.svg", SvgRenderType.Polygon),
         new("beam", "beam.svg", SvgRenderType.Line),
         new("brace", "brace.svg", SvgRenderType.Line),
-        new("isolated_foundation", "isolated_foundation.svg", SvgRenderType.Point),
-        new("strip_foundation", "strip_foundation.svg", SvgRenderType.Line),
-        new("raft_foundation", "raft_foundation.svg", SvgRenderType.Polygon),
+        new("foundation", "foundation.svg", SvgRenderType.Mixed),
         // MEP
         new("duct", "duct.svg", SvgRenderType.Line),
         new("pipe", "pipe.svg", SvgRenderType.Line),

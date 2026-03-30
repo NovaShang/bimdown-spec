@@ -45,7 +45,7 @@ export function parseSvgFile(filePath: string): SvgFile {
     }
 
     // Extract geometry elements
-    const geoTags = ['line', 'rect', 'polygon', 'circle', 'text'];
+    const geoTags = ['path', 'line', 'rect', 'polygon', 'circle', 'text'];
     if (tag && geoTags.includes(tag)) {
       const attrs: Record<string, string> = {};
       for (const [k, v] of Object.entries(node)) {
@@ -103,18 +103,32 @@ export interface CircleGeometry {
 }
 
 export function extractLineGeometry(el: SvgElement): LineGeometry {
-  const x1 = parseFloat(el.attrs.x1 ?? '0');
-  const y1 = parseFloat(el.attrs.y1 ?? '0');
-  const x2 = parseFloat(el.attrs.x2 ?? '0');
-  const y2 = parseFloat(el.attrs.y2 ?? '0');
-  const sw = parseFloat(el.attrs['stroke-width'] ?? '0');
+  let x1: number, y1: number, x2: number, y2: number;
+
+  if (el.tag === 'path') {
+    // Parse "M x1,y1 L x2,y2"
+    const d = el.attrs.d ?? '';
+    const m = d.match(/M\s*(-?[\d.]+)[,\s]+(-?[\d.]+)\s*L\s*(-?[\d.]+)[,\s]+(-?[\d.]+)/);
+    if (m) {
+      x1 = parseFloat(m[1]); y1 = parseFloat(m[2]);
+      x2 = parseFloat(m[3]); y2 = parseFloat(m[4]);
+    } else {
+      x1 = y1 = x2 = y2 = 0;
+    }
+  } else {
+    x1 = parseFloat(el.attrs.x1 ?? '0');
+    y1 = parseFloat(el.attrs.y1 ?? '0');
+    x2 = parseFloat(el.attrs.x2 ?? '0');
+    y2 = parseFloat(el.attrs.y2 ?? '0');
+  }
+
   const dx = x2 - x1;
   const dy = y2 - y1;
   return {
     start_x: x1, start_y: y1,
     end_x: x2, end_y: y2,
     length: Math.sqrt(dx * dx + dy * dy),
-    thickness: sw,
+    thickness: 0,
   };
 }
 
@@ -174,6 +188,13 @@ function formatSvgAttrs(attrs: Record<string, string>, idOverride?: string): str
 
 function elementBounds(el: SvgElement): { minX: number; minY: number; maxX: number; maxY: number } {
   switch (el.tag) {
+    case 'path': {
+      const geo = extractLineGeometry(el);
+      return {
+        minX: Math.min(geo.start_x, geo.end_x), minY: Math.min(geo.start_y, geo.end_y),
+        maxX: Math.max(geo.start_x, geo.end_x), maxY: Math.max(geo.start_y, geo.end_y),
+      };
+    }
     case 'line': {
       const x1 = parseFloat(el.attrs.x1 ?? '0'), y1 = parseFloat(el.attrs.y1 ?? '0');
       const x2 = parseFloat(el.attrs.x2 ?? '0'), y2 = parseFloat(el.attrs.y2 ?? '0');

@@ -731,3 +731,68 @@ static class HostedOpeningHelper
         TableImporterBase.SetMark(fi, row);
     }
 }
+
+class RampImporter() : TableImporterBase("ramp", 15, [BuiltInCategory.OST_Ramps])
+{
+    protected override Element? CreateElement(Document doc, Dictionary<string, string?> row)
+    {
+        // Ramps are complex multi-component elements — creation not supported
+        return null;
+    }
+
+    protected override void UpdateElement(Document doc, Dictionary<string, string?> row, Element element)
+    {
+        var widthStr = row.GetValueOrDefault("width");
+        if (widthStr is not null)
+            element.get_Parameter(BuiltInParameter.STAIRS_ATTR_TREAD_WIDTH)?.Set(
+                UnitConverter.LengthToFeet(UnitConverter.ParseDouble(widthStr)));
+
+        SetMark(element, row);
+    }
+}
+
+class RailingImporter() : TableImporterBase("railing", 15, [BuiltInCategory.OST_StairsRailing])
+{
+    protected override Element? CreateElement(Document doc, Dictionary<string, string?> row)
+    {
+        // Railings are path-based and often tied to stairs/slabs — creation not supported
+        return null;
+    }
+
+    protected override void UpdateElement(Document doc, Dictionary<string, string?> row, Element element)
+    {
+        SetMark(element, row);
+    }
+}
+
+/// <summary>
+/// Room separators (OST_RoomSeparationLines) cannot have shared parameters bound in Revit API,
+/// so BimDown_Id cannot be stored on these elements. Round-trip matching relies on geometry only.
+/// </summary>
+class RoomSeparatorImporter() : TableImporterBase("room_separator", 10, [BuiltInCategory.OST_RoomSeparationLines])
+{
+    protected override Element? CreateElement(Document doc, Dictionary<string, string?> row)
+    {
+        var line = ParseLine2D(row);
+        var levelId = IdMap.Resolve(doc, row.GetValueOrDefault("level_id"))
+            ?? throw new InvalidOperationException("level_id is required");
+        var level = (Level)doc.GetElement(levelId);
+
+        var sketchPlane = SketchPlane.Create(doc,
+            Plane.CreateByNormalAndOrigin(XYZ.BasisZ, new XYZ(0, 0, level.Elevation)));
+
+        var curveArray = new CurveArray();
+        curveArray.Append(line);
+        var modelCurve = doc.Create.NewRoomBoundaryLines(sketchPlane, curveArray, doc.ActiveView).get_Item(0);
+        SetMark(modelCurve, row);
+        return modelCurve;
+    }
+
+    protected override void UpdateElement(Document doc, Dictionary<string, string?> row, Element element)
+    {
+        if (element.Location is LocationCurve lc)
+            lc.Curve = ParseLine2D(row);
+
+        SetMark(element, row);
+    }
+}

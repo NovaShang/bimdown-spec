@@ -4,16 +4,16 @@ namespace BimDown.RevitAddin.Tables;
 
 class MeshExporter : ITableExporter
 {
-    static readonly (BuiltInCategory Category, string EnumValue)[] CategoryMap =
+    static readonly BuiltInCategory[] MeshCategories =
     [
-        (BuiltInCategory.OST_StairsRailing, "railing"),
-        (BuiltInCategory.OST_GenericModel, "generic_model"),
-        (BuiltInCategory.OST_Topography, "topography"),
-        (BuiltInCategory.OST_Planting, "planting"),
-        (BuiltInCategory.OST_Site, "site"),
+        BuiltInCategory.OST_GenericModel,
+        BuiltInCategory.OST_Topography,
+        BuiltInCategory.OST_Planting,
+        BuiltInCategory.OST_Site,
     ];
 
     public string TableName => "mesh";
+    public bool IsGlobal => true;
 
     public IReadOnlyList<string> Columns { get; } =
         ["id", "category", "name", "level_id", "mesh_file", "x", "y", "z", "rotation"];
@@ -27,7 +27,7 @@ class MeshExporter : ITableExporter
     {
         var rows = new List<Dictionary<string, string?>>();
 
-        foreach (var (category, enumValue) in CategoryMap)
+        foreach (var category in MeshCategories)
         {
             try
             {
@@ -39,7 +39,7 @@ class MeshExporter : ITableExporter
                 {
                     try
                     {
-                        var row = ExtractRow(element, enumValue);
+                        var row = ExtractRow(element);
                         if (row is not null)
                         {
                             _elementsByUid[element.UniqueId] = element;
@@ -90,12 +90,12 @@ class MeshExporter : ITableExporter
         }
     }
 
-    static Dictionary<string, string?>? ExtractRow(Element element, string categoryEnum)
+    static Dictionary<string, string?>? ExtractRow(Element element)
     {
         var row = new Dictionary<string, string?>
         {
             ["id"] = element.UniqueId,
-            ["category"] = categoryEnum,
+            ["category"] = element.Category?.Name,
             ["name"] = element.Name,
             ["mesh_file"] = "", // placeholder, filled in by ExportGlbFiles
         };

@@ -358,39 +358,124 @@ class BraceImporter() : TableImporterBase(
         => StructuralFramingHelper.UpdateFramingInstance(doc, row, element);
 }
 
-class IsolatedFoundationImporter() : TableImporterBase(
-    "isolated_foundation",
+class FoundationImporter() : TableImporterBase(
+    "foundation",
     15,
-    [BuiltInCategory.OST_StructuralFoundation],
-    e => e.Location is LocationPoint)
+    [BuiltInCategory.OST_StructuralFoundation])
 {
     protected override Element? CreateElement(Document doc, Dictionary<string, string?> row)
     {
-        var x = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["x"]!));
-        var y = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["y"]!));
         var levelId = IdMap.Resolve(doc, row.GetValueOrDefault("level_id"))
             ?? throw new InvalidOperationException("level_id is required");
         var level = (Level)doc.GetElement(levelId);
 
-        var symbol = TypeResolver.FindFirstFamilySymbol(doc, BuiltInCategory.OST_StructuralFoundation);
-        var pt = new XYZ(x, y, level.Elevation);
-        var instance = doc.Create.NewFamilyInstance(pt, symbol, level, StructuralType.Footing);
+        // Raft foundation (polygon)
+        if (row.GetValueOrDefault("points") is { } pointsJson)
+        {
+            var points = GeometryUtils.DeserializePolygon(pointsJson);
+            if (points.Count < 3) throw new InvalidOperationException("Need at least 3 points for raft foundation");
 
-        SetFoundationParams(instance, row);
-        SetMark(instance, row);
-        return instance;
+            var thicknessStr = row.GetValueOrDefault("thickness");
+            FloorType floorType = thicknessStr is not null
+                ? TypeResolver.ResolveOrCreateFloorType(doc, UnitConverter.ParseDouble(thicknessStr))
+                : new FilteredElementCollector(doc).OfClass(typeof(FloorType)).Cast<FloorType>().First();
+
+            var curveLoop = new CurveLoop();
+            for (var i = 0; i < points.Count; i++)
+            {
+                var p1 = new XYZ(points[i].X, points[i].Y, level.Elevation);
+                var p2 = new XYZ(points[(i + 1) % points.Count].X, points[(i + 1) % points.Count].Y, level.Elevation);
+                curveLoop.Append(Line.CreateBound(p1, p2));
+            }
+
+            var floor = Floor.Create(doc, [curveLoop], floorType.Id, levelId);
+            SetMark(floor, row);
+            return floor;
+        }
+
+        // Strip foundation (line) — requires host wall, skip creation
+        if (row.GetValueOrDefault("start_x") is not null)
+            return null;
+
+        // Isolated foundation (point)
+        if (row.GetValueOrDefault("x") is not null)
+        {
+            var x = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["x"]!));
+            var y = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["y"]!));
+            var symbol = TypeResolver.FindFirstFamilySymbol(doc, BuiltInCategory.OST_StructuralFoundation);
+            var pt = new XYZ(x, y, level.Elevation);
+            var instance = doc.Create.NewFamilyInstance(pt, symbol, level, StructuralType.Footing);
+            SetFoundationParams(instance, row);
+            SetMark(instance, row);
+            return instance;
+        }
+
+        return null;
     }
 
     protected override void UpdateElement(Document doc, Dictionary<string, string?> row, Element element)
     {
-        if (element.Location is LocationPoint lp)
+        if (element is Floor floor)
         {
-            var x = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["x"]!));
-            var y = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["y"]!));
-            lp.Point = new XYZ(x, y, lp.Point.Z);
+            // Raft foundation
+            var pointsJson = row.GetValueOrDefault("points");
+            if (pointsJson is not null)
+            {
+                doc.Delete(floor.Id);
+                var newFloor = CreateElement(doc, row);
+                if (newFloor is not null)
+                {
+                    var csvId = row.GetValueOrDefault("id");
+                    if (csvId is not null)
+                    {
+                        BimDownParameter.Set(newFloor, csvId);
+                        IdMap.Register(csvId, newFloor.Id);
+                    }
+                }
+                return;
+            }
+
+            var thicknessStr = row.GetValueOrDefault("thickness");
+            if (thicknessStr is not null)
+            {
+                var newType = TypeResolver.ResolveOrCreateFloorType(doc, UnitConverter.ParseDouble(thicknessStr));
+                if (floor.FloorType.Id != newType.Id)
+                    floor.FloorType = newType;
+            }
+        }
+        else if (element.Location is LocationCurve lc)
+        {
+            // Strip foundation
+            var sx = row.GetValueOrDefault("start_x");
+            var sy = row.GetValueOrDefault("start_y");
+            var ex = row.GetValueOrDefault("end_x");
+            var ey = row.GetValueOrDefault("end_y");
+            if (sx is not null && sy is not null && ex is not null && ey is not null)
+            {
+                lc.Curve = Line.CreateBound(
+                    new XYZ(UnitConverter.LengthToFeet(UnitConverter.ParseDouble(sx)),
+                            UnitConverter.LengthToFeet(UnitConverter.ParseDouble(sy)), 0),
+                    new XYZ(UnitConverter.LengthToFeet(UnitConverter.ParseDouble(ex)),
+                            UnitConverter.LengthToFeet(UnitConverter.ParseDouble(ey)), 0));
+            }
+
+            SetFoundationDimensionParams(element, row);
+        }
+        else if (element.Location is LocationPoint lp)
+        {
+            // Isolated foundation
+            var xStr = row.GetValueOrDefault("x");
+            var yStr = row.GetValueOrDefault("y");
+            if (xStr is not null && yStr is not null)
+            {
+                var x = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(xStr));
+                var y = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(yStr));
+                lp.Point = new XYZ(x, y, lp.Point.Z);
+            }
+
+            SetFoundationParams(element, row);
         }
 
-        SetFoundationParams(element, row);
         SetMark(element, row);
     }
 
@@ -401,6 +486,11 @@ class IsolatedFoundationImporter() : TableImporterBase(
             element.get_Parameter(BuiltInParameter.STRUCTURAL_FOUNDATION_LENGTH)?.Set(
                 UnitConverter.LengthToFeet(UnitConverter.ParseDouble(lengthStr)));
 
+        SetFoundationDimensionParams(element, row);
+    }
+
+    static void SetFoundationDimensionParams(Element element, Dictionary<string, string?> row)
+    {
         var widthStr = row.GetValueOrDefault("width");
         if (widthStr is not null)
         {
@@ -416,128 +506,5 @@ class IsolatedFoundationImporter() : TableImporterBase(
             element.get_Parameter(BuiltInParameter.FLOOR_ATTR_THICKNESS_PARAM)?.Set(thicknessFeet);
             element.get_Parameter(BuiltInParameter.FAMILY_HEIGHT_PARAM)?.Set(thicknessFeet);
         }
-    }
-}
-
-class StripFoundationImporter() : TableImporterBase(
-    "strip_foundation",
-    15,
-    [BuiltInCategory.OST_StructuralFoundation],
-    e => e.Location is LocationCurve)
-{
-    protected override Element? CreateElement(Document doc, Dictionary<string, string?> row)
-    {
-        // Strip foundations (WallFoundation) require a host wall — skip creation
-        return null;
-    }
-
-    protected override void UpdateElement(Document doc, Dictionary<string, string?> row, Element element)
-    {
-        if (element.Location is LocationCurve lc)
-        {
-            var sx = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["start_x"]!));
-            var sy = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["start_y"]!));
-            var ex = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["end_x"]!));
-            var ey = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["end_y"]!));
-            lc.Curve = Line.CreateBound(new XYZ(sx, sy, 0), new XYZ(ex, ey, 0));
-        }
-
-        var widthStr = row.GetValueOrDefault("width");
-        if (widthStr is not null)
-        {
-            var widthFeet = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(widthStr));
-            element.get_Parameter(BuiltInParameter.STRUCTURAL_FOUNDATION_WIDTH)?.Set(widthFeet);
-            element.get_Parameter(BuiltInParameter.FAMILY_WIDTH_PARAM)?.Set(widthFeet);
-        }
-
-        var thicknessStr = row.GetValueOrDefault("thickness");
-        if (thicknessStr is not null)
-        {
-            var thicknessFeet = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(thicknessStr));
-            element.get_Parameter(BuiltInParameter.FLOOR_ATTR_THICKNESS_PARAM)?.Set(thicknessFeet);
-            element.get_Parameter(BuiltInParameter.FAMILY_HEIGHT_PARAM)?.Set(thicknessFeet);
-        }
-
-        SetMark(element, row);
-    }
-}
-
-class RaftFoundationImporter() : TableImporterBase(
-    "raft_foundation",
-    15,
-    [BuiltInCategory.OST_StructuralFoundation],
-    e => e is Floor)
-{
-    protected override Element? CreateElement(Document doc, Dictionary<string, string?> row)
-    {
-        var pointsJson = row.GetValueOrDefault("points")
-            ?? throw new InvalidOperationException("points is required for raft_foundation");
-        var points = GeometryUtils.DeserializePolygon(pointsJson);
-        if (points.Count < 3) throw new InvalidOperationException("Need at least 3 points for raft_foundation");
-
-        var levelId = IdMap.Resolve(doc, row.GetValueOrDefault("level_id"))
-            ?? throw new InvalidOperationException("level_id is required");
-        var level = (Level)doc.GetElement(levelId);
-
-        var thicknessStr = row.GetValueOrDefault("thickness");
-        FloorType floorType;
-        if (thicknessStr is not null)
-        {
-            var thickness = UnitConverter.ParseDouble(thicknessStr);
-            floorType = TypeResolver.ResolveOrCreateFloorType(doc, thickness);
-        }
-        else
-        {
-            floorType = new FilteredElementCollector(doc)
-                .OfClass(typeof(FloorType))
-                .Cast<FloorType>()
-                .First();
-        }
-
-        var curveLoop = new CurveLoop();
-        for (var i = 0; i < points.Count; i++)
-        {
-            var p1 = new XYZ(points[i].X, points[i].Y, level.Elevation);
-            var p2 = new XYZ(points[(i + 1) % points.Count].X, points[(i + 1) % points.Count].Y, level.Elevation);
-            curveLoop.Append(Line.CreateBound(p1, p2));
-        }
-
-        var floor = Floor.Create(doc, [curveLoop], floorType.Id, levelId);
-
-        SetMark(floor, row);
-        return floor;
-    }
-
-    protected override void UpdateElement(Document doc, Dictionary<string, string?> row, Element element)
-    {
-        if (element is not Floor floor) return;
-
-        var pointsJson = row.GetValueOrDefault("points");
-        if (pointsJson is not null)
-        {
-            doc.Delete(floor.Id);
-            var newFloor = CreateElement(doc, row);
-            if (newFloor is not null)
-            {
-                var csvId = row.GetValueOrDefault("id");
-                if (csvId is not null)
-                {
-                    BimDownParameter.Set(newFloor, csvId);
-                    IdMap.Register(csvId, newFloor.Id);
-                }
-            }
-            return;
-        }
-
-        var thicknessStr = row.GetValueOrDefault("thickness");
-        if (thicknessStr is not null)
-        {
-            var thickness = UnitConverter.ParseDouble(thicknessStr);
-            var newType = TypeResolver.ResolveOrCreateFloorType(doc, thickness);
-            if (floor.FloorType.Id != newType.Id)
-                floor.FloorType = newType;
-        }
-
-        SetMark(floor, row);
     }
 }

@@ -40,6 +40,22 @@ public class ShortIdGeneratorTests : RevitApiTest
     }
 
     [Test]
+    public async Task GetOrAssign_NewPrefixes_FoundationRampRailingRoomSeparator()
+    {
+        var gen = new ShortIdGenerator();
+
+        var f1 = gen.GetOrAssign("foundation", "guid-f1");
+        var rp1 = gen.GetOrAssign("ramp", "guid-rp1");
+        var rl1 = gen.GetOrAssign("railing", "guid-rl1");
+        var rs1 = gen.GetOrAssign("room_separator", "guid-rs1");
+
+        await Assert.That(f1).IsEqualTo("f-1");
+        await Assert.That(rp1).IsEqualTo("rp-1");
+        await Assert.That(rl1).IsEqualTo("rl-1");
+        await Assert.That(rs1).IsEqualTo("rs-1");
+    }
+
+    [Test]
     public async Task RemapRows_ReplacesIdsAndReferences()
     {
         var gen = new ShortIdGenerator();

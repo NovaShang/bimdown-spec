@@ -6,13 +6,12 @@ import { loadAllSchemas, resolveFields } from './loader.js';
 export const ID_PREFIXES: Record<string, string> = {
   level: 'lv', grid: 'gr', wall: 'w', column: 'c', slab: 'sl',
   space: 'sp', door: 'd', window: 'wn', stair: 'st',
+  ramp: 'rp', railing: 'rl', room_separator: 'rs',
+  curtain_wall: 'cw', roof: 'ro', ceiling: 'cl', opening: 'op',
   structure_wall: 'sw', structure_column: 'sc', structure_slab: 'ss',
-  beam: 'bm', brace: 'br', isolated_foundation: 'if',
-  strip_foundation: 'sf', raft_foundation: 'rf',
+  beam: 'bm', brace: 'br', foundation: 'f',
   duct: 'du', pipe: 'pi', cable_tray: 'ct', conduit: 'co',
-  equipment: 'eq', terminal: 'tm',
-  room_separator: 'rs',
-  roof: 'ro', ceiling: 'cl', opening: 'op',
+  equipment: 'eq', terminal: 'tm', mep_node: 'mn',
   mesh: 'mesh',
 };
 
@@ -28,7 +27,7 @@ export const GLOBAL_ALLOWED_TABLES = new Set([
 ]);
 
 // Tables without SVG geometry (level/grid are global-only, door/window use CSV position)
-const TABLES_WITHOUT_SVG = new Set(['level', 'grid', 'door', 'window', 'space', 'opening', 'mesh']);
+const TABLES_WITHOUT_SVG = new Set(['level', 'grid', 'door', 'window', 'space', 'mesh']);
 
 // SVG file name mapping: table name -> svg file name (without extension)
 // SVG files use the same name as the CSV (both singular): wall.csv + wall.svg

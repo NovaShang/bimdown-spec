@@ -1,0 +1,21 @@
+name: project_metadata
+description: Schema for project_metadata.json at the project root.
+
+fields:
+  - name: format_version
+    type: string
+    required: true
+    description: BimDown format version (e.g. "1.0")
+
+  - name: project_name
+    type: string
+    description: Human-readable project name
+
+  - name: units
+    type: string
+    description: Coordinate unit system (always "meters")
+    default: meters
+
+  - name: source
+    type: string
+    description: Export source (e.g. "Revit 2026", "BimDown CLI")

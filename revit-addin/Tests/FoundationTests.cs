@@ -15,7 +15,7 @@ public class FoundationTests : RevitApiTest
             .Cast<Level>()
             .First();
 
-    // ── Isolated Foundation ───────────────────────────────────────
+    // ── Isolated Foundation (point-based) ────────────────────────
 
     [Test]
     public async Task Import_IsolatedFoundation_CreateAndVerify()
@@ -29,7 +29,7 @@ public class FoundationTests : RevitApiTest
             txSetup.Commit();
 
             var level = GetFirstLevel(doc);
-            var importer = new IsolatedFoundationImporter();
+            var importer = new FoundationImporter();
             var idMap = RevitTestHelper.BuildIdMap(doc);
             importer.SetIdMap(idMap);
 
@@ -38,7 +38,7 @@ public class FoundationTests : RevitApiTest
                 new()
                 {
                     ["id"] = "test-isofound-001",
-                    ["number"] = "IF-1",
+                    ["number"] = "F-1",
                     ["level_id"] = BimDownParameter.Get(level)!,
                     ["x"] = "5",
                     ["y"] = "5",
@@ -90,10 +90,10 @@ public class FoundationTests : RevitApiTest
                 Autodesk.Revit.DB.Structure.StructuralType.Footing);
             txSetup.Commit();
 
-            var importer = new IsolatedFoundationImporter();
+            var importer = new FoundationImporter();
             var idMap = RevitTestHelper.BuildIdMap(doc);
-            RevitTestHelper.TagElement(doc, instance, "if-1");
-            idMap.Register("if-1", instance.Id);
+            RevitTestHelper.TagElement(doc, instance, "f-1");
+            idMap.Register("f-1", instance.Id);
             importer.SetIdMap(idMap);
 
             var levelId = BimDownParameter.Get(level)!;
@@ -101,7 +101,7 @@ public class FoundationTests : RevitApiTest
             {
                 new()
                 {
-                    ["id"] = "if-1",
+                    ["id"] = "f-1",
                     ["level_id"] = levelId,
                     ["x"] = "8",
                     ["y"] = "9",
@@ -126,7 +126,7 @@ public class FoundationTests : RevitApiTest
         }
     }
 
-    // ── Raft Foundation ───────────────────────────────────────────
+    // ── Raft Foundation (polygon-based) ──────────────────────────
 
     [Test]
     public async Task Import_RaftFoundation_CreateAndVerify()
@@ -135,7 +135,7 @@ public class FoundationTests : RevitApiTest
         try
         {
             var level = GetFirstLevel(doc);
-            var importer = new RaftFoundationImporter();
+            var importer = new FoundationImporter();
             var idMap = RevitTestHelper.BuildIdMap(doc);
             importer.SetIdMap(idMap);
 
@@ -144,7 +144,7 @@ public class FoundationTests : RevitApiTest
                 new()
                 {
                     ["id"] = "test-raft-001",
-                    ["number"] = "RF-1",
+                    ["number"] = "F-2",
                     ["level_id"] = BimDownParameter.Get(level)!,
                     ["points"] = "[[0,0],[10,0],[10,8],[0,8]]",
                     ["thickness"] = "0.5",
@@ -199,15 +199,12 @@ public class FoundationTests : RevitApiTest
             curveLoop.Append(Line.CreateBound(p4, p1));
 
             var floor = Floor.Create(doc, [curveLoop], floorType.Id, level.Id);
-            floor.get_Parameter(BuiltInParameter.ALL_MODEL_MARK)?.Set("RT-RF1");
+            floor.get_Parameter(BuiltInParameter.ALL_MODEL_MARK)?.Set("RT-F1");
             txCreate.Commit();
 
             try
             {
-                // RaftFoundation exporter filters for Floor elements under StructuralFoundation category.
-                // In a minimal doc, floors may not be categorized as structural foundation,
-                // so we test the exporter runs without error.
-                var exporter = StructureTableExporters.RaftFoundation();
+                var exporter = StructureTableExporters.Foundation();
                 var exportedRows = exporter.Export(doc);
 
                 if (exportedRows.Count > 0)
@@ -239,7 +236,7 @@ public class FoundationTests : RevitApiTest
         try
         {
             var level = GetFirstLevel(doc);
-            var importer = new StripFoundationImporter();
+            var importer = new FoundationImporter();
             var idMap = RevitTestHelper.BuildIdMap(doc);
             importer.SetIdMap(idMap);
 

@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
 namespace BimDown.RevitAddin.Svg;
@@ -13,8 +14,6 @@ static class SvgWriter
         List<(string TableName, List<Dictionary<string, string?>> Rows)> tables,
         List<Dictionary<string, string?>> levelRows)
     {
-        var wallLookup = BuildWallLookup(tables);
-        var mepNodeLookup = BuildMepNodeLookup(tables);
         var allSvgFiles = new List<(string OutputPath, List<XElement> Elements)>();
         var allElements = new List<XElement>();
 
@@ -37,10 +36,10 @@ static class SvgWriter
                 {
                     var el = mapping.RenderType switch
                     {
-                        SvgRenderType.Line => RenderLine(row, tableName, mepNodeLookup),
-                        SvgRenderType.Point => RenderPoint(row, tableName),
-                        SvgRenderType.Polygon => RenderPolygon(row, tableName),
-                        SvgRenderType.Hosted => RenderHosted(row, wallLookup),
+                        SvgRenderType.Line => RenderLine(row),
+                        SvgRenderType.Point => RenderPoint(row),
+                        SvgRenderType.Polygon => RenderPolygon(row),
+                        SvgRenderType.Mixed => RenderMixed(row),
                         _ => null
                     };
                     if (el is not null) elements.Add(el);
@@ -75,7 +74,7 @@ static class SvgWriter
         }
     }
 
-    static XElement? RenderLine(Dictionary<string, string?> row, string tableName, Dictionary<string, (double X, double Y)> nodeLookup)
+    static XElement? RenderLine(Dictionary<string, string?> row)
     {
         var id = row.GetValueOrDefault("id");
         var x1 = row.GetValueOrDefault("start_x");
@@ -86,58 +85,12 @@ static class SvgWriter
         if (id is null || x1 is null || y1 is null || x2 is null || y2 is null)
             return null;
 
-        var strokeWidth = tableName switch
-        {
-            "wall" or "structure_wall" => row.GetValueOrDefault("thickness"),
-            "curtain_wall" => "0.05",
-            "beam" or "brace" => row.GetValueOrDefault("size_y"),
-            "stair" => row.GetValueOrDefault("width"),
-            "strip_foundation" => row.GetValueOrDefault("width"),
-            "duct" or "pipe" or "cable_tray" or "conduit" => row.GetValueOrDefault("size_x"),
-            _ => row.GetValueOrDefault("thickness")
-        };
-
-        strokeWidth ??= "0.1";
-
-        var mainLine = new XElement(Ns + "line",
+        return new XElement(Ns + "path",
             new XAttribute("id", id),
-            new XAttribute("x1", x1),
-            new XAttribute("y1", y1),
-            new XAttribute("x2", x2),
-            new XAttribute("y2", y2),
-            new XAttribute("stroke", "black"),
-            new XAttribute("stroke-width", strokeWidth),
-            new XAttribute("stroke-linecap", "square"));
-
-        var isMepCurve = tableName is "duct" or "pipe" or "cable_tray" or "conduit";
-        if (!isMepCurve) return mainLine;
-
-        var startNodeId = row.GetValueOrDefault("start_node_id");
-        var endNodeId = row.GetValueOrDefault("end_node_id");
-        var extraLines = new List<XElement>();
-
-        if (startNodeId != null && nodeLookup.TryGetValue(startNodeId, out var startP))
-        {
-            extraLines.Add(new XElement(Ns + "line",
-                new XAttribute("x1", x1), new XAttribute("y1", y1),
-                new XAttribute("x2", Fmt(startP.X)), new XAttribute("y2", Fmt(startP.Y)),
-                new XAttribute("stroke", "black"), new XAttribute("stroke-width", strokeWidth)));
-        }
-        if (endNodeId != null && nodeLookup.TryGetValue(endNodeId, out var endP))
-        {
-            extraLines.Add(new XElement(Ns + "line",
-                new XAttribute("x1", x2), new XAttribute("y1", y2),
-                new XAttribute("x2", Fmt(endP.X)), new XAttribute("y2", Fmt(endP.Y)),
-                new XAttribute("stroke", "black"), new XAttribute("stroke-width", strokeWidth)));
-        }
-
-        if (extraLines.Count == 0) return mainLine;
-
-        extraLines.Add(mainLine);
-        return new XElement(Ns + "g", new XAttribute("id", id + "_group"), extraLines);
+            new XAttribute("d", $"M {x1},{y1} L {x2},{y2}"));
     }
 
-    static XElement? RenderPoint(Dictionary<string, string?> row, string tableName)
+    static XElement? RenderPoint(Dictionary<string, string?> row)
     {
         var id = row.GetValueOrDefault("id");
         var cx = row.GetValueOrDefault("x");
@@ -154,13 +107,12 @@ static class SvgWriter
         if (sizeX == 0) sizeX = ParseOr(row.GetValueOrDefault("length"), 0);
         if (sizeY == 0) sizeY = ParseOr(row.GetValueOrDefault("width"), 0);
 
-        // Default to small square if no size info
-        if (sizeX == 0 && sizeY == 0) 
-        { 
-            // Make mep_node a very small dot (0.05) instead of a large 0.3 block
-            var defaultSize = tableName == "mep_node" ? 0.05 : 0.3;
-            sizeX = defaultSize; 
-            sizeY = defaultSize; 
+        // Default small size if no info
+        if (sizeX == 0 && sizeY == 0)
+        {
+            var defaultSize = row.GetValueOrDefault("id")?.StartsWith("mn-") == true ? 0.05 : 0.3;
+            sizeX = defaultSize;
+            sizeY = defaultSize;
         }
 
         var cxVal = Parse(cx);
@@ -173,8 +125,7 @@ static class SvgWriter
                 new XAttribute("id", id),
                 new XAttribute("cx", Fmt(cxVal)),
                 new XAttribute("cy", Fmt(cyVal)),
-                new XAttribute("r", Fmt(r)),
-                new XAttribute("fill", "black"));
+                new XAttribute("r", Fmt(r)));
         }
 
         var x = cxVal - sizeX / 2;
@@ -186,8 +137,7 @@ static class SvgWriter
             new XAttribute("x", Fmt(x)),
             new XAttribute("y", Fmt(y)),
             new XAttribute("width", Fmt(sizeX)),
-            new XAttribute("height", Fmt(sizeY)),
-            new XAttribute("fill", "black"));
+            new XAttribute("height", Fmt(sizeY)));
 
         if (rotation != 0)
             rect.Add(new XAttribute("transform", $"rotate({Fmt(rotation)},{Fmt(cxVal)},{Fmt(cyVal)})"));
@@ -195,7 +145,7 @@ static class SvgWriter
         return rect;
     }
 
-    static XElement? RenderPolygon(Dictionary<string, string?> row, string tableName)
+    static XElement? RenderPolygon(Dictionary<string, string?> row)
     {
         var id = row.GetValueOrDefault("id");
         var pointsJson = row.GetValueOrDefault("points");
@@ -206,65 +156,23 @@ static class SvgWriter
         var svgPoints = JsonPointsToSvg(pointsJson);
         if (svgPoints is null) return null;
 
-        var (fill, stroke) = tableName == "space"
-            ? ("rgba(0,0,255,0.1)", "blue")
-            : ("rgba(128,128,128,0.2)", "gray");
-
         return new XElement(Ns + "polygon",
             new XAttribute("id", id),
-            new XAttribute("points", svgPoints),
-            new XAttribute("fill", fill),
-            new XAttribute("stroke", stroke),
-            new XAttribute("stroke-width", "0.05"));
+            new XAttribute("points", svgPoints));
     }
 
-    static XElement? RenderHosted(Dictionary<string, string?> row,
-        Dictionary<string, WallGeometry> wallLookup)
+    /// <summary>
+    /// Renders foundation elements which can be point, line, or polygon based on available data.
+    /// </summary>
+    static XElement? RenderMixed(Dictionary<string, string?> row)
     {
-        var id = row.GetValueOrDefault("id");
-        var hostId = row.GetValueOrDefault("host_id");
-        var locParam = row.GetValueOrDefault("position");
-        var width = row.GetValueOrDefault("width");
-
-        if (id is null || hostId is null || locParam is null)
-            return null;
-
-        if (!wallLookup.TryGetValue(hostId, out var wall))
-            return null;
-
-        var t = Parse(locParam);
-        var w = ParseOr(width, 0.9); // default opening width
-
-        // Compute center point along wall
-        var midX = wall.StartX + t * (wall.EndX - wall.StartX);
-        var midY = wall.StartY + t * (wall.EndY - wall.StartY);
-
-        // Wall direction unit vector
-        var dx = wall.EndX - wall.StartX;
-        var dy = wall.EndY - wall.StartY;
-        var len = Math.Sqrt(dx * dx + dy * dy);
-        if (len < 1e-10) return null;
-        var ux = dx / len;
-        var uy = dy / len;
-
-        // Opening endpoints
-        var halfW = w / 2;
-        var x1 = midX - halfW * ux;
-        var y1 = midY - halfW * uy;
-        var x2 = midX + halfW * ux;
-        var y2 = midY + halfW * uy;
-
-        var strokeWidth = wall.Thickness + 0.02;
-
-        return new XElement(Ns + "line",
-            new XAttribute("id", id),
-            new XAttribute("data-host", hostId),
-            new XAttribute("x1", Fmt(x1)),
-            new XAttribute("y1", Fmt(y1)),
-            new XAttribute("x2", Fmt(x2)),
-            new XAttribute("y2", Fmt(y2)),
-            new XAttribute("stroke", "white"),
-            new XAttribute("stroke-width", Fmt(strokeWidth)));
+        if (row.GetValueOrDefault("points") is not null)
+            return RenderPolygon(row);
+        if (row.GetValueOrDefault("start_x") is not null)
+            return RenderLine(row);
+        if (row.GetValueOrDefault("x") is not null)
+            return RenderPoint(row);
+        return null;
     }
 
     static string ComputeViewBox(List<XElement> elements)
@@ -286,9 +194,13 @@ static class SvgWriter
         {
             switch (el.Name.LocalName)
             {
-                case "line":
-                    Extend(Parse(el.Attribute("x1")!.Value), -Parse(el.Attribute("y1")!.Value));
-                    Extend(Parse(el.Attribute("x2")!.Value), -Parse(el.Attribute("y2")!.Value));
+                case "path":
+                    var coords = ParsePathCoordinates(el.Attribute("d")?.Value);
+                    if (coords is not null)
+                    {
+                        Extend(coords.Value.X1, -coords.Value.Y1);
+                        Extend(coords.Value.X2, -coords.Value.Y2);
+                    }
                     break;
                 case "circle":
                     var cx = Parse(el.Attribute("cx")!.Value);
@@ -302,8 +214,8 @@ static class SvgWriter
                     var ry = -Parse(el.Attribute("y")!.Value);
                     var rw = Parse(el.Attribute("width")!.Value);
                     var rh = Parse(el.Attribute("height")!.Value);
-                    Extend(rx, ry - rh);
-                    Extend(rx + rw, ry);
+                    Extend(rx, ry);
+                    Extend(rx + rw, ry + rh);
                     break;
                 case "polygon":
                     var pts = el.Attribute("points")!.Value;
@@ -324,46 +236,21 @@ static class SvgWriter
         return $"{Fmt(minX)} {Fmt(minY)} {Fmt(maxX - minX)} {Fmt(maxY - minY)}";
     }
 
-    static Dictionary<string, WallGeometry> BuildWallLookup(
-        List<(string TableName, List<Dictionary<string, string?>> Rows)> tables)
+    /// <summary>
+    /// Parses a simple path d attribute "M x1,y1 L x2,y2" to extract endpoints.
+    /// </summary>
+    internal static (double X1, double Y1, double X2, double Y2)? ParsePathCoordinates(string? d)
     {
-        var lookup = new Dictionary<string, WallGeometry>();
-        foreach (var (tableName, rows) in tables)
-        {
-            if (tableName is not ("wall" or "structure_wall")) continue;
-            foreach (var row in rows)
-            {
-                var id = row.GetValueOrDefault("id");
-                if (id is null) continue;
-                var sx = row.GetValueOrDefault("start_x");
-                var sy = row.GetValueOrDefault("start_y");
-                var ex = row.GetValueOrDefault("end_x");
-                var ey = row.GetValueOrDefault("end_y");
-                var th = row.GetValueOrDefault("thickness");
-                if (sx is null || sy is null || ex is null || ey is null) continue;
-                lookup[id] = new WallGeometry(Parse(sx), Parse(sy), Parse(ex), Parse(ey), ParseOr(th, 0.2));
-            }
-        }
-        return lookup;
-    }
+        if (d is null) return null;
 
-    static Dictionary<string, (double X, double Y)> BuildMepNodeLookup(
-        List<(string TableName, List<Dictionary<string, string?>> Rows)> tables)
-    {
-        var lookup = new Dictionary<string, (double X, double Y)>();
-        foreach (var (tableName, rows) in tables)
-        {
-            if (tableName is not ("mep_node" or "equipment" or "terminal")) continue;
-            foreach (var row in rows)
-            {
-                var id = row.GetValueOrDefault("id");
-                var x = row.GetValueOrDefault("x");
-                var y = row.GetValueOrDefault("y");
-                if (id is null || x is null || y is null) continue;
-                lookup[id] = (Parse(x), Parse(y));
-            }
-        }
-        return lookup;
+        var match = Regex.Match(d, @"M\s*(-?[\d.]+)[,\s]+(-?[\d.]+)\s*L\s*(-?[\d.]+)[,\s]+(-?[\d.]+)");
+        if (!match.Success) return null;
+
+        return (
+            Parse(match.Groups[1].Value),
+            Parse(match.Groups[2].Value),
+            Parse(match.Groups[3].Value),
+            Parse(match.Groups[4].Value));
     }
 
     internal static string? JsonPointsToSvg(string json)
@@ -402,6 +289,4 @@ static class SvgWriter
     static double ParseOr(string? s, double fallback) =>
         s is not null && double.TryParse(s, CultureInfo.InvariantCulture, out var v) ? v : fallback;
     static string Fmt(double v) => UnitConverter.FormatDouble(v);
-
-    internal record WallGeometry(double StartX, double StartY, double EndX, double EndY, double Thickness);
 }

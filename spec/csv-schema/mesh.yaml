@@ -1,5 +1,4 @@
 name: mesh
-abstract: false
 
 fields:
   - name: id
@@ -7,16 +6,9 @@ fields:
     required: true
 
   - name: category
-    type: enum
+    type: string
     required: true
-    values:
-      - railing
-      - generic_model
-      - topography
-      - planting
-      - site
-      - import
-      - other
+    description: Revit category name (e.g. "Railings", "Generic Models", "Furniture", "Plumbing Fixtures")
 
   - name: name
     type: string

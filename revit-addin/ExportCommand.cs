@@ -9,8 +9,6 @@ namespace BimDown.RevitAddin;
 [Transaction(TransactionMode.Manual)]
 public class ExportCommand : IExternalCommand
 {
-    static readonly HashSet<string> GlobalTableNames = ["level", "grid", "mesh"];
-
     public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
     {
         var doc = commandData.Application.ActiveUIDocument.Document;
@@ -43,15 +41,16 @@ public class ExportCommand : IExternalCommand
             ArchitectureTableExporters.Roof(),
             ArchitectureTableExporters.Ceiling(),
             ArchitectureTableExporters.Opening(),
+            ArchitectureTableExporters.Ramp(),
+            ArchitectureTableExporters.Railing(),
+            ArchitectureTableExporters.RoomSeparator(),
             // Structure
             StructureTableExporters.StructureWall(),
             StructureTableExporters.StructureColumn(),
             StructureTableExporters.StructureSlab(),
             StructureTableExporters.Beam(),
             StructureTableExporters.Brace(),
-            StructureTableExporters.IsolatedFoundation(),
-            StructureTableExporters.StripFoundation(),
-            StructureTableExporters.RaftFoundation(),
+            StructureTableExporters.Foundation(),
             // MEP
             MepTableExporters.Duct(),
             MepTableExporters.Pipe(),
@@ -67,77 +66,105 @@ public class ExportCommand : IExternalCommand
         var idGen = new ShortIdGenerator();
         var errors = new List<string>();
 
-        // Ensure BimDown_Id shared parameter exists
-        using (var txParam = new Transaction(doc, "BimDown: Ensure parameter"))
-        {
-            txParam.Start();
-            try
-            {
-                BimDownParameter.EnsureParameter(doc);
-                txParam.Commit();
-            }
-            catch (Exception ex)
-            {
-                txParam.RollBack();
-                errors.Add($"Parameter setup: {ex.Message}");
-            }
-        }
+        EnsureParameter(doc, errors);
+        SeedIds(doc, idGen, errors);
+        var exported = ExportTables(doc, exporters, errors);
+        RemapIds(exported, idGen);
+        var levelIndex = BuildLevelIndex(exported);
+        WriteCsvs(outputDir, exported, levelIndex, errors);
+        WriteIdMap(outputDir, idGen);
+        ExportMeshFiles(outputDir, exported, idGen, errors);
+        WriteSvgs(outputDir, exported, errors);
+        WriteMetadata(outputDir, doc, errors);
+        WriteIdsToModel(doc, idGen, errors);
 
-        // Seed from existing BimDown_Id values on model elements
+        var msg = $"Exported {exported.Count} tables to:\n{outputDir}";
+        if (errors.Count > 0)
+            msg += $"\n\nWarnings ({errors.Count}):\n" + string.Join("\n", errors);
+
+        Autodesk.Revit.UI.TaskDialog.Show("BimDown Export", msg);
+        return Result.Succeeded;
+    }
+
+    static void EnsureParameter(Document doc, List<string> errors)
+    {
+        using var tx = new Transaction(doc, "BimDown: Ensure parameter");
+        tx.Start();
+        try
+        {
+            BimDownParameter.EnsureParameter(doc);
+            tx.Commit();
+        }
+        catch (Exception ex)
+        {
+            tx.RollBack();
+            errors.Add($"Parameter setup: {ex.Message}");
+        }
+    }
+
+    static void SeedIds(Document doc, ShortIdGenerator idGen, List<string> errors)
+    {
         foreach (var category in BimDownParameter.AllCategories)
         {
-            try
+            RunStep($"ID seed ({category})", errors, () =>
             {
                 var collector = new FilteredElementCollector(doc)
                     .OfCategory(category)
                     .WhereElementIsNotElementType();
                 idGen.SeedFromModel(collector.OrderBy(e => e.Id.Value).ToList());
-            }
-            catch (Exception ex)
-            {
-                errors.Add($"ID seed ({category}): {ex.Message}");
-            }
+            });
         }
+    }
 
-        // Pass 1: export all tables (rows still have UniqueIds)
+    static List<(ITableExporter Exporter, List<Dictionary<string, string?>> Rows)> ExportTables(
+        Document doc, ITableExporter[] exporters, List<string> errors)
+    {
         var exported = new List<(ITableExporter Exporter, List<Dictionary<string, string?>> Rows)>();
         foreach (var exporter in exporters)
         {
-            try
+            RunStep(exporter.TableName, errors, () =>
             {
                 var rows = exporter.Export(doc);
-                if (rows.Count == 0) continue;
-                exported.Add((exporter, rows));
-            }
-            catch (Exception ex)
-            {
-                errors.Add($"{exporter.TableName}: {ex.Message}");
-            }
+                if (rows.Count > 0)
+                    exported.Add((exporter, rows));
+            });
         }
+        return exported;
+    }
 
-        // Pass 2: remap IDs and write level-partitioned CSVs
+    static void RemapIds(
+        List<(ITableExporter Exporter, List<Dictionary<string, string?>> Rows)> exported,
+        ShortIdGenerator idGen)
+    {
         foreach (var (exporter, rows) in exported)
-        {
             idGen.RemapRows(exporter.TableName, rows);
-        }
+    }
 
-        // Build level_id → short_id map from level table
-        var levelIdToShortId = new Dictionary<string, string>();
+    static Dictionary<string, int> BuildLevelIndex(
+        List<(ITableExporter Exporter, List<Dictionary<string, string?>> Rows)> exported)
+    {
+        var levelIndex = new Dictionary<string, int>();
         var levelData = exported.FirstOrDefault(e => e.Exporter.TableName == "level");
-        if (levelData.Rows is not null)
-        {
-            foreach (var row in levelData.Rows)
-            {
-                if (row.TryGetValue("id", out var id) && id is not null)
-                    levelIdToShortId[id] = id; // After remapping, id is already the short id
-            }
-        }
+        if (levelData.Rows is null) return levelIndex;
 
+        var sorted = levelData.Rows
+            .Where(r => r.GetValueOrDefault("id") is not null && r.GetValueOrDefault("elevation") is not null)
+            .OrderBy(r => double.Parse(r["elevation"]!, System.Globalization.CultureInfo.InvariantCulture))
+            .ToList();
+        for (var i = 0; i < sorted.Count; i++)
+            levelIndex[sorted[i]["id"]!] = i;
+
+        return levelIndex;
+    }
+
+    static void WriteCsvs(string outputDir,
+        List<(ITableExporter Exporter, List<Dictionary<string, string?>> Rows)> exported,
+        Dictionary<string, int> levelIndex, List<string> errors)
+    {
         foreach (var (exporter, rows) in exported)
         {
-            if (GlobalTableNames.Contains(exporter.TableName))
+            if (exporter.IsGlobal)
             {
-                // Global tables → global/
                 var globalDir = Path.Combine(outputDir, "global");
                 Directory.CreateDirectory(globalDir);
                 var filePath = Path.Combine(globalDir, $"{exporter.TableName}.csv");
@@ -145,27 +172,50 @@ public class ExportCommand : IExternalCommand
             }
             else
             {
-                // Partition by level_id
-                var grouped = rows.GroupBy(r => r.GetValueOrDefault("level_id"));
-                foreach (var group in grouped)
-                {
-                    string dirName;
-                    if (group.Key is not null && levelIdToShortId.TryGetValue(group.Key, out var shortId))
-                        dirName = shortId;
-                    else if (group.Key is not null)
-                        dirName = group.Key;
-                    else
-                        dirName = "global";
-
-                    var dir = Path.Combine(outputDir, dirName);
-                    Directory.CreateDirectory(dir);
-                    var filePath = Path.Combine(dir, $"{exporter.TableName}.csv");
-                    CsvWriter.Write(filePath, exporter.CsvColumns, group.ToList());
-                }
+                WriteLevelPartitionedCsv(outputDir, exporter, rows, levelIndex);
             }
         }
+    }
 
-        // Write _IdMap.csv matching short IDs to original UniqueIds
+    static void WriteLevelPartitionedCsv(string outputDir, ITableExporter exporter,
+        List<Dictionary<string, string?>> rows, Dictionary<string, int> levelIndex)
+    {
+        var levelRows = new Dictionary<string, List<Dictionary<string, string?>>>();
+
+        foreach (var row in rows)
+        {
+            var levelId = row.GetValueOrDefault("level_id");
+            var topLevelId = row.GetValueOrDefault("top_level_id");
+
+            var isMultiStory = false;
+            if (levelId is not null && topLevelId is not null
+                && levelIndex.TryGetValue(levelId, out var baseIdx)
+                && levelIndex.TryGetValue(topLevelId, out var topIdx))
+            {
+                isMultiStory = topIdx - baseIdx > 1;
+            }
+
+            var dirName = (isMultiStory || levelId is null) ? "global" : levelId;
+
+            if (!levelRows.TryGetValue(dirName, out var list))
+            {
+                list = [];
+                levelRows[dirName] = list;
+            }
+            list.Add(row);
+        }
+
+        foreach (var (dirName, groupRows) in levelRows)
+        {
+            var dir = Path.Combine(outputDir, dirName);
+            Directory.CreateDirectory(dir);
+            var filePath = Path.Combine(dir, $"{exporter.TableName}.csv");
+            CsvWriter.Write(filePath, exporter.CsvColumns, groupRows);
+        }
+    }
+
+    static void WriteIdMap(string outputDir, ShortIdGenerator idGen)
+    {
         var globalFolder = Path.Combine(outputDir, "global");
         Directory.CreateDirectory(globalFolder);
         var idMapRows = idGen.Mappings.Select(kvp => new Dictionary<string, string?>
@@ -174,62 +224,80 @@ public class ExportCommand : IExternalCommand
             ["uuid"] = kvp.Key
         }).ToList();
         CsvWriter.Write(Path.Combine(globalFolder, "_IdMap.csv"), ["id", "uuid"], idMapRows);
+    }
 
-        // Pass 3: export GLB mesh files (after ID remapping so filenames use short IDs)
+    static void ExportMeshFiles(string outputDir,
+        List<(ITableExporter Exporter, List<Dictionary<string, string?>> Rows)> exported,
+        ShortIdGenerator idGen, List<string> errors)
+    {
         var meshData = exported.FirstOrDefault(e => e.Exporter is MeshExporter);
         if (meshData.Exporter is MeshExporter meshExporter && meshData.Rows is not null)
         {
-            try
-            {
-                meshExporter.ExportGlbFiles(outputDir, meshData.Rows, idGen.Mappings);
-            }
-            catch (Exception ex)
-            {
-                errors.Add($"GLB export: {ex.Message}");
-            }
+            RunStep("GLB export", errors, () =>
+                meshExporter.ExportGlbFiles(outputDir, meshData.Rows, idGen.Mappings));
         }
+    }
 
-        // Pass 4: write SVG geometry layer
-        if (levelData.Rows is not null)
+    static void WriteSvgs(string outputDir,
+        List<(ITableExporter Exporter, List<Dictionary<string, string?>> Rows)> exported,
+        List<string> errors)
+    {
+        var levelData = exported.FirstOrDefault(e => e.Exporter.TableName == "level");
+        if (levelData.Rows is null) return;
+
+        RunStep("SVG export", errors, () =>
+            SvgWriter.WriteAll(outputDir,
+                exported.Select(e => (e.Exporter.TableName, e.Rows)).ToList(),
+                levelData.Rows));
+    }
+
+    static void WriteMetadata(string outputDir, Document doc, List<string> errors)
+    {
+        RunStep("Metadata", errors, () =>
         {
-            try
+            var metadata = new Dictionary<string, string>
             {
-                SvgWriter.WriteAll(outputDir,
-                    exported.Select(e => (e.Exporter.TableName, e.Rows)).ToList(),
-                    levelData.Rows);
-            }
-            catch (Exception ex)
-            {
-                errors.Add($"SVG export: {ex.Message}");
-            }
-        }
+                ["format_version"] = "3.0",
+                ["project_name"] = doc.Title ?? "",
+                ["units"] = "meters",
+                ["source"] = $"Revit {doc.Application.VersionNumber}"
+            };
+            var json = System.Text.Json.JsonSerializer.Serialize(metadata,
+                new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(Path.Combine(outputDir, "project_metadata.json"), json);
+        });
+    }
 
-        // Write BimDown_Id back to Revit elements
-        using (var txWrite = new Transaction(doc, "BimDown: Write short IDs"))
+    static void WriteIdsToModel(Document doc, ShortIdGenerator idGen, List<string> errors)
+    {
+        using var tx = new Transaction(doc, "BimDown: Write short IDs");
+        tx.Start();
+        try
         {
-            txWrite.Start();
-            try
+            foreach (var (uniqueId, shortId) in idGen.Mappings)
             {
-                foreach (var (uniqueId, shortId) in idGen.Mappings)
-                {
-                    var element = doc.GetElement(uniqueId);
-                    if (element is not null)
-                        BimDownParameter.Set(element, shortId);
-                }
-                txWrite.Commit();
+                var element = doc.GetElement(uniqueId);
+                if (element is not null)
+                    BimDownParameter.Set(element, shortId);
             }
-            catch (Exception ex)
-            {
-                txWrite.RollBack();
-                errors.Add($"Write IDs: {ex.Message}");
-            }
+            tx.Commit();
         }
+        catch (Exception ex)
+        {
+            tx.RollBack();
+            errors.Add($"Write IDs: {ex.Message}");
+        }
+    }
 
-        var msg = $"Exported {exported.Count} tables to:\n{outputDir}";
-        if (errors.Count > 0)
-            msg += $"\n\nWarnings ({errors.Count}):\n" + string.Join("\n", errors);
-
-        Autodesk.Revit.UI.TaskDialog.Show("BimDown Export", msg);
-        return Result.Succeeded;
+    static void RunStep(string name, List<string> errors, Action action)
+    {
+        try
+        {
+            action();
+        }
+        catch (Exception ex)
+        {
+            errors.Add($"{name}: {ex.Message}");
+        }
     }
 }

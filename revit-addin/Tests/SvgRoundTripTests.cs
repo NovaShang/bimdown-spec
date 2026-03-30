@@ -31,7 +31,7 @@ public class SvgRoundTripTests : RevitApiTest
             await Assert.That(fields["start_y"]).IsEqualTo("0");
             await Assert.That(fields["end_x"]).IsEqualTo("5");
             await Assert.That(fields["end_y"]).IsEqualTo("0");
-            await Assert.That(fields["thickness"]).IsEqualTo("0.2");
+            // thickness is no longer stored in SVG (it's a CSV-only field)
         }
         finally { Cleanup(outputDir); }
     }
@@ -221,9 +221,105 @@ public class SvgRoundTripTests : RevitApiTest
 
             await Assert.That(content).Contains("xmlns=\"http://www.w3.org/2000/svg\"");
             await Assert.That(content).Contains("scale(1,-1)");
-            await Assert.That(content).DoesNotContain("<path");
+            await Assert.That(content).Contains("<path");
+            await Assert.That(content).DoesNotContain("<line");
             await Assert.That(content).DoesNotContain("<defs");
             await Assert.That(content).DoesNotContain("<script");
+        }
+        finally { Cleanup(outputDir); }
+    }
+
+    [Test]
+    public async Task MixedRoundTrip_FoundationPointLinePolygon()
+    {
+        var (outputDir, levelRows) = SetupTempDir();
+        try
+        {
+            var foundationRows = new List<Dictionary<string, string?>>
+            {
+                // Isolated (point)
+                Row("f-1", "lv-1", ("x", "5"), ("y", "5"),
+                    ("size_x", "1.2"), ("size_y", "1.2"), ("shape", null)),
+                // Strip (line)
+                Row("f-2", "lv-1", ("start_x", "0"), ("start_y", "0"),
+                    ("end_x", "10"), ("end_y", "0")),
+                // Raft (polygon)
+                Row("f-3", "lv-1", ("points", "[[0,0],[8,0],[8,6],[0,6]]")),
+            };
+
+            var tables = new List<(string, List<Dictionary<string, string?>>)>
+            {
+                ("foundation", foundationRows),
+            };
+
+            SvgWriter.WriteAll(outputDir, tables, levelRows);
+            var read = SvgReader.ReadAll(outputDir);
+
+            // Isolated foundation → <rect>
+            await Assert.That(read.ContainsKey("f-1")).IsTrue();
+            await Assert.That(read["f-1"]["x"]).IsEqualTo("5");
+            await Assert.That(read["f-1"]["y"]).IsEqualTo("5");
+
+            // Strip foundation → <path>
+            await Assert.That(read.ContainsKey("f-2")).IsTrue();
+            await Assert.That(read["f-2"]["start_x"]).IsEqualTo("0");
+            await Assert.That(read["f-2"]["end_x"]).IsEqualTo("10");
+
+            // Raft foundation → <polygon>
+            await Assert.That(read.ContainsKey("f-3")).IsTrue();
+            await Assert.That(read["f-3"]["points"]).IsEqualTo("[[0,0],[8,0],[8,6],[0,6]]");
+        }
+        finally { Cleanup(outputDir); }
+    }
+
+    [Test]
+    public async Task PathFormat_RendersCorrectDAttribute()
+    {
+        var (outputDir, levelRows) = SetupTempDir();
+        try
+        {
+            var wallRows = new List<Dictionary<string, string?>>
+            {
+                Row("w-1", "lv-1", ("start_x", "1.5"), ("start_y", "2.3"),
+                    ("end_x", "7.8"), ("end_y", "4.1")),
+            };
+
+            var tables = new List<(string, List<Dictionary<string, string?>>)>
+            {
+                ("wall", wallRows),
+            };
+
+            SvgWriter.WriteAll(outputDir, tables, levelRows);
+
+            var content = File.ReadAllText(Path.Combine(outputDir, "lv-1", "wall.svg"));
+            await Assert.That(content).Contains("d=\"M 1.5,2.3 L 7.8,4.1\"");
+        }
+        finally { Cleanup(outputDir); }
+    }
+
+    [Test]
+    public async Task NoStyling_SvgHasNoFillOrStroke()
+    {
+        var (outputDir, levelRows) = SetupTempDir();
+        try
+        {
+            var wallRows = new List<Dictionary<string, string?>>
+            {
+                Row("w-1", "lv-1", ("start_x", "0"), ("start_y", "0"),
+                    ("end_x", "5"), ("end_y", "0")),
+            };
+
+            var tables = new List<(string, List<Dictionary<string, string?>>)>
+            {
+                ("wall", wallRows),
+            };
+
+            SvgWriter.WriteAll(outputDir, tables, levelRows);
+
+            var content = File.ReadAllText(Path.Combine(outputDir, "lv-1", "wall.svg"));
+            await Assert.That(content).DoesNotContain("stroke=");
+            await Assert.That(content).DoesNotContain("fill=");
+            await Assert.That(content).DoesNotContain("stroke-width=");
         }
         finally { Cleanup(outputDir); }
     }

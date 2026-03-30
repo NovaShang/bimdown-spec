@@ -9,7 +9,7 @@ describe('SVG parser', () => {
     const svg = parseSvgFile(join(mergedDir, 'lv-2', 'wall.svg'));
     expect(svg.hasYFlip).toBe(true);
     expect(svg.elements.length).toBeGreaterThan(0);
-    expect(svg.elements[0].tag).toBe('line');
+    expect(svg.elements[0].tag).toBe('path');
     expect(svg.elements[0].id).toMatch(/^w-/);
   });
 
@@ -24,7 +24,6 @@ describe('SVG parser', () => {
     const wallEl = svg.elements[0];
     const geo = extractLineGeometry(wallEl);
     expect(geo.length).toBeGreaterThan(0);
-    expect(geo.thickness).toBeGreaterThan(0);
   });
 
   it('extracts rect geometry', () => {
