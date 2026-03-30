@@ -85,13 +85,13 @@ All elements belong to a **base level** (their `level_id`).
 
 | Table        | Geometry     | SVG     | Description |
 |--------------|-------------|---------|-------------|
-| `duct`       | Spatial line | `<path>` | HVAC duct |
-| `pipe`       | Spatial line | `<path>` | Plumbing/process pipe |
-| `cable_tray` | Spatial line | `<path>` | Electrical cable tray |
-| `conduit`    | Spatial line | `<path>` | Electrical conduit |
+| `duct`       | Spatial line | `<path>` | HVAC duct (endpoints from connectors) |
+| `pipe`       | Spatial line | `<path>` | Plumbing/process pipe (endpoints from connectors) |
+| `cable_tray` | Spatial line | `<path>` | Electrical cable tray (endpoints from connectors) |
+| `conduit`    | Spatial line | `<path>` | Electrical conduit (endpoints from connectors) |
 | `equipment`  | Point       | `<rect>`/`<circle>` | MEP equipment (AHU, chiller, pump...) |
 | `terminal`   | Point       | `<rect>`/`<circle>` | MEP terminal (diffuser, outlet...) |
-| `mep_node`   | Point       | `<rect>`/`<circle>` | Auto-generated topology node |
+| `mep_node`   | Point       | `<rect>`/`<circle>` | Topology node (fitting/accessory in Revit) |
 
 ### Fallback
 
@@ -213,9 +213,20 @@ For multi-story shaft openings: export one `opening` per level, each hosted on i
 
 ### MEP Topology
 
-AI designs MEP networks by placing duct/pipe segments with endpoint coordinates. Connectivity is implicit via coincident endpoints. The CLI `resolve-topology` command auto-generates `mep_node` entries at junctions and back-fills `start_node_id`/`end_node_id` on each segment. This enables DuckDB graph queries while keeping the AI authoring workflow simple.
+MEP networks form a **bipartite graph**: `mep_curve` (duct, pipe, cable_tray, conduit) connects to `mep_node` (fittings, accessories), and nodes connect back to curves. Two curves never connect directly — there is always a node in between.
 
-Design workflow: place equipment/terminals first (anchors), then draw duct/pipe segments to connect them.
+- **mep_curve** geometry is defined by its two connector endpoints (not the physical centerline). In SVG this is a `<path>`. In Revit, endpoints are taken from `Connector.Origin` positions, which naturally align with the connectors of adjacent fittings.
+- **mep_node** is a minimal topology node with position only. In SVG this is a `<rect>`. In Revit it maps to fittings (`DuctFitting`, `PipeFitting`, etc.) and accessories (`DuctAccessory`, `PipeAccessory`).
+- **equipment** and **terminal** also serve as network endpoints — curves can connect directly to them.
+
+**AI authoring workflow**:
+1. Place equipment and terminals (anchors)
+2. Draw duct/pipe segments connecting them (endpoint coordinates)
+3. Call CLI `validate` / `resolve-topology` — this detects coincident endpoints, generates `mep_node` entries at junctions, and back-fills `start_node_id`/`end_node_id` on each segment. Warns about disconnected endpoints.
+
+**Revit export**: Fittings and accessories are exported as `mep_node`. Curve endpoints are taken from connector positions (not `LocationCurve`), so they naturally coincide with node positions. `start_node_id`/`end_node_id` are derived from Revit's connector relationships.
+
+**Revit import**: Curves are created from endpoint coordinates. Fittings are auto-inserted at junctions where curves meet nodes.
 
 ### Material Enum
 
