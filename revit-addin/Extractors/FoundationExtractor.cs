@@ -1,4 +1,5 @@
 using Autodesk.Revit.DB;
+using static BimDown.RevitAddin.Extractors.ParameterUtils;
 
 namespace BimDown.RevitAddin.Extractors;
 
@@ -19,13 +20,15 @@ public class FoundationExtractor : IFieldExtractor
         var fields = new Dictionary<string, string?>();
 
         // Thickness (common to all foundation types)
-        var thickness = element.get_Parameter(BuiltInParameter.FLOOR_ATTR_THICKNESS_PARAM)?.AsDouble()
-                     ?? element.get_Parameter(BuiltInParameter.FAMILY_HEIGHT_PARAM)?.AsDouble();
+        var thickness = element.get_Parameter(BuiltInParameter.FLOOR_ATTR_THICKNESS_PARAM).AsPositiveDouble()
+                     ?? element.get_Parameter(BuiltInParameter.FAMILY_HEIGHT_PARAM).AsPositiveDouble()
+                     ?? FindDoubleParameterByNames(element, "thickness", "depth", "d", "厚", "深");
         fields["thickness"] = thickness is { } tv ? UnitConverter.FormatDouble(UnitConverter.Length(tv)) : null;
 
-        // Width (isolated and strip)
-        var width = element.get_Parameter(BuiltInParameter.STRUCTURAL_FOUNDATION_WIDTH)?.AsDouble()
-                 ?? element.get_Parameter(BuiltInParameter.FAMILY_WIDTH_PARAM)?.AsDouble();
+        // Width
+        var width = element.get_Parameter(BuiltInParameter.STRUCTURAL_FOUNDATION_WIDTH).AsPositiveDouble()
+                 ?? element.get_Parameter(BuiltInParameter.FAMILY_WIDTH_PARAM).AsPositiveDouble()
+                 ?? FindDoubleParameterByNames(element, "width", "w", "b", "宽");
         fields["width"] = width is { } wv ? UnitConverter.FormatDouble(UnitConverter.Length(wv)) : null;
 
         if (element is Floor)
@@ -55,8 +58,22 @@ public class FoundationExtractor : IFieldExtractor
             fields["y"] = UnitConverter.FormatDouble(UnitConverter.Length(lp.Point.Y));
             fields["rotation"] = UnitConverter.FormatDouble(UnitConverter.Angle(lp.Rotation));
 
-            var length = element.get_Parameter(BuiltInParameter.STRUCTURAL_FOUNDATION_LENGTH)?.AsDouble();
+            var length = element.get_Parameter(BuiltInParameter.STRUCTURAL_FOUNDATION_LENGTH).AsPositiveDouble()
+                      ?? FindDoubleParameterByNames(element, "length", "l", "a", "长");
             fields["length"] = length is { } lv ? UnitConverter.FormatDouble(UnitConverter.Length(lv)) : null;
+
+            // If width/length still null, try bounding box
+            if (fields["width"] is null || fields["length"] is null)
+            {
+                var bb = element.get_BoundingBox(null);
+                if (bb is not null)
+                {
+                    var dx = UnitConverter.Length(bb.Max.X - bb.Min.X);
+                    var dy = UnitConverter.Length(bb.Max.Y - bb.Min.Y);
+                    fields["width"] ??= UnitConverter.FormatDouble(Math.Min(dx, dy));
+                    fields["length"] ??= UnitConverter.FormatDouble(Math.Max(dx, dy));
+                }
+            }
         }
 
         return fields;

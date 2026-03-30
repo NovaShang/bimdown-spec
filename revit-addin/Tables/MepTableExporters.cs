@@ -50,7 +50,7 @@ public static class MepTableExporters
         new CompositeExtractor(
             [..CompositeExtractor.ExpandPointElement(), new MepSystemExtractor()],
             ["equipment_type"],
-            e => new Dictionary<string, string?> { ["equipment_type"] = null }));
+            e => new Dictionary<string, string?> { ["equipment_type"] = ClassifyEquipmentType(e) }));
 
     public static ITableExporter Terminal() => new TableExporter(
         "terminal",
@@ -58,5 +58,70 @@ public static class MepTableExporters
         new CompositeExtractor(
             [..CompositeExtractor.ExpandPointElement(), new MepSystemExtractor()],
             ["terminal_type"],
-            e => new Dictionary<string, string?> { ["terminal_type"] = null }));
+            e => new Dictionary<string, string?> { ["terminal_type"] = ClassifyTerminalType(e) }));
+
+    static string? ClassifyEquipmentType(Element e)
+    {
+        var name = GetFamilyAndTypeName(e);
+        if (name is null) return null;
+
+        return name switch
+        {
+            _ when Contains(name, "ahu", "air handling", "空调箱", "空调机组") => "ahu",
+            _ when Contains(name, "fcu", "fan coil", "风机盘管") => "fcu",
+            _ when Contains(name, "chiller", "冷水机") => "chiller",
+            _ when Contains(name, "boiler", "锅炉") => "boiler",
+            _ when Contains(name, "cooling tower", "冷却塔") => "cooling_tower",
+            _ when Contains(name, "fan", "风机") && !Contains(name, "coil") => "fan",
+            _ when Contains(name, "pump", "水泵", "泵") => "pump",
+            _ when Contains(name, "transformer", "变压器") => "transformer",
+            _ when Contains(name, "panel", "panelboard", "配电箱", "配电柜") => "panelboard",
+            _ when Contains(name, "generator", "发电机") => "generator",
+            _ when Contains(name, "water heater", "热水器") => "water_heater",
+            _ when Contains(name, "tank", "水箱", "罐") => "tank",
+            _ => "other"
+        };
+    }
+
+    static string? ClassifyTerminalType(Element e)
+    {
+        // Use Revit category as primary signal
+        var cat = e.Category?.BuiltInCategory;
+        if (cat == BuiltInCategory.OST_Sprinklers) return "sprinkler_head";
+        if (cat == BuiltInCategory.OST_LightingFixtures) return "light_fixture";
+        if (cat == BuiltInCategory.OST_ElectricalFixtures)
+        {
+            var name = GetFamilyAndTypeName(e);
+            if (name is not null && Contains(name, "data", "rj", "network", "数据", "网络"))
+                return "data_outlet";
+            return "power_outlet";
+        }
+
+        // DuctTerminal — distinguish supply/return/exhaust from family name
+        if (cat == BuiltInCategory.OST_DuctTerminal)
+        {
+            var name = GetFamilyAndTypeName(e);
+            if (name is null) return "supply_air_diffuser";
+
+            return name switch
+            {
+                _ when Contains(name, "return", "回风") => "return_air_grille",
+                _ when Contains(name, "exhaust", "排风", "排气") => "exhaust_air_grille",
+                _ => "supply_air_diffuser"
+            };
+        }
+
+        return "other";
+    }
+
+    static string? GetFamilyAndTypeName(Element e)
+    {
+        if (e is not FamilyInstance fi) return e.Name;
+        var familyName = fi.Symbol.Family.Name;
+        var typeName = fi.Symbol.Name;
+        return $"{familyName} {typeName}".ToLowerInvariant();
+    }
+
+    static bool Contains(string text, params string[] keywords) =>
+        keywords.Any(k => text.Contains(k, StringComparison.OrdinalIgnoreCase));
 }
