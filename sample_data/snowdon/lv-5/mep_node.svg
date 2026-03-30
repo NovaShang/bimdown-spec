@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-8.924 -13.096 14.986 7.759">
+  <g transform="scale(1,-1)">
+    <rect id="mn-4115" x="-8.636" y="10.807" width="0.05" height="0.05" transform="rotate(180,-8.611,10.832)" />
+    <rect id="mn-4116" x="-8.636" y="5.625" width="0.05" height="0.05" transform="rotate(270,-8.611,5.65)" />
+    <rect id="mn-4117" x="-5.721" y="8.726" width="0.05" height="0.05" transform="rotate(211.4,-5.696,8.751)" />
+    <rect id="mn-4118" x="5.724" y="12.758" width="0.05" height="0.05" transform="rotate(180,5.749,12.783)" />
+    <rect id="mn-4119" x="-5.721" y="7.633" width="0.05" height="0.05" transform="rotate(201.091,-5.696,7.658)" />
+    <rect id="mn-4120" x="-5.721" y="7.963" width="0.05" height="0.05" transform="rotate(263.916,-5.696,7.988)" />
+  </g>
+</svg>

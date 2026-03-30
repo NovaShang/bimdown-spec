@@ -1,0 +1,40 @@
+id,number,base_offset,top_level_id,top_offset,material,u_grid_count,v_grid_count,u_spacing,v_spacing,panel_material
+cw-1,,0,lv-28,0.381,composite,14,2,1.219,1.219,Glass
+cw-2,,1.118,lv-31,-0.838,composite,4,2,1.219,1.219,Glass
+cw-3,,0,lv-28,0.381,composite,14,3,1.219,,Glass
+cw-4,,0.813,lv-30,-2.337,composite,2,0,0.857,,Glass
+cw-5,,0.61,lv-28,-0.914,composite,10,0,,,Glass
+cw-6,,0.61,lv-28,-0.914,composite,10,0,,,Glass
+cw-7,,-1.524,lv-30,0,composite,8,5,1.956,0.991,"Steel, Paint Finish, Dark Gray"
+cw-8,,-1.524,lv-30,0,composite,8,5,1.956,0.991,"Steel, Paint Finish, Dark Gray"
+cw-9,,-1.524,lv-30,0,composite,8,5,1.956,0.991,"Steel, Paint Finish, Dark Gray"
+cw-10,,0.279,lv-30,0,composite,3,5,1.956,0.991,Solar Infill (No Cells)
+cw-11,,0.305,lv-30,0,composite,3,4,1.956,0.991,Solar Infill (No Cells)
+cw-12,,0.305,lv-30,0,composite,3,4,1.956,0.991,Solar Infill (No Cells)
+cw-13,,0.406,lv-30,-2.337,composite,2,0,0.857,,Glass
+cw-14,,0.813,lv-30,-2.337,composite,2,0,0.857,,Glass
+cw-15,,0.305,lv-30,0,composite,3,4,1.956,0.991,Solar Infill (No Cells)
+cw-16,,0.406,lv-30,-2.337,composite,2,0,0.857,,Glass
+cw-17,,0,lv-11,-0.229,composite,3,6,,,Default
+cw-18,,0,lv-11,-1.029,composite,1,0,,,Default
+cw-19,,0,lv-11,-1.029,composite,1,0,,,Default
+cw-20,,0,lv-11,-1.029,composite,2,2,0.782,1.893,Default
+cw-21,,0.457,lv-11,0.737,composite,1,4,,,Glass
+cw-22,,0.051,lv-14,-1.219,composite,4,1,,,Glass
+cw-23,,0,lv-11,0.349,composite,3,0,,,Default
+cw-24,,0,lv-11,0.451,composite,3,0,,,Default
+cw-25,,-0.152,lv-11,0.451,composite,3,2,,1.892,Default
+cw-26,,0,lv-11,0.451,composite,3,0,,,Default
+cw-27,,0,lv-11,0.349,composite,3,0,,,Default
+cw-28,,-0.508,lv-11,-0.229,composite,2,0,1.908,,Glass
+cw-29,,-0.508,lv-11,-0.127,composite,2,0,1.908,,Glass
+cw-30,,-0.508,lv-11,-0.127,composite,3,2,,1.892,Glass
+cw-31,,-0.508,lv-11,-0.127,composite,2,0,1.908,,Glass
+cw-32,,-0.508,lv-11,-0.229,composite,2,0,1.908,,Glass
+cw-33,,-0.508,lv-11,-0.229,composite,2,0,1.908,,Glass
+cw-34,,-0.508,lv-11,-0.127,composite,2,0,1.908,,Glass
+cw-35,,-0.508,lv-11,-0.127,composite,3,2,,1.892,Glass
+cw-36,,-0.508,lv-11,-0.127,composite,2,0,1.908,,Glass
+cw-37,,-0.508,lv-11,-0.229,composite,2,0,1.908,,Glass
+cw-38,,0.61,lv-14,-1.6,composite,2,7,2.438,1.516,Glass
+cw-39,,0.406,lv-30,-2.337,composite,2,0,0.857,,Glass

@@ -1,0 +1,12 @@
+id,number,base_offset,system_type,equipment_type
+eq-32,HRU501A,3.451,"Return Air,Supply Air,Exhaust Air,Supply Air,Power",
+eq-33,HRU501B,3.502,"Return Air,Supply Air,Exhaust Air,Supply Air,Power",
+eq-34,HRU504,3.502,"Return Air,Supply Air,Exhaust Air,Supply Air,Power",
+eq-35,HRU506,2.994,"Return Air,Supply Air,Exhaust Air,Supply Air,Power",
+eq-36,HRU507,3.146,"Return Air,Supply Air,Exhaust Air,Supply Air,Power",
+eq-37,HRU406,3.146,"Return Air,Supply Air,Exhaust Air,Supply Air,Power",
+eq-75,7,0,,
+eq-76,11,0,,
+eq-77,12,0,,
+eq-78,188,-0,,
+eq-79,189,0,,

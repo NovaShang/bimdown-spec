@@ -1,0 +1,11 @@
+id,number,base_offset,system_type,terminal_type
+tm-603,182,3.277,Supply Air,
+tm-604,183,3.277,Supply Air,
+tm-605,184,3.277,Supply Air,
+tm-606,185,3.277,Supply Air,
+tm-607,186,3.277,Return Air,
+tm-608,187,3.277,Return Air,
+tm-609,189,0,Exhaust Air,
+tm-610,190,0,Exhaust Air,
+tm-611,565,0,Supply Air,
+tm-612,692,0,Supply Air,

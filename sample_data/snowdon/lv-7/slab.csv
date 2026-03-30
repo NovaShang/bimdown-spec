@@ -1,0 +1,13 @@
+id,number,base_offset,material,function,thickness
+sl-1,,0.038,steel,floor,0.006
+sl-2,,0,concrete,floor,0.152
+sl-3,,-0.508,composite,floor,0.305
+sl-4,,0.038,composite,floor,0.305
+sl-5,,-0.051,composite,floor,0.305
+sl-6,,0,concrete,floor,0.102
+sl-7,,0,concrete,floor,0.152
+sl-8,,-0.005,concrete,floor,0.152
+sl-192,,-5.156,concrete,floor,0.305
+sl-193,,-4.697,concrete,floor,0.305
+sl-194,,-3.34,concrete,floor,0.305
+sl-195,,0,concrete,floor,0.152

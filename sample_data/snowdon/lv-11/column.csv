@@ -1,0 +1,10 @@
+id,number,base_offset,top_level_id,top_offset,material,shape,size_x,size_y
+c-85,,0,lv-14,0,composite,round,0.102,0.102
+c-86,,0,lv-14,-0.152,gypsum,rect,0.61,0.61
+c-87,,0,lv-14,0,gypsum,rect,0.61,0.61
+c-88,,0,lv-14,-0.152,gypsum,rect,0.61,0.61
+c-89,,-0,lv-14,-0.152,gypsum,rect,0.559,0.61
+c-90,,-0,lv-14,-0.152,gypsum,rect,0.508,0.61
+c-91,,0,lv-14,-0.152,gypsum,rect,0.61,0.61
+c-92,,0,lv-14,-0.152,gypsum,rect,0.61,0.61
+c-93,,0,lv-14,-0.152,gypsum,rect,0.61,0.61

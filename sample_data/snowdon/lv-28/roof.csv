@@ -1,0 +1,8 @@
+id,number,base_offset,material,roof_type,slope,thickness
+ro-1,,,concrete,flat,0,0.152
+ro-2,,,insulation,flat,0,0
+ro-3,,,insulation,flat,0,0
+ro-4,,,insulation,flat,0,0
+ro-5,,,insulation,flat,0,0
+ro-6,,,insulation,flat,0,0
+ro-7,,,concrete,flat,0,0.152

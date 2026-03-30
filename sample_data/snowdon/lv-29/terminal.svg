@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-28.414 -13.252 47.952 12.235">
+  <g transform="scale(1,-1)">
+    <rect id="tm-202" x="-22.877" y="4.638" width="0.3" height="0.3" />
+    <rect id="tm-203" x="-20.475" y="12.03" width="0.3" height="0.3" />
+    <rect id="tm-204" x="-25.301" y="12.03" width="0.3" height="0.3" />
+    <rect id="tm-205" x="-27.492" y="1.939" width="0.3" height="0.3" transform="rotate(65.501,-27.342,2.089)" />
+    <rect id="tm-206" x="-20.876" y="1.939" width="0.3" height="0.3" transform="rotate(65.501,-20.726,2.089)" />
+    <rect id="tm-207" x="-14.261" y="1.939" width="0.3" height="0.3" transform="rotate(65.501,-14.111,2.089)" />
+    <rect id="tm-208" x="4.378" y="2.011" width="0.3" height="0.3" />
+    <rect id="tm-209" x="6.08" y="2.011" width="0.3" height="0.3" />
+    <rect id="tm-210" x="13.82" y="5.095" width="0.3" height="0.3" />
+    <rect id="tm-211" x="18.316" y="5.095" width="0.3" height="0.3" />
+  </g>
+</svg>

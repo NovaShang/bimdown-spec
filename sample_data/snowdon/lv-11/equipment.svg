@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-34.076 -11.519 50.646 15.597">
+  <g transform="scale(1,-1)">
+    <rect id="eq-7" x="-11.281" y="-1.942" width="0.3" height="0.3" />
+    <rect id="eq-8" x="-10.139" y="3.842" width="0.3" height="0.3" transform="rotate(180,-9.989,3.992)" />
+    <rect id="eq-9" x="2.725" y="9.335" width="0.3" height="0.3" transform="rotate(360,2.875,9.485)" />
+    <rect id="eq-10" x="14.922" y="10.245" width="0.3" height="0.3" transform="rotate(360,15.072,10.395)" />
+    <rect id="eq-43" x="8.588" y="3.924" width="0.3" height="0.3" transform="rotate(180,8.738,4.074)" />
+    <rect id="eq-44" x="-8.807" y="4.019" width="0.3" height="0.3" transform="rotate(90,-8.657,4.169)" />
+    <rect id="eq-45" x="-11.504" y="-0.871" width="0.3" height="0.3" transform="rotate(90,-11.354,-0.721)" />
+    <rect id="eq-46" x="-4.865" y="6.01" width="0.3" height="0.3" transform="rotate(240,-4.715,6.16)" />
+    <rect id="eq-47" x="15.296" y="1.965" width="0.3" height="0.3" transform="rotate(240,15.446,2.115)" />
+    <rect id="eq-48" x="-32.231" y="-1.265" width="0.3" height="0.3" transform="rotate(114.55,-32.081,-1.115)" />
+    <rect id="eq-49" x="-32.389" y="-1.56" width="0.3" height="0.3" transform="rotate(114.55,-32.239,-1.41)" />
+    <rect id="eq-50" x="-32.529" y="-1.866" width="0.3" height="0.3" transform="rotate(114.55,-32.379,-1.716)" />
+    <rect id="eq-51" x="-32.677" y="-2.167" width="0.3" height="0.3" transform="rotate(114.55,-32.527,-2.017)" />
+    <rect id="eq-52" x="-32.808" y="-2.488" width="0.3" height="0.3" transform="rotate(114.55,-32.658,-2.338)" />
+    <rect id="eq-53" x="-32.955" y="-2.797" width="0.3" height="0.3" transform="rotate(114.55,-32.805,-2.647)" />
+    <rect id="eq-54" x="-33.102" y="-3.104" width="0.3" height="0.3" transform="rotate(114.55,-32.952,-2.954)" />
+  </g>
+</svg>

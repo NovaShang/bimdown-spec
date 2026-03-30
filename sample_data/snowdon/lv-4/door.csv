@@ -1,0 +1,9 @@
+id,number,base_offset,host_id,position,material,width,height,operation,hinge_position,swing_side
+d-70,S11A,0,w-11,0.116,aluminum,0.914,2.134,single_swing,start,right
+d-71,102B,0,w-50,0.558,aluminum,0.914,2.438,single_swing,start,right
+d-72,102A,0,w-46,0.463,aluminum,1.067,2.438,single_swing,end,right
+d-73,101D,0.076,w-138,0.503,glass,0.914,2.134,single_swing,end,right
+d-74,101C,0,w-133,0.646,aluminum,0.914,2.134,single_swing,end,right
+d-75,101B,0,w-133,0.376,aluminum,0.914,2.134,single_swing,start,right
+d-76,101A,0,w-136,0.488,aluminum,0.66,2.134,single_swing,start,right
+d-77,S11B,0.076,w-137,0.452,glass,0.914,2.134,single_swing,end,right

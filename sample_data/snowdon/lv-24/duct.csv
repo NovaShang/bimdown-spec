@@ -1,0 +1,6 @@
+id,number,base_offset,start_z,end_z,shape,size_x,size_y,system_type,start_node_id,end_node_id
+du-1050,,,17.17,17.17,round,0.102,0.102,Exhaust Air,,
+du-1051,,,17.018,17.018,round,0.102,0.102,Exhaust Air,,
+du-1052,,,17.17,17.17,round,0.102,0.102,Exhaust Air,,
+du-1053,,,17.17,17.17,round,0.102,0.102,Supply Air,,
+du-1234,,,16.154,16.154,round,0.102,0.102,Exhaust Air,,

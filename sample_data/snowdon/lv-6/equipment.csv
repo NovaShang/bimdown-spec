@@ -1,0 +1,6 @@
+id,number,base_offset,system_type,equipment_type
+eq-2,HRU108B,5.69,"Return Air,Supply Air,Exhaust Air,Supply Air,Power",
+eq-3,HRU108A,5.69,"Return Air,Supply Air,Exhaust Air,Supply Air,Power",
+eq-4,HRU105A,2.942,"Return Air,Supply Air,Exhaust Air,Supply Air,Power",
+eq-5,HRU105B,3.019,"Return Air,Supply Air,Exhaust Air,Supply Air,Power",
+eq-6,HRU107,2.968,"Return Air,Supply Air,Exhaust Air,Supply Air,Power",

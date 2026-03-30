@@ -1,0 +1,583 @@
+id,number,base_offset,system_type
+mn-58,,2.77,Supply Air
+mn-59,,2.77,Supply Air
+mn-60,,2.472,Supply Air
+mn-61,,2.616,Return Air
+mn-62,,2.616,Return Air
+mn-63,,0.152,Return Air
+mn-64,,2.642,Exhaust Air
+mn-65,,2.642,Supply Air
+mn-66,,2.54,Exhaust Air
+mn-67,,3.023,Exhaust Air
+mn-68,,2.54,Supply Air
+mn-69,,3.023,Supply Air
+mn-70,,3.023,Supply Air
+mn-71,,3.023,Exhaust Air
+mn-72,,2.845,Exhaust Air
+mn-73,,2.845,Exhaust Air
+mn-74,,2.845,Exhaust Air
+mn-75,,3.023,Supply Air
+mn-76,,2.642,Supply Air
+mn-77,,2.54,Supply Air
+mn-78,,2.642,Supply Air
+mn-79,,2.642,Exhaust Air
+mn-80,,2.642,Exhaust Air
+mn-81,,2.54,Exhaust Air
+mn-82,,2.642,Supply Air
+mn-83,,2.642,Exhaust Air
+mn-84,,2.899,Exhaust Air
+mn-85,,2.899,Supply Air
+mn-86,,2.438,Exhaust Air
+mn-87,,2.845,Exhaust Air
+mn-88,,2.845,Exhaust Air
+mn-89,,2.845,Exhaust Air
+mn-90,,2.845,Exhaust Air
+mn-91,,2.515,Exhaust Air
+mn-92,,2.515,Exhaust Air
+mn-93,,2.794,Exhaust Air
+mn-94,,2.794,Exhaust Air
+mn-95,,2.642,Exhaust Air
+mn-96,,2.642,Exhaust Air
+mn-97,,2.642,Exhaust Air
+mn-98,,2.515,Exhaust Air
+mn-99,,2.77,Exhaust Air
+mn-100,,2.515,Supply Air
+mn-101,,2.845,Supply Air
+mn-102,,2.845,Supply Air
+mn-103,,2.845,Supply Air
+mn-104,,2.845,Supply Air
+mn-105,,2.515,Supply Air
+mn-106,,2.515,Supply Air
+mn-107,,2.794,Supply Air
+mn-108,,2.794,Supply Air
+mn-109,,2.642,Supply Air
+mn-110,,2.642,Supply Air
+mn-111,,2.472,Supply Air
+mn-112,,2.899,Return Air
+mn-113,,0.152,Return Air
+mn-114,,2.502,Return Air
+mn-115,,2.524,Supply Air
+mn-116,,3.057,Supply Air
+mn-117,,2.524,Supply Air
+mn-118,,3.057,Supply Air
+mn-119,,2.896,Supply Air
+mn-120,,2.896,Supply Air
+mn-121,,2.899,Supply Air
+mn-122,,2.899,Supply Air
+mn-123,,2.899,Supply Air
+mn-124,,2.732,Supply Air
+mn-125,,2.732,Supply Air
+mn-126,,2.732,Supply Air
+mn-127,,2.517,Supply Air
+mn-128,,2.732,Supply Air
+mn-129,,2.517,Supply Air
+mn-130,,2.631,Supply Air
+mn-131,,2.472,Supply Air
+mn-132,,2.732,Supply Air
+mn-133,,2.95,Return Air
+mn-134,,2.95,Exhaust Air
+mn-135,,2.524,Supply Air
+mn-136,,2.472,Supply Air
+mn-137,,2.95,Supply Air
+mn-138,,2.95,Supply Air
+mn-139,,2.95,Exhaust Air
+mn-140,,2.438,Exhaust Air
+mn-141,,2.438,Return Air
+mn-142,,1.086,Supply Air
+mn-143,,1.086,Supply Air
+mn-144,,1.086,Supply Air
+mn-145,,1.086,Supply Air
+mn-146,,0.313,Supply Air
+mn-147,,1.086,Supply Air
+mn-148,,0.313,Supply Air
+mn-149,,2.438,Exhaust Air
+mn-150,,2.438,Exhaust Air
+mn-151,,2.438,Supply Air
+mn-152,,2.362,Exhaust Air
+mn-153,,2.362,Supply Air
+mn-154,,2.769,Exhaust Air
+mn-155,,2.362,Supply Air
+mn-156,,2.362,Supply Air
+mn-157,,2.362,Exhaust Air
+mn-158,,2.362,Return Air
+mn-159,,2.362,Return Air
+mn-160,,2.362,Supply Air
+mn-161,,2.362,Supply Air
+mn-162,,2.362,Supply Air
+mn-163,,2.328,Supply Air
+mn-164,,1.743,Supply Air
+mn-165,,-0.851,Supply Air
+mn-166,,-0.851,Supply Air
+mn-167,,-0.851,Supply Air
+mn-168,,1.743,Supply Air
+mn-169,,2.328,Supply Air
+mn-170,,2.328,Return Air
+mn-171,,2.328,Return Air
+mn-172,,2.328,Return Air
+mn-173,,2.328,Return Air
+mn-174,,2.328,Return Air
+mn-175,,1.918,Return Air
+mn-176,,1.918,Return Air
+mn-177,,1.918,Return Air
+mn-178,,1.918,Return Air
+mn-179,,2.328,Exhaust Air
+mn-180,,2.48,Exhaust Air
+mn-181,,2.678,Supply Air
+mn-182,,2.807,Supply Air
+mn-183,,2.531,Supply Air
+mn-184,,2.328,Supply Air
+mn-185,,2.807,Supply Air
+mn-186,,2.807,Exhaust Air
+mn-187,,2.807,Exhaust Air
+mn-188,,2.807,Exhaust Air
+mn-189,,2.654,Exhaust Air
+mn-190,,2.328,Exhaust Air
+mn-191,,2.48,Exhaust Air
+mn-192,,2.807,Exhaust Air
+mn-193,,2.658,Exhaust Air
+mn-194,,2.807,Exhaust Air
+mn-195,,2.807,Exhaust Air
+mn-196,,2.658,Supply Air
+mn-197,,2.807,Supply Air
+mn-198,,2.48,Supply Air
+mn-199,,2.328,Supply Air
+mn-200,,2.807,Supply Air
+mn-201,,2.802,Exhaust Air
+mn-202,,2.802,Exhaust Air
+mn-203,,2.489,Return Air
+mn-204,,2.489,Supply Air
+mn-205,,2.489,Return Air
+mn-206,,2.489,Exhaust Air
+mn-207,,2.489,Exhaust Air
+mn-208,,2.489,Exhaust Air
+mn-209,,2.464,Supply Air
+mn-210,,2.464,Return Air
+mn-211,,2.464,Supply Air
+mn-212,,2.464,Exhaust Air
+mn-213,,2.464,Exhaust Air
+mn-214,,2.464,Exhaust Air
+mn-215,,2.464,Supply Air
+mn-216,,2.464,Return Air
+mn-217,,0,Return Air
+mn-218,,2.896,Supply Air
+mn-219,,-0,Supply Air
+mn-220,,2.362,Exhaust Air
+mn-221,,2.362,Supply Air
+mn-222,,2.807,Supply Air
+mn-223,,2.807,Supply Air
+mn-224,,2.769,Supply Air
+mn-225,,2.438,Supply Air
+mn-226,,2.438,Supply Air
+mn-227,,2.438,Supply Air
+mn-228,,2.489,Supply Air
+mn-229,,2.642,Supply Air
+mn-230,,2.77,Supply Air
+mn-231,,2.464,Supply Air
+mn-232,,2.95,Supply Air
+mn-233,,2.95,Supply Air
+mn-234,,2.95,Supply Air
+mn-235,,2.95,Supply Air
+mn-236,,2.95,Supply Air
+mn-237,,2.438,Supply Air
+mn-238,,2.438,Supply Air
+mn-239,,1.604,Supply Air
+mn-1107,,2.661,Exhaust Air
+mn-1108,,2.54,Exhaust Air
+mn-1109,,2.845,Exhaust Air
+mn-1110,,2.661,Exhaust Air
+mn-1111,,2.661,Exhaust Air
+mn-1112,,2.546,Exhaust Air
+mn-1113,,2.845,Exhaust Air
+mn-1114,,2.546,Exhaust Air
+mn-1115,,2.54,Exhaust Air
+mn-1116,,2.54,Exhaust Air
+mn-1117,,2.743,Exhaust Air
+mn-1118,,2.55,Exhaust Air
+mn-1119,,2.55,Exhaust Air
+mn-1120,,2.55,Exhaust Air
+mn-1121,,2.55,Exhaust Air
+mn-1122,,3.48,Exhaust Air
+mn-1123,,2.55,Exhaust Air
+mn-1124,,3.48,Exhaust Air
+mn-1125,,3.48,Exhaust Air
+mn-1126,,3.48,Exhaust Air
+mn-1127,,3.48,Exhaust Air
+mn-1128,,2.743,Exhaust Air
+mn-1129,,2.743,Exhaust Air
+mn-1130,,2.548,Exhaust Air
+mn-1131,,2.548,Exhaust Air
+mn-1132,,2.743,Exhaust Air
+mn-1133,,2.743,Exhaust Air
+mn-1134,,2.743,Exhaust Air
+mn-1135,,2.438,Exhaust Air
+mn-1136,,3.035,Exhaust Air
+mn-1137,,3.035,Exhaust Air
+mn-1138,,3.035,Exhaust Air
+mn-1139,,2.485,Exhaust Air
+mn-1140,,2.485,Exhaust Air
+mn-1141,,3.035,Exhaust Air
+mn-1142,,3.035,Exhaust Air
+mn-1143,,2.54,Exhaust Air
+mn-1144,,0.292,Exhaust Air
+mn-1145,,0.292,Exhaust Air
+mn-1146,,-0.508,Sanitary
+mn-1147,,-0.508,Sanitary
+mn-1148,,-0.508,Sanitary
+mn-1149,,2.642,Sanitary
+mn-1150,,2.497,Sanitary
+mn-1151,,2.169,Sanitary
+mn-1152,,2.31,Sanitary
+mn-1153,,2.497,Sanitary
+mn-1154,,-0.635,Sanitary
+mn-1155,,-0.635,Sanitary
+mn-1156,,-0.635,Sanitary
+mn-1157,,0.203,Sanitary
+mn-1158,,0.203,Sanitary
+mn-1159,,0.203,Sanitary
+mn-1160,,0.203,Sanitary
+mn-1161,,-0.267,Sanitary
+mn-1162,,-0.622,Sanitary
+mn-1163,,-0.267,Sanitary
+mn-1164,,0.203,Sanitary
+mn-1165,,0.203,Sanitary
+mn-1166,,-0.267,Sanitary
+mn-1167,,10.681,Sanitary
+mn-1168,,2.517,Sanitary
+mn-1169,,6.635,Sanitary
+mn-1170,,-0.305,Sanitary
+mn-1171,,-0.691,Sanitary
+mn-1172,,-0.406,Sanitary
+mn-1173,,-0.406,Sanitary
+mn-1174,,-0.406,Sanitary
+mn-1175,,-0.406,Sanitary
+mn-1176,,-0.406,Sanitary
+mn-1177,,-0.406,Sanitary
+mn-1178,,-0.406,Sanitary
+mn-1179,,10.947,Sanitary
+mn-1180,,10.617,Sanitary
+mn-1181,,1.762,Sanitary
+mn-1182,,1.762,Sanitary
+mn-1183,,1.762,Sanitary
+mn-1184,,-0.305,Sanitary
+mn-1185,,-0.305,Sanitary
+mn-1186,,0.203,Sanitary
+mn-1187,,0.203,Sanitary
+mn-1188,,-0.959,Sanitary
+mn-1189,,-0.914,Sanitary
+mn-1190,,0.203,Sanitary
+mn-1191,,-0.583,Sanitary
+mn-1192,,-0.59,Sanitary
+mn-1193,,-0.6,Sanitary
+mn-1194,,-0.597,Sanitary
+mn-1195,,0.203,Sanitary
+mn-1196,,-0.523,Sanitary
+mn-1197,,-0.539,Sanitary
+mn-1198,,-3.011,Sanitary
+mn-1199,,-2.007,Sanitary
+mn-1200,,-6.583,Sanitary
+mn-1201,,-3.715,Sanitary
+mn-1202,,-6.264,Sanitary
+mn-1203,,0.203,Sanitary
+mn-1204,,0.203,Sanitary
+mn-1205,,10.681,Sanitary
+mn-1206,,6.635,Sanitary
+mn-1207,,2.517,Sanitary
+mn-1208,,-0.691,Sanitary
+mn-1209,,10.497,Sanitary
+mn-1210,,12.624,Sanitary
+mn-1211,,1.762,Sanitary
+mn-1212,,0.914,Domestic Hot Water
+mn-1213,,0.406,Domestic Hot Water
+mn-1214,,0.406,Domestic Hot Water
+mn-1215,,0.406,Domestic Hot Water
+mn-1216,,0.457,Domestic Hot Water
+mn-1217,,0.406,Domestic Hot Water
+mn-1218,,0.406,Domestic Hot Water
+mn-1219,,0.406,Domestic Hot Water
+mn-1220,,0.406,Domestic Hot Water
+mn-1221,,0.457,Domestic Hot Water
+mn-1222,,0.406,Domestic Hot Water
+mn-1223,,0.914,Domestic Cold Water
+mn-1224,,0.457,Domestic Cold Water
+mn-1225,,0.457,Domestic Cold Water
+mn-1226,,0.457,Domestic Cold Water
+mn-1227,,2.692,Domestic Cold Water
+mn-1228,,2.692,Domestic Cold Water
+mn-1229,,3.073,Domestic Hot Water
+mn-1230,,3.073,Domestic Hot Water
+mn-1231,,3.048,Domestic Cold Water
+mn-1232,,3.048,Domestic Cold Water
+mn-1233,,3.886,Domestic Cold Water
+mn-1234,,3.937,Domestic Hot Water
+mn-1235,,3.099,Domestic Cold Water
+mn-1236,,3.353,Domestic Cold Water
+mn-1237,,3.353,Domestic Cold Water
+mn-1238,,3.099,Domestic Cold Water
+mn-1239,,3.353,Domestic Cold Water
+mn-1240,,3.099,Domestic Cold Water
+mn-1241,,3.975,Domestic Cold Water
+mn-1242,,3.353,Domestic Cold Water
+mn-1243,,1.067,Domestic Cold Water
+mn-1244,,1.087,Domestic Cold Water
+mn-1245,,1.067,Domestic Cold Water
+mn-1246,,0.889,Domestic Cold Water
+mn-1247,,0.889,Domestic Cold Water
+mn-1248,,0.61,Domestic Cold Water
+mn-1249,,0.61,Domestic Cold Water
+mn-1250,,0.61,Domestic Cold Water
+mn-1251,,2.692,Domestic Cold Water
+mn-1252,,0.838,Domestic Cold Water
+mn-1253,,0.838,Domestic Cold Water
+mn-1254,,0.838,Domestic Cold Water
+mn-1255,,0.457,Domestic Cold Water
+mn-1256,,0.457,Domestic Hot Water
+mn-1257,,1.067,Domestic Hot Water
+mn-1258,,1.067,Domestic Hot Water
+mn-1259,,0.406,Domestic Hot Water
+mn-1260,,0.406,Domestic Hot Water
+mn-1261,,0.457,Domestic Cold Water
+mn-1262,,0.406,Domestic Hot Water
+mn-1263,,0.508,Domestic Hot Water
+mn-1264,,0.508,Domestic Hot Water
+mn-1265,,0.457,Domestic Cold Water
+mn-1266,,0.457,Domestic Cold Water
+mn-1267,,0.406,Domestic Hot Water
+mn-1268,,0.508,Domestic Hot Water
+mn-1269,,0.914,Domestic Hot Water
+mn-1270,,-0.203,Domestic Hot Water
+mn-1271,,0.914,Domestic Cold Water
+mn-1272,,-0.203,Domestic Cold Water
+mn-1273,,-0.203,Domestic Cold Water
+mn-1274,,-0.203,Domestic Hot Water
+mn-1275,,0.406,Domestic Hot Water
+mn-1276,,0.406,Domestic Hot Water
+mn-1277,,0.457,Domestic Cold Water
+mn-1278,,0.457,Domestic Cold Water
+mn-1279,,0.203,Sanitary
+mn-1280,,0.508,Domestic Cold Water
+mn-1281,,0.203,Domestic Cold Water
+mn-1282,,0.508,Domestic Cold Water
+mn-1283,,0.508,Domestic Cold Water
+mn-1284,,-0.305,Sanitary
+mn-1285,,0.457,Domestic Hot Water
+mn-1286,,0.457,Domestic Cold Water
+mn-1287,,0.457,Domestic Cold Water
+mn-1288,,-0.203,Domestic Cold Water
+mn-1289,,0.457,Domestic Hot Water
+mn-1290,,-0.203,Domestic Hot Water
+mn-1291,,-0.203,Domestic Hot Water
+mn-1292,,-0.203,Domestic Cold Water
+mn-1293,,0.406,Domestic Hot Water
+mn-1294,,0.457,Domestic Cold Water
+mn-1295,,0.457,Domestic Cold Water
+mn-1296,,0.457,Domestic Cold Water
+mn-1297,,0.406,Domestic Cold Water
+mn-1298,,0.406,Domestic Hot Water
+mn-1299,,0.406,Domestic Cold Water
+mn-1300,,0.406,Domestic Cold Water
+mn-1301,,0.406,Domestic Cold Water
+mn-1302,,0.406,Domestic Hot Water
+mn-1303,,0.406,Domestic Hot Water
+mn-1304,,0.991,Domestic Cold Water
+mn-1305,,0.457,Domestic Hot Water
+mn-1306,,1.016,Domestic Hot Water
+mn-1307,,1.016,Domestic Hot Water
+mn-1308,,0.457,Domestic Cold Water
+mn-1309,,0.991,Domestic Cold Water
+mn-1310,,0.457,Domestic Cold Water
+mn-1311,,0.457,Domestic Cold Water
+mn-1312,,0.406,Domestic Cold Water
+mn-1313,,0.406,Domestic Cold Water
+mn-1314,,0.406,Domestic Cold Water
+mn-1315,,0.533,Domestic Hot Water
+mn-1316,,0.533,Domestic Hot Water
+mn-1317,,0.457,Domestic Cold Water
+mn-1318,,0.457,Domestic Cold Water
+mn-1319,,0.457,Domestic Cold Water
+mn-1320,,0.533,Domestic Hot Water
+mn-1321,,0.533,Domestic Hot Water
+mn-1322,,0.533,Domestic Hot Water
+mn-1323,,0.457,Domestic Cold Water
+mn-1324,,0.494,Domestic Cold Water
+mn-1325,,0.203,Domestic Cold Water
+mn-1326,,0.786,Domestic Hot Water
+mn-1327,,0.533,Domestic Hot Water
+mn-1328,,0.757,Domestic Hot Water
+mn-1329,,0.786,Domestic Cold Water
+mn-1330,,0.457,Domestic Cold Water
+mn-1331,,0.757,Domestic Cold Water
+mn-1332,,-0.622,Sanitary
+mn-1333,,0.406,Domestic Cold Water
+mn-1334,,1.016,Domestic Hot Water
+mn-1335,,0.203,Sanitary
+mn-1336,,2.692,Domestic Cold Water
+mn-1337,,0.914,Domestic Cold Water
+mn-1338,,0.914,Domestic Cold Water
+mn-1339,167,0.61,Domestic Cold Water
+mn-1340,,0.457,Domestic Hot Water
+mn-1341,,0.457,Domestic Cold Water
+mn-1342,,0.533,Domestic Hot Water
+mn-1343,,0.914,Domestic Hot Water
+mn-1344,,0.914,Domestic Cold Water
+mn-1345,,0.406,Domestic Cold Water
+mn-1346,,0.61,Domestic Cold Water
+mn-1347,,0.427,Domestic Cold Water
+mn-1348,,0.457,Domestic Hot Water
+mn-1349,,0.508,Domestic Cold Water
+mn-1350,,0.508,Domestic Cold Water
+mn-1351,,0.508,Domestic Cold Water
+mn-1352,,0.508,Domestic Cold Water
+mn-1353,,0.508,Domestic Cold Water
+mn-1354,,0.406,Domestic Cold Water
+mn-1355,,0.406,Domestic Cold Water
+mn-1356,,0.406,Domestic Cold Water
+mn-1357,,0.356,Domestic Hot Water
+mn-1358,,0.457,Domestic Hot Water
+mn-1359,,0.457,Domestic Hot Water
+mn-1360,,0.356,Domestic Hot Water
+mn-1361,,0.356,Domestic Hot Water
+mn-1362,,0.457,Domestic Hot Water
+mn-1363,,0.406,Domestic Cold Water
+mn-1364,,0.356,Domestic Hot Water
+mn-1365,,0.356,Domestic Hot Water
+mn-1366,,-0.521,Domestic Hot Water
+mn-1367,,-0.521,Domestic Hot Water
+mn-1368,,0.406,Domestic Cold Water
+mn-1369,,-0.47,Domestic Cold Water
+mn-1370,,-0.47,Domestic Cold Water
+mn-1371,,0.559,Domestic Hot Water
+mn-1372,,0.61,Domestic Cold Water
+mn-1373,,0.684,Domestic Cold Water
+mn-1374,,0.61,Domestic Cold Water
+mn-1375,,0.559,Domestic Hot Water
+mn-1376,,0.203,Domestic Cold Water
+mn-1377,,0.457,Domestic Hot Water
+mn-1378,,0.457,Domestic Hot Water
+mn-1379,,0.457,Domestic Hot Water
+mn-1380,,0.406,Domestic Hot Water
+mn-1381,,0.406,Domestic Hot Water
+mn-1382,,0.406,Domestic Hot Water
+mn-1383,,1.067,Domestic Hot Water
+mn-1384,,0.305,Domestic Cold Water
+mn-1385,,0.305,Domestic Cold Water
+mn-1386,,0.914,Domestic Cold Water
+mn-1387,,0.508,Domestic Cold Water
+mn-1388,,0.374,Domestic Cold Water
+mn-1389,,0.374,Domestic Cold Water
+mn-1390,,1.067,Domestic Cold Water
+mn-1391,,0.914,Domestic Cold Water
+mn-1392,,0.914,Domestic Cold Water
+mn-1393,,0.914,Domestic Cold Water
+mn-1394,,0.457,Domestic Cold Water
+mn-1395,,0.457,Domestic Cold Water
+mn-1396,,0.457,Domestic Hot Water
+mn-1397,9,0.203,Domestic Cold Water
+mn-1398,,0.735,Domestic Cold Water
+mn-1399,,0.559,Domestic Hot Water
+mn-1400,8,0.457,Domestic Hot Water
+mn-1401,,0.457,Domestic Cold Water
+mn-1402,,2.692,Domestic Cold Water
+mn-1403,,2.692,Domestic Cold Water
+mn-1404,,2.692,Domestic Cold Water
+mn-1405,,1.067,Domestic Hot Water
+mn-1406,,1.067,Domestic Cold Water
+mn-1407,,1.067,Domestic Cold Water
+mn-1408,,0.914,Domestic Hot Water
+mn-1409,,0.457,Domestic Hot Water
+mn-1410,,0.508,Domestic Cold Water
+mn-1411,,0.508,Domestic Cold Water
+mn-1412,,0.914,Domestic Cold Water
+mn-1413,,0.457,Domestic Cold Water
+mn-1414,,0.622,Domestic Cold Water
+mn-1415,,0.622,Domestic Cold Water
+mn-1416,,0.902,Domestic Cold Water
+mn-1417,,0.902,Domestic Cold Water
+mn-1418,,1.067,Domestic Cold Water
+mn-1419,,1.045,Domestic Cold Water
+mn-1420,,1.067,Domestic Cold Water
+mn-1421,,0.457,Domestic Cold Water
+mn-1422,,0.457,Domestic Cold Water
+mn-1423,,0.457,Domestic Cold Water
+mn-1424,,0.457,Domestic Cold Water
+mn-1425,,0.457,Domestic Cold Water
+mn-1426,,-0.203,Domestic Cold Water
+mn-1427,,-0.203,Domestic Cold Water
+mn-1428,,0.203,Domestic Cold Water
+mn-1429,,0.203,Domestic Cold Water
+mn-1430,,0.457,Domestic Hot Water
+mn-1431,,0.406,Domestic Hot Water
+mn-1432,,0.406,Domestic Hot Water
+mn-1433,,0.406,Domestic Hot Water
+mn-1434,,-0.203,Domestic Hot Water
+mn-1435,,-0.203,Domestic Hot Water
+mn-1436,,0.178,Domestic Hot Water
+mn-1437,,0.203,Domestic Cold Water
+mn-1438,,0.406,Domestic Cold Water
+mn-1439,,0.178,Domestic Hot Water
+mn-1440,,0.457,Domestic Hot Water
+mn-1441,,0.457,Domestic Hot Water
+mn-1442,,0.457,Domestic Hot Water
+mn-1443,134,0.406,Domestic Cold Water
+mn-1444,,2.692,Domestic Cold Water
+mn-1445,,2.565,Domestic Cold Water
+mn-1446,,2.692,Domestic Cold Water
+mn-1447,,2.565,Domestic Cold Water
+mn-1448,,-0.02,Sanitary
+mn-1449,,-0.267,Sanitary
+mn-1450,,2.642,Domestic Cold Water
+mn-1451,,2.692,Domestic Cold Water
+mn-1452,,2.692,Domestic Cold Water
+mn-1453,,2.642,Domestic Cold Water
+mn-1454,,2.642,Domestic Cold Water
+mn-1455,,2.642,Domestic Cold Water
+mn-1456,,2.692,Domestic Cold Water
+mn-1457,,2.616,Domestic Cold Water
+mn-1458,,2.692,Domestic Cold Water
+mn-1459,,2.692,Domestic Cold Water
+mn-1460,,2.616,Domestic Cold Water
+mn-1461,,2.616,Domestic Cold Water
+mn-1462,,2.616,Domestic Cold Water
+mn-1463,,2.692,Domestic Cold Water
+mn-1464,,2.692,Domestic Cold Water
+mn-1465,,2.692,Domestic Cold Water
+mn-1466,,2.616,Domestic Cold Water
+mn-1467,,2.616,Domestic Cold Water
+mn-1468,,2.692,Domestic Cold Water
+mn-1469,,2.692,Domestic Cold Water
+mn-1470,,2.616,Domestic Cold Water
+mn-1471,,2.616,Domestic Cold Water
+mn-1472,,0.203,Sanitary
+mn-1473,,-0.635,Sanitary
+mn-1474,,-0.635,Sanitary
+mn-3800,,2.667,CableTrayConduit
+mn-3801,,2.667,CableTrayConduit
+mn-3802,,2.667,CableTrayConduit
+mn-3803,,2.54,CableTrayConduit
+mn-3804,,2.54,CableTrayConduit
+mn-3805,,2.667,CableTrayConduit
+mn-3806,,2.667,CableTrayConduit
+mn-3807,,2.416,CableTrayConduit
+mn-3808,,2.286,CableTrayConduit
+mn-3809,,2.54,CableTrayConduit
+mn-3810,,2.667,CableTrayConduit
+mn-3811,,2.416,CableTrayConduit
+mn-3812,,2.54,CableTrayConduit
+mn-3813,,2.286,CableTrayConduit
+mn-3814,,2.416,CableTrayConduit
+mn-3815,,2.54,CableTrayConduit
+mn-3816,,2.286,CableTrayConduit
+mn-3817,,2.54,CableTrayConduit
+mn-3818,,2.286,CableTrayConduit
+mn-3819,,2.54,CableTrayConduit
+mn-3820,,2.54,CableTrayConduit
+mn-3821,,2.54,CableTrayConduit
+mn-3822,,2.54,CableTrayConduit
+mn-3823,,2.54,CableTrayConduit
+mn-3824,,2.502,CableTrayConduit
+mn-3825,,2.667,CableTrayConduit
+mn-3826,,2.502,CableTrayConduit
+mn-3827,,2.667,CableTrayConduit
+mn-3828,,2.54,CableTrayConduit
+mn-3829,,2.54,CableTrayConduit
+mn-3830,,2.667,CableTrayConduit
+mn-3831,,2.667,CableTrayConduit

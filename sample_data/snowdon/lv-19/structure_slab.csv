@@ -1,0 +1,4 @@
+id,number,base_offset,material,function,thickness
+ss-12,,-0.711,concrete,floor,0.152
+ss-13,,0,concrete,floor,0.152
+ss-14,,0,concrete,floor,0.152
