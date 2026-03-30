@@ -91,25 +91,11 @@ The full format specification lives in [`spec/csv-schema/`](./spec/csv-schema/).
 | MEP | duct, pipe, cable_tray, conduit, equipment, terminal, mep_node |
 | Other | level, grid, mesh (non-parametric elements) |
 
-## AI Agent Skills
+## AI Agent Integration
 
-BimDown is designed to be operated by AI agents. The [`agent/pi_files/skills/`](./agent/pi_files/skills/) directory contains skill definitions that teach AI agents how to work with the format:
+BimDown is designed to be operated by AI agents. The format's simplicity (CSV + SVG) means any LLM can read and write building data without specialized APIs.
 
-- **bimdown** — format spec, CLI tools, validation rules
-- **create-building-model** — step-by-step building creation workflow
-
-Skills follow the [OpenClaw SKILL.md format](https://github.com/nicepkg/openclaw) and work with any compatible AI coding agent.
-
-### Writing Custom Skills
-
-Add domain capabilities by creating a new skill:
-
-```
-agent/pi_files/skills/my-skill/
-  SKILL.md    # instructions for the AI agent
-```
-
-For example, an energy modeling skill could teach the agent to generate EnergyPlus input files from BimDown building data.
+To add domain capabilities (energy modeling, ESG reports, compliance checking), write a skill definition following the [OpenClaw SKILL.md format](https://github.com/nicepkg/openclaw). See [BimClaw](https://bimclaw.com) for a hosted AI agent that works with BimDown out of the box.
 
 ## Related Projects
 
