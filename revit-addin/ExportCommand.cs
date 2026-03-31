@@ -216,14 +216,12 @@ public class ExportCommand : IExternalCommand
 
     static void WriteIdMap(string outputDir, ShortIdGenerator idGen)
     {
-        var globalFolder = Path.Combine(outputDir, "global");
-        Directory.CreateDirectory(globalFolder);
         var idMapRows = idGen.Mappings.Select(kvp => new Dictionary<string, string?>
         {
             ["id"] = kvp.Value,
             ["uuid"] = kvp.Key
         }).ToList();
-        CsvWriter.Write(Path.Combine(globalFolder, "_IdMap.csv"), ["id", "uuid"], idMapRows);
+        CsvWriter.Write(Path.Combine(outputDir, "_IdMap.csv"), ["id", "uuid"], idMapRows);
     }
 
     static void ExportMeshFiles(string outputDir,

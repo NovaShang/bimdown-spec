@@ -36,10 +36,19 @@ static class BimDownParameter
         BuiltInCategory.OST_Ramps,
         BuiltInCategory.OST_Ceilings,
         BuiltInCategory.OST_SWallRectOpening,
+        BuiltInCategory.OST_FloorOpening,
+        BuiltInCategory.OST_ShaftOpening,
         BuiltInCategory.OST_StairsRailing,
         BuiltInCategory.OST_GenericModel,
         BuiltInCategory.OST_Planting,
         BuiltInCategory.OST_Site,
+        // MEP fitting/accessory categories (mep_node)
+        BuiltInCategory.OST_DuctFitting,
+        BuiltInCategory.OST_PipeFitting,
+        BuiltInCategory.OST_CableTrayFitting,
+        BuiltInCategory.OST_ConduitFitting,
+        BuiltInCategory.OST_DuctAccessory,
+        BuiltInCategory.OST_PipeAccessory,
     ];
 
     internal static void EnsureParameter(Document doc)

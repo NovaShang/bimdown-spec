@@ -597,17 +597,45 @@ class CeilingImporter() : TableImporterBase("ceiling", 15, [BuiltInCategory.OST_
     }
 }
 
-class OpeningImporter() : TableImporterBase("opening", 20, [BuiltInCategory.OST_SWallRectOpening])
+class OpeningImporter() : TableImporterBase(
+    "opening", 20,
+    [BuiltInCategory.OST_SWallRectOpening, BuiltInCategory.OST_FloorOpening, BuiltInCategory.OST_ShaftOpening])
 {
     protected override Element? CreateElement(Document doc, Dictionary<string, string?> row)
     {
         var hostId = IdMap.Resolve(doc, row.GetValueOrDefault("host_id"))
             ?? throw new InvalidOperationException("host_id is required");
-        var host = doc.GetElement(hostId) as Wall
-            ?? throw new InvalidOperationException("host must be a Wall");
+        var host = doc.GetElement(hostId);
+        if (host is null) throw new InvalidOperationException("host element not found");
+
+        // Slab opening mode (has polygon points)
+        if (row.GetValueOrDefault("points") is { } pointsJson)
+        {
+            if (host is not Floor floor)
+                throw new InvalidOperationException("slab opening host must be a Floor");
+
+            var points = GeometryUtils.DeserializePolygon(pointsJson);
+            if (points.Count < 3) throw new InvalidOperationException("Need at least 3 points for slab opening");
+
+            var curveArray = new CurveArray();
+            for (var i = 0; i < points.Count; i++)
+            {
+                var p1 = points[i];
+                var p2 = points[(i + 1) % points.Count];
+                curveArray.Append(Line.CreateBound(p1, p2));
+            }
+
+            var opening = doc.Create.NewOpening(floor, curveArray, true);
+            SetMark(opening, row);
+            return opening;
+        }
+
+        // Wall opening mode (has position)
+        if (host is not Wall wall)
+            throw new InvalidOperationException("wall opening host must be a Wall");
 
         var positionStr = row.GetValueOrDefault("position");
-        if (positionStr is null || host.Location is not LocationCurve hostCurve)
+        if (positionStr is null || wall.Location is not LocationCurve hostCurve)
             throw new InvalidOperationException("position and host wall curve required");
 
         var param = UnitConverter.ParseDouble(positionStr);
@@ -619,18 +647,15 @@ class OpeningImporter() : TableImporterBase("opening", 20, [BuiltInCategory.OST_
         var width = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(widthStr));
         var height = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(heightStr));
 
-        // Calculate opening rectangle on wall
         var wallDir = (hostCurve.Curve.GetEndPoint(1) - hostCurve.Curve.GetEndPoint(0)).Normalize();
         var baseZ = insertPt.Z;
-        var pt1 = insertPt - wallDir * (width / 2);
-        var pt2 = insertPt + wallDir * (width / 2) + XYZ.BasisZ * height;
 
-        var opening = doc.Create.NewOpening(host,
-            new XYZ(pt1.X, pt1.Y, baseZ),
-            new XYZ(pt2.X, pt2.Y, baseZ + height));
+        var wallOpening = doc.Create.NewOpening(wall,
+            new XYZ(insertPt.X - wallDir.X * width / 2, insertPt.Y - wallDir.Y * width / 2, baseZ),
+            new XYZ(insertPt.X + wallDir.X * width / 2, insertPt.Y + wallDir.Y * width / 2, baseZ + height));
 
-        SetMark(opening, row);
-        return opening;
+        SetMark(wallOpening, row);
+        return wallOpening;
     }
 
     protected override void UpdateElement(Document doc, Dictionary<string, string?> row, Element element)

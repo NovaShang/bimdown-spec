@@ -264,6 +264,33 @@ public class MepExtendedTests : RevitApiTest
         }
     }
 
+    // ── Exporter Field Verification ─────────────────────────────
+
+    [Test]
+    public async Task CableTray_Exporter_HasNoNodeIdFields()
+    {
+        var exporter = MepTableExporters.CableTray();
+        await Assert.That(exporter.Columns.Contains("start_node_id")).IsFalse();
+        await Assert.That(exporter.Columns.Contains("end_node_id")).IsFalse();
+        await Assert.That(exporter.CsvColumns.Contains("start_node_id")).IsFalse();
+    }
+
+    [Test]
+    public async Task Conduit_Exporter_HasNoNodeIdFields()
+    {
+        var exporter = MepTableExporters.Conduit();
+        await Assert.That(exporter.Columns.Contains("start_node_id")).IsFalse();
+        await Assert.That(exporter.Columns.Contains("end_node_id")).IsFalse();
+    }
+
+    [Test]
+    public async Task Duct_Exporter_HasNodeIdFields()
+    {
+        var exporter = MepTableExporters.Duct();
+        await Assert.That(exporter.Columns.Contains("start_node_id")).IsTrue();
+        await Assert.That(exporter.Columns.Contains("end_node_id")).IsTrue();
+    }
+
     // ── MEP Round-trip Export Tests ────────────────────────────────
 
     [Test]

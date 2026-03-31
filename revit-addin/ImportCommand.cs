@@ -78,6 +78,7 @@ public class ImportCommand : IExternalCommand
             // Order 30
             new EquipmentImporter(),
             new TerminalImporter(),
+            new MepNodeImporter(),
         ];
 
         foreach (var importer in importers)

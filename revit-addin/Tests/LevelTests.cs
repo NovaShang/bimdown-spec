@@ -152,6 +152,20 @@ public class LevelTests : RevitApiTest
     }
 
     [Test]
+    public async Task LevelExporter_IsGlobal()
+    {
+        ITableExporter exporter = new LevelTableExporter();
+        await Assert.That(exporter.IsGlobal).IsTrue();
+    }
+
+    [Test]
+    public async Task GridExporter_IsGlobal()
+    {
+        ITableExporter exporter = new GridTableExporter();
+        await Assert.That(exporter.IsGlobal).IsTrue();
+    }
+
+    [Test]
     public async Task Import_Level_UpdateExisting()
     {
         var doc = RevitTestHelper.CreateTempDocument(Application);

@@ -324,6 +324,41 @@ public class SvgRoundTripTests : RevitApiTest
         finally { Cleanup(outputDir); }
     }
 
+    [Test]
+    public async Task MixedRoundTrip_OpeningRectAndPolygon()
+    {
+        var (outputDir, levelRows) = SetupTempDir();
+        try
+        {
+            var openingRows = new List<Dictionary<string, string?>>
+            {
+                // Slab opening as rect (point-like)
+                Row("op-1", "lv-1", ("x", "3"), ("y", "3"),
+                    ("size_x", "2"), ("size_y", "1.5"), ("host_id", "sl-1")),
+                // Slab opening as polygon
+                Row("op-2", "lv-1", ("points", "[[3,3],[5,3],[5,4.5],[3,4.5]]"),
+                    ("host_id", "sl-1")),
+            };
+
+            var tables = new List<(string, List<Dictionary<string, string?>>)>
+            {
+                ("opening", openingRows),
+            };
+
+            SvgWriter.WriteAll(outputDir, tables, levelRows);
+            var read = SvgReader.ReadAll(outputDir);
+
+            // Rect opening
+            await Assert.That(read.ContainsKey("op-1")).IsTrue();
+            await Assert.That(read["op-1"]["x"]).IsEqualTo("3");
+
+            // Polygon opening
+            await Assert.That(read.ContainsKey("op-2")).IsTrue();
+            await Assert.That(read["op-2"]["points"]).IsEqualTo("[[3,3],[5,3],[5,4.5],[3,4.5]]");
+        }
+        finally { Cleanup(outputDir); }
+    }
+
     static (string OutputDir, List<Dictionary<string, string?>> LevelRows) SetupTempDir()
     {
         var dir = Path.Combine(Path.GetTempPath(), $"BimDown_SvgTest_{Guid.NewGuid():N}");

@@ -5,6 +5,7 @@ namespace BimDown.RevitAddin.Tables;
 public class LevelTableExporter : ITableExporter
 {
     public string TableName => "level";
+    public bool IsGlobal => true;
     public IReadOnlyList<string> Columns { get; } = ["id", "number", "name", "elevation"];
     public IReadOnlyList<string> CsvColumns => Columns;
 
@@ -33,6 +34,7 @@ public class LevelTableExporter : ITableExporter
 public class GridTableExporter : ITableExporter
 {
     public string TableName => "grid";
+    public bool IsGlobal => true;
     public IReadOnlyList<string> Columns { get; } = ["id", "number", "start_x", "start_y", "end_x", "end_y"];
     public IReadOnlyList<string> CsvColumns => Columns;
 

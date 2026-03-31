@@ -348,7 +348,7 @@ public static class ArchitectureTableExporters
             if (lowerOp.Contains("double") || lowerOp.Contains("双开") || lowerOp.Contains("双扇") || lowerOp.Contains("双门")) return "double_swing";
             if (lowerOp.Contains("sliding") || lowerOp.Contains("推拉")) return "sliding";
             if (lowerOp.Contains("folding") || lowerOp.Contains("折叠")) return "folding";
-            if (lowerOp.Contains("rolling") || lowerOp.Contains("卷帘")) return "rolling";
+            if (lowerOp.Contains("revolving") || lowerOp.Contains("旋转")) return "revolving";
             return op;
         }
 
@@ -357,7 +357,7 @@ public static class ArchitectureTableExporters
         if (name.Contains("double") || name.Contains("双开") || name.Contains("双扇") || name.Contains("双门")) return "double_swing";
         if (name.Contains("sliding") || name.Contains("推拉")) return "sliding";
         if (name.Contains("folding") || name.Contains("折叠")) return "folding";
-        if (name.Contains("rolling") || name.Contains("卷帘")) return "rolling";
+        if (name.Contains("revolving") || name.Contains("旋转")) return "revolving";
 
         return null;
     }

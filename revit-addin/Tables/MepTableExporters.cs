@@ -29,13 +29,13 @@ public static class MepTableExporters
         "cable_tray",
         [BuiltInCategory.OST_CableTray],
         new CompositeExtractor(
-            [..ExpandMepCurve(), new SectionProfileExtractor(), new MepSystemExtractor(), new MepConnectedSegmentExtractor()]));
+            [..ExpandMepCurve(), new SectionProfileExtractor(), new MepSystemExtractor()]));
 
     public static ITableExporter Conduit() => new TableExporter(
         "conduit",
         [BuiltInCategory.OST_Conduit],
         new CompositeExtractor(
-            [..ExpandMepCurve(), new SectionProfileExtractor(), new MepSystemExtractor(), new MepConnectedSegmentExtractor()]));
+            [..ExpandMepCurve(), new SectionProfileExtractor(), new MepSystemExtractor()]));
 
     public static ITableExporter MepNode() => new TableExporter(
         "mep_node",

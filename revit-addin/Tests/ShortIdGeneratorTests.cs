@@ -56,6 +56,32 @@ public class ShortIdGeneratorTests : RevitApiTest
     }
 
     [Test]
+    public async Task GetOrAssign_AllSpecPrefixes()
+    {
+        var gen = new ShortIdGenerator();
+        var expected = new Dictionary<string, string>
+        {
+            ["level"] = "lv-1", ["grid"] = "gr-1", ["wall"] = "w-1", ["column"] = "c-1",
+            ["slab"] = "sl-1", ["space"] = "sp-1", ["door"] = "d-1", ["window"] = "wn-1",
+            ["opening"] = "op-1", ["stair"] = "st-1", ["ramp"] = "rp-1", ["railing"] = "rl-1",
+            ["curtain_wall"] = "cw-1", ["ceiling"] = "cl-1", ["roof"] = "ro-1",
+            ["room_separator"] = "rs-1",
+            ["structure_wall"] = "sw-1", ["structure_column"] = "sc-1",
+            ["structure_slab"] = "ss-1", ["beam"] = "bm-1", ["brace"] = "br-1",
+            ["foundation"] = "f-1",
+            ["duct"] = "du-1", ["pipe"] = "pi-1", ["cable_tray"] = "ct-1",
+            ["conduit"] = "co-1", ["equipment"] = "eq-1", ["terminal"] = "tm-1",
+            ["mep_node"] = "mn-1", ["mesh"] = "ms-1",
+        };
+
+        foreach (var (table, expectedId) in expected)
+        {
+            var id = gen.GetOrAssign(table, $"guid-{table}");
+            await Assert.That(id).IsEqualTo(expectedId);
+        }
+    }
+
+    [Test]
     public async Task RemapRows_ReplacesIdsAndReferences()
     {
         var gen = new ShortIdGenerator();

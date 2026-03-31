@@ -347,3 +347,26 @@ class TerminalImporter() : TableImporterBase(
         throw new InvalidOperationException("No terminal FamilySymbol found");
     }
 }
+
+/// <summary>
+/// MEP nodes represent fittings and accessories. Creation is not supported since fittings
+/// are auto-inserted by Revit when connecting ducts/pipes. Update only sets the mark.
+/// </summary>
+class MepNodeImporter() : TableImporterBase(
+    "mep_node",
+    30,
+    [BuiltInCategory.OST_DuctFitting, BuiltInCategory.OST_PipeFitting,
+     BuiltInCategory.OST_CableTrayFitting, BuiltInCategory.OST_ConduitFitting,
+     BuiltInCategory.OST_DuctAccessory, BuiltInCategory.OST_PipeAccessory])
+{
+    protected override Element? CreateElement(Document doc, Dictionary<string, string?> row)
+    {
+        // Fittings are auto-inserted by Revit when connecting MEP curves — skip creation
+        return null;
+    }
+
+    protected override void UpdateElement(Document doc, Dictionary<string, string?> row, Element element)
+    {
+        SetMark(element, row);
+    }
+}
