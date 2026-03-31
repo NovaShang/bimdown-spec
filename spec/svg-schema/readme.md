@@ -20,7 +20,7 @@ SVG files are co-located with their CSV counterparts, organized by level:
     ...
 ```
 
-Each SVG file corresponds to one element table for one level. No `global/` SVG folder exists for cross-floor geometry — multi-story elements in `global/*.csv` are projected onto their base level's SVG by the CLI.
+Each SVG file corresponds to one element table for one directory. Multi-story elements in `global/*.csv` have their SVG in `global/*.svg`. When rendering a floor plan, the CLI composites `global/` SVG onto the active level's view.
 
 ### Elements Without SVG
 

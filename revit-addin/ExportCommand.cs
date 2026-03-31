@@ -81,8 +81,11 @@ public class ExportCommand : IExternalCommand
         EnsureParameter(doc, errors);
         SeedIds(doc, idGen, errors);
         var exported = ExportTables(doc, withMesh, errors);
-        RemapIds(exported, idGen);
+
+        // Two-pass ID remapping: global tables first, then level-partitioned tables
+        RemapGlobalIds(exported, idGen);
         var levelIndex = BuildLevelIndex(exported);
+        RemapPartitionedIds(exported, idGen, levelIndex);
 
         // Export GLB for mesh fallback elements and set mesh_file in their rows
         if (settings.ExportMesh)
@@ -152,12 +155,27 @@ public class ExportCommand : IExternalCommand
         return exported;
     }
 
-    static void RemapIds(
+    static void RemapGlobalIds(
         List<(ITableExporter Exporter, List<Dictionary<string, string?>> Rows)> exported,
         ShortIdGenerator idGen)
     {
         foreach (var (exporter, rows) in exported)
-            idGen.RemapRows(exporter.TableName, rows);
+        {
+            if (exporter.IsGlobal)
+                idGen.RemapGlobalRows(exporter.TableName, rows);
+        }
+    }
+
+    static void RemapPartitionedIds(
+        List<(ITableExporter Exporter, List<Dictionary<string, string?>> Rows)> exported,
+        ShortIdGenerator idGen, Dictionary<string, int> levelIndex)
+    {
+        foreach (var (exporter, rows) in exported)
+        {
+            if (exporter.IsGlobal) continue;
+            idGen.RemapPartitionedRows(exporter.TableName, rows,
+                row => GetPartitionDir(row, levelIndex));
+        }
     }
 
     static Dictionary<string, int> BuildLevelIndex(
@@ -243,9 +261,10 @@ public class ExportCommand : IExternalCommand
         var idMapRows = idGen.Mappings.Select(kvp => new Dictionary<string, string?>
         {
             ["id"] = kvp.Value,
-            ["uuid"] = kvp.Key
+            ["uuid"] = kvp.Key,
+            ["directory"] = idGen.GetDirectory(kvp.Value)
         }).ToList();
-        CsvWriter.Write(Path.Combine(outputDir, "_IdMap.csv"), ["id", "uuid"], idMapRows);
+        CsvWriter.Write(Path.Combine(outputDir, "_IdMap.csv"), ["id", "uuid", "directory"], idMapRows);
     }
 
     static void ExportMeshFiles(string outputDir,

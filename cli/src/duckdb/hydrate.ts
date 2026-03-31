@@ -87,7 +87,7 @@ async function injectGeometry(
     try {
       const svg = parseSvgFile(svgPath);
       for (const el of svg.elements) {
-        if (el.tag === 'line') {
+        if (el.tag === 'path') {
           const geo = extractLineGeometry(el);
           geometries.set(el.id, geo);
         } else if (el.tag === 'rect') {

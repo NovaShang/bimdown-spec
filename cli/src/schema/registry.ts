@@ -12,7 +12,7 @@ export const ID_PREFIXES: Record<string, string> = {
   beam: 'bm', brace: 'br', foundation: 'f',
   duct: 'du', pipe: 'pi', cable_tray: 'ct', conduit: 'co',
   equipment: 'eq', terminal: 'tm', mep_node: 'mn',
-  mesh: 'mesh',
+  mesh: 'ms',
 };
 
 // Tables whose CSV lives only in global/ (not per-level)
@@ -22,8 +22,9 @@ export const GLOBAL_ONLY_TABLES = new Set(['level', 'grid', 'mesh']);
 export const GLOBAL_ALLOWED_TABLES = new Set([
   'level', 'grid', 'stair',
   'duct', 'pipe', 'cable_tray', 'conduit',
-  'equipment', 'terminal',
+  'equipment', 'terminal', 'mep_node',
   'structure_column', 'beam', 'brace',
+  'foundation',
 ]);
 
 // Tables without SVG geometry (level/grid are global-only, door/window use CSV position)

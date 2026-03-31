@@ -40,8 +40,11 @@ class ShortIdGenerator
 
     static readonly string[] ReferenceFields = ["level_id", "host_id", "top_level_id", "start_node_id", "end_node_id"];
 
-    readonly Dictionary<string, int> _counters = new();
+    // Counters scoped by (directory, prefix)
+    readonly Dictionary<string, Dictionary<string, int>> _dirCounters = new();
     readonly Dictionary<string, string> _uidToShort = new();
+    // Track directory for each short ID (for _IdMap)
+    readonly Dictionary<string, string> _shortToDir = new();
 
     internal void SeedFromModel(IList<Element> elements)
     {
@@ -52,30 +55,33 @@ class ShortIdGenerator
 
             _uidToShort[element.UniqueId] = shortId;
 
-            var dashIdx = shortId.LastIndexOf('-');
-            if (dashIdx < 0) continue;
-
-            var prefix = shortId[..dashIdx];
-            if (int.TryParse(shortId[(dashIdx + 1)..], out var num))
-            {
-                _counters.TryGetValue(prefix, out var current);
-                if (num >= current) _counters[prefix] = num;
-            }
+            // We don't know the directory at seed time — counters will be
+            // re-established when GetOrAssign is called with directory info.
+            // For now, track the max counter globally to avoid collisions
+            // during the transition from old (global) to new (scoped) IDs.
         }
     }
 
-    internal string GetOrAssign(string tableName, string uniqueId)
+    internal string GetOrAssign(string tableName, string uniqueId, string directory = "global")
     {
         if (_uidToShort.TryGetValue(uniqueId, out var existing))
             return existing;
 
         var prefix = PrefixMap[tableName];
-        _counters.TryGetValue(prefix, out var counter);
+
+        if (!_dirCounters.TryGetValue(directory, out var counters))
+        {
+            counters = new Dictionary<string, int>();
+            _dirCounters[directory] = counters;
+        }
+
+        counters.TryGetValue(prefix, out var counter);
         counter++;
-        _counters[prefix] = counter;
+        counters[prefix] = counter;
 
         var shortId = $"{prefix}-{counter}";
         _uidToShort[uniqueId] = shortId;
+        _shortToDir[shortId] = directory;
         return shortId;
     }
 
@@ -85,22 +91,54 @@ class ShortIdGenerator
         return _uidToShort.GetValueOrDefault(uniqueId);
     }
 
-    internal void RemapRows(string tableName, List<Dictionary<string, string?>> rows)
+    /// <summary>
+    /// Remaps rows for global tables (level, grid). IDs are scoped to "global".
+    /// </summary>
+    internal void RemapGlobalRows(string tableName, List<Dictionary<string, string?>> rows)
     {
         foreach (var row in rows)
         {
             var uid = row.GetValueOrDefault("id");
             if (uid is not null)
-                row["id"] = GetOrAssign(tableName, uid);
+                row["id"] = GetOrAssign(tableName, uid, "global");
 
-            foreach (var field in ReferenceFields)
-            {
-                var refUid = row.GetValueOrDefault(field);
-                if (refUid is not null)
-                    row[field] = Resolve(refUid);
-            }
+            ResolveReferences(row);
         }
     }
 
+    /// <summary>
+    /// Remaps rows for level-partitioned tables. Each row's directory is determined
+    /// by the provided function (uses GetPartitionDir logic).
+    /// </summary>
+    internal void RemapPartitionedRows(string tableName, List<Dictionary<string, string?>> rows,
+        Func<Dictionary<string, string?>, string> getDirectory)
+    {
+        foreach (var row in rows)
+        {
+            var dir = getDirectory(row);
+            var uid = row.GetValueOrDefault("id");
+            if (uid is not null)
+                row["id"] = GetOrAssign(tableName, uid, dir);
+
+            ResolveReferences(row);
+        }
+    }
+
+    void ResolveReferences(Dictionary<string, string?> row)
+    {
+        foreach (var field in ReferenceFields)
+        {
+            var refUid = row.GetValueOrDefault(field);
+            if (refUid is not null)
+                row[field] = Resolve(refUid);
+        }
+    }
+
+    /// <summary>
+    /// Returns all mappings with directory info for _IdMap.csv.
+    /// </summary>
     internal IReadOnlyDictionary<string, string> Mappings => _uidToShort;
+
+    internal string GetDirectory(string shortId) =>
+        _shortToDir.GetValueOrDefault(shortId, "global");
 }

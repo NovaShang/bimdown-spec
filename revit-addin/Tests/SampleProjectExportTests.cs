@@ -99,7 +99,10 @@ public class SampleProjectExportTests : RevitApiTest
         // Pass 2: remap IDs
         foreach (var (exporter, rows) in exported)
         {
-            idGen.RemapRows(exporter.TableName, rows);
+            if (exporter.IsGlobal)
+                idGen.RemapGlobalRows(exporter.TableName, rows);
+            else
+                idGen.RemapPartitionedRows(exporter.TableName, rows, _ => "lv-1");
 
             var (_, rtRows) = RevitTestHelper.RoundTripCsv(exporter.CsvColumns, rows);
             if (rtRows.Count != rows.Count)

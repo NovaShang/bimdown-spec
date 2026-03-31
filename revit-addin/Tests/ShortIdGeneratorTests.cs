@@ -85,18 +85,18 @@ public class ShortIdGeneratorTests : RevitApiTest
     public async Task RemapRows_ReplacesIdsAndReferences()
     {
         var gen = new ShortIdGenerator();
-        
+
         var rows = new List<Dictionary<string, string?>>
         {
             new() { ["id"] = "guid-1", ["level_id"] = "level-guid-1", ["host_id"] = null },
             new() { ["id"] = "guid-2", ["host_id"] = "guid-1" }
         };
 
-        // Must have the levels already generated beforehand or during map
-        gen.GetOrAssign("level", "level-guid-1");
+        // Level is global
+        gen.RemapGlobalRows("level", [new() { ["id"] = "level-guid-1" }]);
 
-        // Remap wall rows
-        gen.RemapRows("wall", rows);
+        // Remap wall rows scoped to lv-1
+        gen.RemapPartitionedRows("wall", rows, _ => "lv-1");
 
         await Assert.That(rows[0]["id"]).IsEqualTo("w-1");
         await Assert.That(rows[0]["level_id"]).IsEqualTo("lv-1");
@@ -104,5 +104,23 @@ public class ShortIdGeneratorTests : RevitApiTest
 
         await Assert.That(rows[1]["id"]).IsEqualTo("w-2");
         await Assert.That(rows[1]["host_id"]).IsEqualTo("w-1");
+    }
+
+    [Test]
+    public async Task LevelScopedIds_IndependentCountersPerDirectory()
+    {
+        var gen = new ShortIdGenerator();
+
+        var lv1Wall = gen.GetOrAssign("wall", "guid-a", "lv-1");
+        var lv2Wall = gen.GetOrAssign("wall", "guid-b", "lv-2");
+        var lv1Wall2 = gen.GetOrAssign("wall", "guid-c", "lv-1");
+
+        // Each directory has independent counters
+        await Assert.That(lv1Wall).IsEqualTo("w-1");
+        await Assert.That(lv2Wall).IsEqualTo("w-1");
+        await Assert.That(lv1Wall2).IsEqualTo("w-2");
+
+        // Same uniqueId returns same result
+        await Assert.That(gen.GetOrAssign("wall", "guid-a", "lv-1")).IsEqualTo("w-1");
     }
 }

@@ -1,7 +1,10 @@
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, extname } from 'node:path';
 import { discoverLayout, listFiles } from '../utils/fs.js';
 import { ID_PREFIXES, SVG_FILE_NAMES, GLOBAL_ONLY_TABLES } from '../schema/registry.js';
+
+// Tables where SVG is optional (opening: wall-mode has no SVG, slab-mode does)
+const OPTIONAL_SVG_TABLES = new Set(['opening']);
 
 const KNOWN_CSV_NAMES = new Set(Object.keys(ID_PREFIXES).map((t) => `${t}.csv`));
 const KNOWN_SVG_NAMES = new Set(Object.values(SVG_FILE_NAMES).map((s) => `${s}.svg`));
@@ -77,23 +80,47 @@ export function validateStructure(dir: string): string[] {
       }
     }
 
-    // CSV must have matching SVG (reverse check)
+    // CSV must have matching SVG (reverse check) — unless SVG is optional for that table
     for (const f of files) {
       if (extname(f) !== '.csv') continue;
       const tableName = f.replace('.csv', '');
       const svgName = SVG_FILE_NAMES[tableName];
-      if (svgName && !files.includes(`${svgName}.svg`)) {
+      if (svgName && !files.includes(`${svgName}.svg`) && !OPTIONAL_SVG_TABLES.has(tableName)) {
         issues.push(`${ld.name}/${f}  missing paired SVG file "${svgName}.svg"`);
       }
     }
   }
 
-  // Reject any top-level entries that are not global/ or lv-{n}/
+  // Reject any top-level entries that are not global/ or lv-{n}/ or project_metadata.json
   const topEntries = readdirSync(dir);
   for (const f of topEntries) {
     if (f === 'global' || /^lv-\d+$/.test(f)) continue;
+    if (f === 'project_metadata.json') continue;
     if (f.startsWith('.')) continue; // allow hidden dirs like .pi
     issues.push(`${f}  unexpected entry in project root — only global/ and lv-{n}/ directories are allowed`);
+  }
+
+  // Validate project_metadata.json if present
+  const metadataPath = join(dir, 'project_metadata.json');
+  if (existsSync(metadataPath)) {
+    try {
+      const raw = readFileSync(metadataPath, 'utf-8');
+      const metadata = JSON.parse(raw);
+      if (typeof metadata !== 'object' || metadata === null || Array.isArray(metadata)) {
+        issues.push('project_metadata.json  must be a JSON object');
+      } else {
+        if (!metadata.format_version || typeof metadata.format_version !== 'string') {
+          issues.push('project_metadata.json  missing or invalid "format_version" (required string)');
+        }
+        for (const key of Object.keys(metadata)) {
+          if (!['format_version', 'project_name', 'units', 'source'].includes(key)) {
+            issues.push(`project_metadata.json  unknown field "${key}"`);
+          }
+        }
+      }
+    } catch (e) {
+      issues.push(`project_metadata.json  failed to parse: ${(e as Error).message}`);
+    }
   }
 
   return issues;

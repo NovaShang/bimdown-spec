@@ -81,7 +81,10 @@ abstract class TableImporterBase(string tableName, int order, BuiltInCategory[] 
                 UpdateElement(doc, row, element);
                 var csvId = row.GetValueOrDefault("id");
                 if (csvId is not null && element.IsValidObject)
+                {
                     BimDownParameter.Set(element, csvId);
+                    IdMap.Register(csvId, element.Id);
+                }
                 updated++;
             }
             catch (Exception ex)

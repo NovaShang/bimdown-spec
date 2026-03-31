@@ -3,5 +3,6 @@ bases:
   - spatial_line_element
   - section_profile
   - mep_system
+  - mep_connected_segment
 
 fields: []

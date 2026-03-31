@@ -1,16 +1,17 @@
 name: mep_connected_segment
 abstract: true
 description: >
-  Connectivity fields auto-populated by the CLI resolve-topology command.
-  AI designs MEP networks by placing duct/pipe endpoints at matching coordinates.
-  The CLI detects coincident endpoints and generates mep_node entries,
-  back-filling start_node_id and end_node_id on each segment.
+  Connectivity fields linking MEP curves to their endpoint nodes.
+  Revit export populates these from connector references.
+  When AI designs MEP networks, it places duct/pipe endpoints at matching coordinates;
+  the CLI resolve-topology command then detects coincident endpoints, generates
+  mep_node entries, and back-fills start_node_id and end_node_id on each segment.
 
 fields:
   - name: start_node_id
     type: string
-    description: "Auto-resolved ID of the upstream node (equipment, terminal, or mep_node)."
+    description: "ID of the upstream node (equipment, terminal, or mep_node). Written by Revit export; supplemented by CLI resolve-topology."
 
   - name: end_node_id
     type: string
-    description: "Auto-resolved ID of the downstream node (equipment, terminal, or mep_node)."
+    description: "ID of the downstream node (equipment, terminal, or mep_node). Written by Revit export; supplemented by CLI resolve-topology."

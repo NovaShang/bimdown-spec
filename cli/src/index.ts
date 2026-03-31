@@ -138,6 +138,17 @@ program
     console.log(`  TOTAL: ${grand}`);
   });
 
+// ─── resolve-topology ──────────────────────────────────────
+program
+  .command('resolve-topology')
+  .argument('<dir>', 'BimDown project directory')
+  .description('Auto-resolve MEP topology: detect coincident endpoints, generate mep_nodes, fill connectivity')
+  .action(async (dir: string) => {
+    const absDir = resolve(dir);
+    const { resolveTopology } = await import('./commands/resolve-topology.js');
+    resolveTopology(absDir);
+  });
+
 // ─── merge ───────────────────────────────────────────────
 program
   .command('merge')

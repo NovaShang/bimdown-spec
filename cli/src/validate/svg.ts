@@ -1,23 +1,53 @@
 import { parseSvgFile } from '../utils/svg.js';
 
-const ALLOWED_TAGS = new Set(['svg', 'g', 'line', 'rect', 'polygon', 'circle', 'text']);
-const FORBIDDEN_TAGS = new Set(['path', 'defs', 'use', 'script', 'linearGradient', 'radialGradient', 'filter']);
+const ALLOWED_TAGS = new Set(['svg', 'g', 'path', 'rect', 'polygon', 'circle', 'text']);
+const FORBIDDEN_TAGS = new Set(['line', 'defs', 'use', 'script', 'linearGradient', 'radialGradient', 'filter']);
 
 /** Expected SVG element tag(s) per table type */
 const EXPECTED_TAGS: Record<string, Set<string>> = {
-  wall: new Set(['line']),
-  room_separator: new Set(['line']),
+  // Line elements → <path>
+  wall: new Set(['path']),
+  structure_wall: new Set(['path']),
+  curtain_wall: new Set(['path']),
+  room_separator: new Set(['path']),
+  stair: new Set(['path']),
+  ramp: new Set(['path']),
+  railing: new Set(['path']),
+  beam: new Set(['path']),
+  brace: new Set(['path']),
+  duct: new Set(['path']),
+  pipe: new Set(['path']),
+  cable_tray: new Set(['path']),
+  conduit: new Set(['path']),
+  // Point elements → <rect> | <circle>
   column: new Set(['rect', 'circle']),
   structure_column: new Set(['rect', 'circle']),
+  equipment: new Set(['rect', 'circle']),
+  terminal: new Set(['rect', 'circle']),
+  mep_node: new Set(['rect', 'circle']),
+  // Polygon elements → <polygon>
   slab: new Set(['polygon']),
   roof: new Set(['polygon']),
   ceiling: new Set(['polygon']),
   structure_slab: new Set(['polygon']),
-  stair: new Set(['line']),
-  beam: new Set(['line']),
-  duct: new Set(['line']),
-  pipe: new Set(['line']),
+  // Mixed geometry
+  foundation: new Set(['rect', 'circle', 'path', 'polygon']),
+  opening: new Set(['rect', 'polygon']),
 };
+
+/** Parse path d attribute and extract all numeric coordinates */
+function extractPathCoords(d: string): number[] {
+  const coords: number[] = [];
+  // Match all numbers (including negative and decimal) in the d attribute
+  const nums = d.match(/-?[\d.]+/g);
+  if (nums) {
+    for (const n of nums) {
+      const val = parseFloat(n);
+      if (!isNaN(val)) coords.push(val);
+    }
+  }
+  return coords;
+}
 
 export function validateSvgFile(
   displayPath: string,
@@ -75,8 +105,21 @@ export function validateSvgFile(
       issues.push(`${displayPath}  hosted element "${el.id}" missing data-host attribute`);
     }
 
-    // Check coordinate ranges — values > 1000 likely millimeters
-    const coordAttrs = ['x1', 'y1', 'x2', 'y2', 'x', 'y', 'cx', 'cy', 'r', 'width', 'height'];
+    // Check coordinate ranges for <path> elements
+    if (el.tag === 'path' && el.attrs.d) {
+      const coords = extractPathCoords(el.attrs.d);
+      for (const val of coords) {
+        if (Math.abs(val) > 1000) {
+          issues.push(
+            `${displayPath}  element "${el.id}" path coordinates look like millimeters — SVG coordinates must be in meters`,
+          );
+          break; // one warning per element
+        }
+      }
+    }
+
+    // Check coordinate ranges for non-path elements
+    const coordAttrs = ['x', 'y', 'cx', 'cy', 'r', 'width', 'height'];
     for (const attr of coordAttrs) {
       const raw = el.attrs[attr];
       if (raw === undefined) continue;
@@ -84,17 +127,6 @@ export function validateSvgFile(
       if (!isNaN(val) && Math.abs(val) > 1000) {
         issues.push(
           `${displayPath}  element "${el.id}" ${attr}=${raw} looks like millimeters — SVG coordinates must be in meters`,
-        );
-      }
-    }
-
-    // Check stroke-width range
-    const sw = el.attrs['stroke-width'];
-    if (sw !== undefined) {
-      const val = Number(sw);
-      if (!isNaN(val) && val > 10) {
-        issues.push(
-          `${displayPath}  element "${el.id}" stroke-width=${sw} looks like millimeters — must be in meters (typical: 0.1-0.3)`,
         );
       }
     }
