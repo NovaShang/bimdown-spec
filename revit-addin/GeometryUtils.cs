@@ -52,7 +52,7 @@ static class GeometryUtils
     /// Extracts the largest downward-facing PlanarFace from an element's geometry.
     /// Returns the outer edge loop points.
     /// </summary>
-    public static IList<XYZ>? GetTopFacePolygon(Element element)
+    public static (IList<XYZ> Points, bool HasCurvedEdges)? GetTopFacePolygon(Element element)
     {
         var opt = new Options { ComputeReferences = false, DetailLevel = ViewDetailLevel.Coarse };
         var geom = element.get_Geometry(opt);
@@ -107,11 +107,120 @@ static class GeometryUtils
         // Use the outermost loop (largest perimeter)
         var outerLoop = loops.OrderByDescending(l => l.GetExactLength()).First();
         var points = new List<XYZ>();
+        var hasCurvedEdges = false;
         foreach (var curve in outerLoop)
         {
             points.Add(curve.GetEndPoint(0));
+            if (curve is not Line) hasCurvedEdges = true;
         }
-        return points;
+        return (points, hasCurvedEdges);
+    }
+
+    /// <summary>
+    /// Creates a Revit Curve from a row's geometry data. If _svg_d contains an arc, creates an Arc;
+    /// otherwise creates a Line from start/end coordinates. Coordinates in meters, output in feet.
+    /// </summary>
+    public static Curve? CreateCurveFromRow(Dictionary<string, string?> row, double z = 0)
+    {
+        var startX = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row.GetValueOrDefault("start_x")));
+        var startY = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row.GetValueOrDefault("start_y")));
+        var endX = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row.GetValueOrDefault("end_x")));
+        var endY = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row.GetValueOrDefault("end_y")));
+
+        var start = new XYZ(startX, startY, z);
+        var end = new XYZ(endX, endY, z);
+
+        var svgD = row.GetValueOrDefault("_svg_d");
+        if (svgD is not null && svgD.Contains('A'))
+        {
+            var arc = SvgArcToRevitArc(svgD, z);
+            if (arc is not null) return arc;
+        }
+
+        if (start.DistanceTo(end) < 1e-9) return null;
+        return Line.CreateBound(start, end);
+    }
+
+    /// <summary>
+    /// Converts an SVG arc path "M x1,y1 A rx,ry 0 largeArc,sweep x2,y2" to a Revit Arc.
+    /// Input coordinates are in meters, output Arc is in feet.
+    /// </summary>
+    public static Arc? SvgArcToRevitArc(string svgD, double z)
+    {
+        var parsed = Svg.SvgWriter.ParseArcCoordinates(svgD);
+        if (parsed is null) return null;
+
+        var (x1, y1, rx, _, largeArc, sweep, x2, y2) = parsed.Value;
+
+        // Convert meters to feet
+        var sx = UnitConverter.LengthToFeet(x1);
+        var sy = UnitConverter.LengthToFeet(y1);
+        var ex = UnitConverter.LengthToFeet(x2);
+        var ey = UnitConverter.LengthToFeet(y2);
+        var r = UnitConverter.LengthToFeet(rx);
+
+        var start = new XYZ(sx, sy, z);
+        var end = new XYZ(ex, ey, z);
+
+        // Compute arc center from SVG parameters
+        // Midpoint of chord
+        var mx = (sx + ex) / 2;
+        var my = (sy + ey) / 2;
+
+        var dx = ex - sx;
+        var dy = ey - sy;
+        var chordLen = Math.Sqrt(dx * dx + dy * dy);
+        var halfChord = chordLen / 2;
+
+        if (r < halfChord) r = halfChord; // clamp
+
+        var h = Math.Sqrt(r * r - halfChord * halfChord);
+
+        // Perpendicular direction (unit vector)
+        var px = -dy / chordLen;
+        var py = dx / chordLen;
+
+        // Choose side based on flags
+        // In standard SVG math (Y down): sweep=1 means clockwise
+        // We're in Revit (Y up), so we need to account for the flip
+        var sign = (largeArc == sweep) ? 1.0 : -1.0;
+        var cx = mx + px * h * sign;
+        var cy = my + py * h * sign;
+
+        // Compute a point on the arc (midpoint of arc) for Arc.Create
+        var startAngle = Math.Atan2(sy - cy, sx - cx);
+        var endAngle = Math.Atan2(ey - cy, ex - cx);
+
+        // Determine mid-angle based on sweep direction
+        double midAngle;
+        if (sweep == 1)
+        {
+            // SVG sweep=1 = clockwise in SVG = counterclockwise in Revit (Y up)
+            // Go CCW from start to end
+            if (endAngle <= startAngle) endAngle += 2 * Math.PI;
+            midAngle = (startAngle + endAngle) / 2;
+            if (largeArc == 1 && Math.Abs(endAngle - startAngle) < Math.PI)
+                midAngle += Math.PI;
+        }
+        else
+        {
+            // Go CW from start to end
+            if (startAngle <= endAngle) startAngle += 2 * Math.PI;
+            midAngle = (startAngle + endAngle) / 2;
+            if (largeArc == 1 && Math.Abs(startAngle - endAngle) < Math.PI)
+                midAngle += Math.PI;
+        }
+
+        var midPt = new XYZ(cx + r * Math.Cos(midAngle), cy + r * Math.Sin(midAngle), z);
+
+        try
+        {
+            return Arc.Create(start, end, midPt);
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     /// <summary>

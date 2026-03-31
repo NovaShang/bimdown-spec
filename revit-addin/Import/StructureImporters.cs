@@ -11,7 +11,7 @@ class StructureWallImporter() : TableImporterBase(
 {
     protected override Element? CreateElement(Document doc, Dictionary<string, string?> row)
     {
-        var line = ParseLine2D(row);
+        var curve = ParseCurve2D(row);
         var levelId = IdMap.Resolve(doc, row.GetValueOrDefault("level_id"))
             ?? throw new InvalidOperationException("level_id is required");
 
@@ -33,7 +33,7 @@ class StructureWallImporter() : TableImporterBase(
             .Cast<WallType>()
             .First(wt => wt.Kind == WallKind.Basic).Id;
 
-        var wall = Wall.Create(doc, line, typeId, levelId, heightFeet, 0, false, true);
+        var wall = Wall.Create(doc, curve, typeId, levelId, heightFeet, 0, false, true);
 
         var baseOffsetStr = row.GetValueOrDefault("base_offset");
         if (baseOffsetStr is not null)
@@ -58,7 +58,7 @@ class StructureWallImporter() : TableImporterBase(
         if (element is not Wall wall) return;
 
         if (wall.Location is LocationCurve lc)
-            lc.Curve = ParseLine2D(row);
+            lc.Curve = ParseCurve2D(row);
 
         var heightStr = row.GetValueOrDefault("height");
         if (heightStr is not null)

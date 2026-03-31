@@ -7,7 +7,7 @@ public class ElementExtractor : IFieldExtractor
     public IReadOnlyList<string> FieldNames { get; } =
     [
         "id", "number", "level_id", "created_at", "updated_at",
-        "base_offset", "volume",
+        "base_offset", "mesh_file", "volume",
         "bbox_min_x", "bbox_min_y", "bbox_min_z",
         "bbox_max_x", "bbox_max_y", "bbox_max_z"
     ];

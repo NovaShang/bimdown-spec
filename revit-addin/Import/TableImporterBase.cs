@@ -113,6 +113,14 @@ abstract class TableImporterBase(string tableName, int order, BuiltInCategory[] 
         return Line.CreateBound(new XYZ(sx, sy, 0), new XYZ(ex, ey, 0));
     }
 
+    /// <summary>
+    /// Parses a 2D curve from row data. Returns Arc if _svg_d contains arc, otherwise Line.
+    /// </summary>
+    internal static Curve ParseCurve2D(Dictionary<string, string?> row)
+    {
+        return GeometryUtils.CreateCurveFromRow(row) ?? ParseLine2D(row);
+    }
+
     internal static Line Parse3DLine(Dictionary<string, string?> row)
     {
         var sx = UnitConverter.LengthToFeet(UnitConverter.ParseDouble(row["start_x"]!));

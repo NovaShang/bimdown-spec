@@ -359,6 +359,71 @@ public class SvgRoundTripTests : RevitApiTest
         finally { Cleanup(outputDir); }
     }
 
+    [Test]
+    public async Task ArcPathRoundTrip_PreservesArcGeometry()
+    {
+        var (outputDir, levelRows) = SetupTempDir();
+        try
+        {
+            var wallRows = new List<Dictionary<string, string?>>
+            {
+                new()
+                {
+                    ["id"] = "w-1",
+                    ["level_id"] = "lv-1",
+                    ["start_x"] = "0",
+                    ["start_y"] = "0",
+                    ["end_x"] = "5",
+                    ["end_y"] = "0",
+                    ["_svg_d"] = "M 0,0 A 3,3 0 0,1 5,0",
+                },
+            };
+
+            var tables = new List<(string, List<Dictionary<string, string?>>)>
+            {
+                ("wall", wallRows),
+            };
+
+            SvgWriter.WriteAll(outputDir, tables, levelRows);
+
+            // Verify SVG contains arc path
+            var content = File.ReadAllText(Path.Combine(outputDir, "lv-1", "wall.svg"));
+            await Assert.That(content).Contains("d=\"M 0,0 A 3,3 0 0,1 5,0\"");
+
+            // Read back and verify coordinates + _svg_d preserved
+            var read = SvgReader.ReadAll(outputDir);
+            await Assert.That(read.ContainsKey("w-1")).IsTrue();
+            var fields = read["w-1"];
+            await Assert.That(fields["start_x"]).IsEqualTo("0");
+            await Assert.That(fields["start_y"]).IsEqualTo("0");
+            await Assert.That(fields["end_x"]).IsEqualTo("5");
+            await Assert.That(fields["end_y"]).IsEqualTo("0");
+            await Assert.That(fields["_svg_d"]).IsEqualTo("M 0,0 A 3,3 0 0,1 5,0");
+        }
+        finally { Cleanup(outputDir); }
+    }
+
+    [Test]
+    public async Task ParseArcCoordinates_ParsesCorrectly()
+    {
+        var result = SvgWriter.ParseArcCoordinates("M 1.5,2.3 A 4,4 0 1,0 7.8,4.1");
+        await Assert.That(result).IsNotNull();
+        await Assert.That(result!.Value.X1).IsEqualTo(1.5);
+        await Assert.That(result!.Value.Y1).IsEqualTo(2.3);
+        await Assert.That(result!.Value.Rx).IsEqualTo(4);
+        await Assert.That(result!.Value.LargeArc).IsEqualTo(1);
+        await Assert.That(result!.Value.Sweep).IsEqualTo(0);
+        await Assert.That(result!.Value.X2).IsEqualTo(7.8);
+        await Assert.That(result!.Value.Y2).IsEqualTo(4.1);
+    }
+
+    [Test]
+    public async Task ParseArcCoordinates_ReturnsNullForLine()
+    {
+        var result = SvgWriter.ParseArcCoordinates("M 0,0 L 5,5");
+        await Assert.That(result).IsNull();
+    }
+
     static (string OutputDir, List<Dictionary<string, string?>> LevelRows) SetupTempDir()
     {
         var dir = Path.Combine(Path.GetTempPath(), $"BimDown_SvgTest_{Guid.NewGuid():N}");

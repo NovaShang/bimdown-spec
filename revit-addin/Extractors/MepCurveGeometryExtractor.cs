@@ -10,8 +10,8 @@ namespace BimDown.RevitAddin.Extractors;
 /// </summary>
 public class MepCurveGeometryExtractor : IFieldExtractor
 {
-    public IReadOnlyList<string> FieldNames { get; } = ["start_x", "start_y", "end_x", "end_y", "length", "start_z", "end_z"];
-    public IReadOnlyList<string> ComputedFieldNames { get; } = ["start_x", "start_y", "end_x", "end_y", "length"];
+    public IReadOnlyList<string> FieldNames { get; } = ["start_x", "start_y", "end_x", "end_y", "length", "start_z", "end_z", "_svg_d"];
+    public IReadOnlyList<string> ComputedFieldNames { get; } = ["start_x", "start_y", "end_x", "end_y", "length", "_svg_d"];
 
     public Dictionary<string, string?> Extract(Element element)
     {
@@ -38,28 +38,50 @@ public class MepCurveGeometryExtractor : IFieldExtractor
             }
         }
 
-        // Fallback to LocationCurve
-        if ((startPt is null || endPt is null) && element.Location is LocationCurve { Curve: Line line })
+        // Fallback to LocationCurve (handles both Line and Arc)
+        if ((startPt is null || endPt is null) && element.Location is LocationCurve loc)
         {
-            startPt ??= line.GetEndPoint(0);
-            endPt ??= line.GetEndPoint(1);
+            var curve = loc.Curve;
+            startPt ??= curve.GetEndPoint(0);
+            endPt ??= curve.GetEndPoint(1);
         }
 
         if (startPt is null || endPt is null) return fields;
 
-        fields["start_x"] = UnitConverter.FormatDouble(UnitConverter.Length(startPt.X));
-        fields["start_y"] = UnitConverter.FormatDouble(UnitConverter.Length(startPt.Y));
-        fields["end_x"] = UnitConverter.FormatDouble(UnitConverter.Length(endPt.X));
-        fields["end_y"] = UnitConverter.FormatDouble(UnitConverter.Length(endPt.Y));
+        var sx = UnitConverter.Length(startPt.X);
+        var sy = UnitConverter.Length(startPt.Y);
+        var ex = UnitConverter.Length(endPt.X);
+        var ey = UnitConverter.Length(endPt.Y);
+
+        fields["start_x"] = UnitConverter.FormatDouble(sx);
+        fields["start_y"] = UnitConverter.FormatDouble(sy);
+        fields["end_x"] = UnitConverter.FormatDouble(ex);
+        fields["end_y"] = UnitConverter.FormatDouble(ey);
         fields["start_z"] = UnitConverter.FormatDouble(UnitConverter.Length(startPt.Z));
         fields["end_z"] = UnitConverter.FormatDouble(UnitConverter.Length(endPt.Z));
 
-        var dx = endPt.X - startPt.X;
-        var dy = endPt.Y - startPt.Y;
-        var dz = endPt.Z - startPt.Z;
-        fields["length"] = UnitConverter.FormatDouble(UnitConverter.Length(
-            Math.Sqrt(dx * dx + dy * dy + dz * dz)));
+        // Generate _svg_d — check if the underlying curve is an arc
+        if (element.Location is LocationCurve { Curve: Arc arc })
+        {
+            var r = UnitConverter.Length(arc.Radius);
+            var (largeArc, sweep) = LineElementExtractor.ComputeArcFlags(arc);
+            fields["_svg_d"] = $"M {Fmt(sx)},{Fmt(sy)} A {Fmt(r)},{Fmt(r)} 0 {largeArc},{sweep} {Fmt(ex)},{Fmt(ey)}";
+
+            fields["length"] = UnitConverter.FormatDouble(UnitConverter.Length(arc.Length));
+        }
+        else
+        {
+            fields["_svg_d"] = $"M {Fmt(sx)},{Fmt(sy)} L {Fmt(ex)},{Fmt(ey)}";
+
+            var dx = endPt.X - startPt.X;
+            var dy = endPt.Y - startPt.Y;
+            var dz = endPt.Z - startPt.Z;
+            fields["length"] = UnitConverter.FormatDouble(UnitConverter.Length(
+                Math.Sqrt(dx * dx + dy * dy + dz * dz)));
+        }
 
         return fields;
     }
+
+    static string Fmt(double v) => UnitConverter.FormatDouble(v);
 }

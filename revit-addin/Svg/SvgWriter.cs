@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.IO;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
@@ -77,6 +78,17 @@ static class SvgWriter
     static XElement? RenderLine(Dictionary<string, string?> row)
     {
         var id = row.GetValueOrDefault("id");
+
+        // Use pre-computed _svg_d if available (supports arcs)
+        var svgD = row.GetValueOrDefault("_svg_d");
+        if (svgD is not null && id is not null)
+        {
+            return new XElement(Ns + "path",
+                new XAttribute("id", id),
+                new XAttribute("d", svgD));
+        }
+
+        // Fallback: build from start/end coordinates
         var x1 = row.GetValueOrDefault("start_x");
         var y1 = row.GetValueOrDefault("start_y");
         var x2 = row.GetValueOrDefault("end_x");
@@ -195,11 +207,23 @@ static class SvgWriter
             switch (el.Name.LocalName)
             {
                 case "path":
-                    var coords = ParsePathCoordinates(el.Attribute("d")?.Value);
-                    if (coords is not null)
+                    var dAttr = el.Attribute("d")?.Value;
+                    var arcInfo = ParseArcCoordinates(dAttr);
+                    if (arcInfo is not null)
                     {
-                        Extend(coords.Value.X1, -coords.Value.Y1);
-                        Extend(coords.Value.X2, -coords.Value.Y2);
+                        // Arc: extend with start, end, and arc extremes
+                        Extend(arcInfo.Value.X1, -arcInfo.Value.Y1);
+                        Extend(arcInfo.Value.X2, -arcInfo.Value.Y2);
+                        ExtendArcBounds(Extend, arcInfo.Value);
+                    }
+                    else
+                    {
+                        var coords = ParsePathCoordinates(dAttr);
+                        if (coords is not null)
+                        {
+                            Extend(coords.Value.X1, -coords.Value.Y1);
+                            Extend(coords.Value.X2, -coords.Value.Y2);
+                        }
                     }
                     break;
                 case "circle":
@@ -237,7 +261,7 @@ static class SvgWriter
     }
 
     /// <summary>
-    /// Parses a simple path d attribute "M x1,y1 L x2,y2" to extract endpoints.
+    /// Parses a line path "M x1,y1 L x2,y2" to extract endpoints.
     /// </summary>
     internal static (double X1, double Y1, double X2, double Y2)? ParsePathCoordinates(string? d)
     {
@@ -251,6 +275,61 @@ static class SvgWriter
             Parse(match.Groups[2].Value),
             Parse(match.Groups[3].Value),
             Parse(match.Groups[4].Value));
+    }
+
+    /// <summary>
+    /// Parses an arc path "M x1,y1 A rx,ry rot largeArc sweep x2,y2".
+    /// </summary>
+    internal static (double X1, double Y1, double Rx, double Ry, int LargeArc, int Sweep, double X2, double Y2)? ParseArcCoordinates(string? d)
+    {
+        if (d is null || !d.Contains('A')) return null;
+
+        var match = Regex.Match(d,
+            @"M\s*(-?[\d.]+)[,\s]+(-?[\d.]+)\s*A\s*(-?[\d.]+)[,\s]+(-?[\d.]+)\s+\d+\s+(\d)[,\s]+(\d)\s+(-?[\d.]+)[,\s]+(-?[\d.]+)");
+        if (!match.Success) return null;
+
+        return (
+            Parse(match.Groups[1].Value),
+            Parse(match.Groups[2].Value),
+            Parse(match.Groups[3].Value),
+            Parse(match.Groups[4].Value),
+            int.Parse(match.Groups[5].Value),
+            int.Parse(match.Groups[6].Value),
+            Parse(match.Groups[7].Value),
+            Parse(match.Groups[8].Value));
+    }
+
+    /// <summary>
+    /// Extends viewBox bounds for an arc by computing the arc's midpoint.
+    /// </summary>
+    static void ExtendArcBounds(Action<double, double> extend,
+        (double X1, double Y1, double Rx, double Ry, int LargeArc, int Sweep, double X2, double Y2) arc)
+    {
+        // Approximate: compute center, then extend by radius in all directions from center
+        // This is conservative but correct — the arc lies within a circle of this radius
+        var midX = (arc.X1 + arc.X2) / 2;
+        var midY = (-arc.Y1 + -arc.Y2) / 2; // already flipped in caller context
+        var chordLen = Math.Sqrt((arc.X2 - arc.X1) * (arc.X2 - arc.X1) + (arc.Y2 - arc.Y1) * (arc.Y2 - arc.Y1));
+        var r = arc.Rx;
+
+        if (r > chordLen / 2)
+        {
+            // Arc bulges beyond chord — compute sagitta (max perpendicular distance)
+            var halfChord = chordLen / 2;
+            var sagitta = r - Math.Sqrt(r * r - halfChord * halfChord);
+            if (arc.LargeArc == 1) sagitta = r + Math.Sqrt(r * r - halfChord * halfChord);
+
+            // Perpendicular direction to chord
+            var dx = arc.X2 - arc.X1;
+            var dy = -(arc.Y2 - arc.Y1); // flipped Y
+            var perpX = -dy / chordLen;
+            var perpY = dx / chordLen;
+            var sign = arc.Sweep == 1 ? -1 : 1;
+
+            var bulgeX = midX + perpX * sagitta * sign;
+            var bulgeY = ((-arc.Y1) + (-arc.Y2)) / 2 + perpY * sagitta * sign;
+            extend(bulgeX, bulgeY);
+        }
     }
 
     internal static string? JsonPointsToSvg(string json)

@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.IO;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
@@ -55,6 +56,22 @@ static class SvgReader
         if (el.Name.LocalName != "path") return null;
 
         var d = el.Attribute("d")?.Value;
+
+        // Try arc first
+        var arc = SvgWriter.ParseArcCoordinates(d);
+        if (arc is not null)
+        {
+            return new Dictionary<string, string?>
+            {
+                ["start_x"] = Fmt(arc.Value.X1),
+                ["start_y"] = Fmt(arc.Value.Y1),
+                ["end_x"] = Fmt(arc.Value.X2),
+                ["end_y"] = Fmt(arc.Value.Y2),
+                ["_svg_d"] = d,
+            };
+        }
+
+        // Straight line
         var coords = SvgWriter.ParsePathCoordinates(d);
         if (coords is null) return null;
 

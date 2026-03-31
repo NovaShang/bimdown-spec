@@ -36,7 +36,11 @@ public class FoundationExtractor : IFieldExtractor
             // Raft foundation → polygon
             var polygon = GeometryUtils.GetTopFacePolygon(element);
             if (polygon is not null)
-                fields["points"] = GeometryUtils.SerializePolygon(polygon);
+            {
+                fields["points"] = GeometryUtils.SerializePolygon(polygon.Value.Points);
+                if (polygon.Value.HasCurvedEdges)
+                    fields["_has_curved_edges"] = "true";
+            }
 
             var area = element.get_Parameter(BuiltInParameter.HOST_AREA_COMPUTED)?.AsDouble();
             fields["area"] = area is { } a ? UnitConverter.FormatDouble(UnitConverter.Area(a)) : null;

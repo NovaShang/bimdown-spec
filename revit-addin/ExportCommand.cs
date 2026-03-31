@@ -1,3 +1,4 @@
+using System.IO;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
@@ -13,18 +14,17 @@ public class ExportCommand : IExternalCommand
     {
         var doc = commandData.Application.ActiveUIDocument.Document;
 
-        using var dialog = new FolderBrowserDialog
-        {
-            Description = "Select output folder for CSV export",
-            ShowNewFolderButton = true
-        };
+        using var settingsForm = new ExportSettingsForm();
+        settingsForm.ShowDialog();
 
-        if (dialog.ShowDialog() != DialogResult.OK)
+        if (!settingsForm.Result.Confirmed)
             return Result.Cancelled;
 
-        var outputDir = dialog.SelectedPath;
+        var settings = settingsForm.Result;
+        var outputDir = settings.OutputDir;
+        var enabled = settings.EnabledTables;
 
-        ITableExporter[] exporters =
+        ITableExporter[] allExporters =
         [
             // Global
             new LevelTableExporter(),
@@ -59,24 +59,44 @@ public class ExportCommand : IExternalCommand
             MepTableExporters.MepNode(),
             MepTableExporters.Equipment(),
             MepTableExporters.Terminal(),
-            // Mesh fallback
-            new MeshExporter(),
         ];
+
+        var exporters = allExporters.Where(e => enabled.Contains(e.TableName)).ToArray();
+        // Mesh exporter is always included if enabled in settings
+        ITableExporter[] withMesh = settings.ExportMesh
+            ? [.. exporters, new MeshExporter()]
+            : exporters;
 
         var idGen = new ShortIdGenerator();
         var errors = new List<string>();
+        var meshFallback = new MeshFallbackSet();
+
+        // Wire up mesh fallback detection on all TableExporters
+        foreach (var exp in withMesh)
+        {
+            if (exp is TableExporter te)
+                te.MeshFallback = meshFallback;
+        }
 
         EnsureParameter(doc, errors);
         SeedIds(doc, idGen, errors);
-        var exported = ExportTables(doc, exporters, errors);
+        var exported = ExportTables(doc, withMesh, errors);
         RemapIds(exported, idGen);
         var levelIndex = BuildLevelIndex(exported);
+
+        // Export GLB for mesh fallback elements and set mesh_file in their rows
+        if (settings.ExportMesh)
+        {
+            ExportMeshFiles(outputDir, exported, idGen, errors);
+            ExportFallbackMeshFiles(doc, outputDir, exported, idGen, meshFallback, errors);
+        }
+
         WriteCsvs(outputDir, exported, levelIndex, errors);
         WriteIdMap(outputDir, idGen);
-        ExportMeshFiles(outputDir, exported, idGen, errors);
-        WriteSvgs(outputDir, exported, errors);
+        WriteSvgs(outputDir, exported, levelIndex, errors);
         WriteMetadata(outputDir, doc, errors);
-        WriteIdsToModel(doc, idGen, errors);
+        if (settings.WriteIdsToModel)
+            WriteIdsToModel(doc, idGen, errors);
 
         var msg = $"Exported {exported.Count} tables to:\n{outputDir}";
         if (errors.Count > 0)
@@ -184,19 +204,7 @@ public class ExportCommand : IExternalCommand
 
         foreach (var row in rows)
         {
-            var levelId = row.GetValueOrDefault("level_id");
-            var topLevelId = row.GetValueOrDefault("top_level_id");
-
-            var isMultiStory = false;
-            if (levelId is not null && topLevelId is not null
-                && levelIndex.TryGetValue(levelId, out var baseIdx)
-                && levelIndex.TryGetValue(topLevelId, out var topIdx))
-            {
-                isMultiStory = topIdx - baseIdx > 1;
-            }
-
-            var dirName = (isMultiStory || levelId is null) ? "global" : levelId;
-
+            var dirName = GetPartitionDir(row, levelIndex);
             if (!levelRows.TryGetValue(dirName, out var list))
             {
                 list = [];
@@ -212,6 +220,22 @@ public class ExportCommand : IExternalCommand
             var filePath = Path.Combine(dir, $"{exporter.TableName}.csv");
             CsvWriter.Write(filePath, exporter.CsvColumns, groupRows);
         }
+    }
+
+    static string GetPartitionDir(Dictionary<string, string?> row, Dictionary<string, int> levelIndex)
+    {
+        var levelId = row.GetValueOrDefault("level_id");
+        var topLevelId = row.GetValueOrDefault("top_level_id");
+
+        var isMultiStory = false;
+        if (levelId is not null && topLevelId is not null
+            && levelIndex.TryGetValue(levelId, out var baseIdx)
+            && levelIndex.TryGetValue(topLevelId, out var topIdx))
+        {
+            isMultiStory = topIdx - baseIdx > 1;
+        }
+
+        return (isMultiStory || levelId is null) ? "global" : levelId;
     }
 
     static void WriteIdMap(string outputDir, ShortIdGenerator idGen)
@@ -236,17 +260,97 @@ public class ExportCommand : IExternalCommand
         }
     }
 
+    /// <summary>
+    /// Exports GLB files for elements flagged by exporters as imprecise.
+    /// Sets the mesh_file field in the element's existing row.
+    /// </summary>
+    static void ExportFallbackMeshFiles(Document doc, string outputDir,
+        List<(ITableExporter Exporter, List<Dictionary<string, string?>> Rows)> exported,
+        ShortIdGenerator idGen, MeshFallbackSet meshFallback, List<string> errors)
+    {
+        if (meshFallback.Count == 0) return;
+
+        // Build reverse map: short ID → element ID
+        var shortIdToElementId = new Dictionary<string, ElementId>();
+        foreach (var (uid, shortId) in idGen.Mappings)
+        {
+            var element = doc.GetElement(uid);
+            if (element is not null)
+                shortIdToElementId[shortId] = element.Id;
+        }
+
+        // Build map: ElementId → (row, shortId) for all exported rows
+        var elementIdToRow = new Dictionary<ElementId, (Dictionary<string, string?> Row, string ShortId)>();
+        foreach (var (_, rows) in exported)
+        {
+            foreach (var row in rows)
+            {
+                var shortId = row.GetValueOrDefault("id");
+                if (shortId is null) continue;
+                if (shortIdToElementId.TryGetValue(shortId, out var elemId))
+                    elementIdToRow.TryAdd(elemId, (row, shortId));
+            }
+        }
+
+        RunStep("Mesh fallback GLB", errors, () =>
+        {
+            foreach (var (elementId, _) in meshFallback.Elements)
+            {
+                if (!elementIdToRow.TryGetValue(elementId, out var entry)) continue;
+                var element = doc.GetElement(elementId);
+                if (element is null) continue;
+
+                try
+                {
+                    var meshPath = GlbExporter.ExportElement(element, outputDir, entry.ShortId);
+                    entry.Row["mesh_file"] = meshPath ?? "";
+                }
+                catch
+                {
+                    // Skip elements whose geometry can't be exported
+                }
+            }
+        });
+    }
+
     static void WriteSvgs(string outputDir,
         List<(ITableExporter Exporter, List<Dictionary<string, string?>> Rows)> exported,
-        List<string> errors)
+        Dictionary<string, int> levelIndex, List<string> errors)
     {
         var levelData = exported.FirstOrDefault(e => e.Exporter.TableName == "level");
         if (levelData.Rows is null) return;
 
+        // Partition rows using the same multi-story logic as CSV, so SVGs land
+        // in the same directory as their CSVs (level dir or global/).
+        var partitioned = new List<(string TableName, List<Dictionary<string, string?>> Rows)>();
+        foreach (var (exporter, rows) in exported)
+        {
+            if (exporter.IsGlobal) continue;
+
+            var groups = new Dictionary<string, List<Dictionary<string, string?>>>();
+            foreach (var row in rows)
+            {
+                var dirName = GetPartitionDir(row, levelIndex);
+                if (!groups.TryGetValue(dirName, out var list))
+                {
+                    list = [];
+                    groups[dirName] = list;
+                }
+                list.Add(row);
+            }
+
+            foreach (var (dirName, groupRows) in groups)
+            {
+                // Set level_id to partition dir so SvgWriter groups correctly.
+                // Rows are not used after SVG writing.
+                foreach (var row in groupRows)
+                    row["level_id"] = dirName;
+                partitioned.Add((exporter.TableName, groupRows));
+            }
+        }
+
         RunStep("SVG export", errors, () =>
-            SvgWriter.WriteAll(outputDir,
-                exported.Select(e => (e.Exporter.TableName, e.Rows)).ToList(),
-                levelData.Rows));
+            SvgWriter.WriteAll(outputDir, partitioned, levelData.Rows));
     }
 
     static void WriteMetadata(string outputDir, Document doc, List<string> errors)

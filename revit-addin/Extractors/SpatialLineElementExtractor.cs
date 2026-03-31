@@ -10,10 +10,13 @@ public class SpatialLineElementExtractor : IFieldExtractor
     {
         var fields = new Dictionary<string, string?>();
 
-        if (element.Location is LocationCurve { Curve: Line line })
+        if (element.Location is LocationCurve loc)
         {
-            fields["start_z"] = UnitConverter.FormatDouble(UnitConverter.Length(line.GetEndPoint(0).Z));
-            fields["end_z"] = UnitConverter.FormatDouble(UnitConverter.Length(line.GetEndPoint(1).Z));
+            var curve = loc.Curve;
+            var start = curve.GetEndPoint(0);
+            var end = curve.GetEndPoint(1);
+            fields["start_z"] = UnitConverter.FormatDouble(UnitConverter.Length(start.Z));
+            fields["end_z"] = UnitConverter.FormatDouble(UnitConverter.Length(end.Z));
         }
 
         return fields;

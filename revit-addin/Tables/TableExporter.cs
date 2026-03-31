@@ -13,6 +13,12 @@ public class TableExporter(
     public IReadOnlyList<string> Columns => extractor.FieldNames;
     public IReadOnlyList<string> CsvColumns => extractor.CsvColumns;
 
+    /// <summary>
+    /// Optional mesh fallback set. When set, exporters can flag elements that
+    /// cannot be precisely represented for GLB mesh export.
+    /// </summary>
+    public MeshFallbackSet? MeshFallback { get; set; }
+
     public List<Dictionary<string, string?>> Export(Document doc)
     {
         var rows = new List<Dictionary<string, string?>>();
@@ -28,7 +34,9 @@ public class TableExporter(
                 try
                 {
                     if (filter is not null && !filter(element)) continue;
-                    rows.Add(extractor.Extract(element));
+                    var row = extractor.Extract(element);
+                    DetectMeshFallback(element, row);
+                    rows.Add(row);
                 }
                 catch
                 {
@@ -38,5 +46,30 @@ public class TableExporter(
         }
 
         return rows;
+    }
+
+    void DetectMeshFallback(Element element, Dictionary<string, string?> row)
+    {
+        if (MeshFallback is null) return;
+
+        // B1: Profile-edited wall
+        if (element is Wall wall)
+        {
+            if (wall.SketchId != ElementId.InvalidElementId)
+                MeshFallback.Add(element.Id, "edited_profile");
+
+            // B2: Slanted wall
+            var slantAngle = wall.get_Parameter(BuiltInParameter.WALL_SINGLE_SLANT_ANGLE_FROM_VERTICAL)?.AsDouble() ?? 0;
+            if (Math.Abs(slantAngle) > 0.001)
+                MeshFallback.Add(element.Id, "slanted");
+        }
+
+        // C1-C3: Curved polygon edges
+        if (row.GetValueOrDefault("_has_curved_edges") == "true")
+            MeshFallback.Add(element.Id, "curved_edges");
+
+        // D: Point-based ramps/railings (no LocationCurve → geometry fields empty)
+        if (tableName is "ramp" or "railing" && element.Location is not LocationCurve)
+            MeshFallback.Add(element.Id, "point_based");
     }
 }

@@ -314,8 +314,7 @@ public static class ArchitectureTableExporters
                 {
                     ["width"] = width is { } w ? UnitConverter.FormatDouble(UnitConverter.Length(w)) : null
                 };
-            }),
-        e => e.Location is LocationCurve);
+            }));
 
     public static ITableExporter Railing() => new TableExporter(
         "railing",
@@ -330,8 +329,7 @@ public static class ArchitectureTableExporters
                 {
                     ["height"] = height is { } h ? UnitConverter.FormatDouble(UnitConverter.Length(h)) : null
                 };
-            }),
-        e => e.Location is LocationCurve);
+            }));
 
     public static ITableExporter RoomSeparator() => new TableExporter(
         "room_separator",

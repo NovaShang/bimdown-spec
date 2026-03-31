@@ -13,7 +13,7 @@ class WallImporter() : TableImporterBase(
 {
     protected override Element? CreateElement(Document doc, Dictionary<string, string?> row)
     {
-        var line = ParseLine2D(row);
+        var curve = ParseCurve2D(row);
         var levelId = IdMap.Resolve(doc, row.GetValueOrDefault("level_id"))
             ?? throw new InvalidOperationException("level_id is required");
 
@@ -31,7 +31,7 @@ class WallImporter() : TableImporterBase(
             : 10.0; // default 10 feet
 
         var typeId = wallType?.Id ?? GetDefaultWallTypeId(doc);
-        var wall = Wall.Create(doc, line, typeId, levelId, heightFeet, 0, false, false);
+        var wall = Wall.Create(doc, curve, typeId, levelId, heightFeet, 0, false, false);
 
         var baseOffsetStr = row.GetValueOrDefault("base_offset");
         if (baseOffsetStr is not null)
@@ -55,11 +55,10 @@ class WallImporter() : TableImporterBase(
     {
         if (element is not Wall wall) return;
 
-        // Update location curve endpoints
+        // Update location curve
         if (wall.Location is LocationCurve lc)
         {
-            var newLine = ParseLine2D(row);
-            lc.Curve = newLine;
+            lc.Curve = ParseCurve2D(row);
         }
 
         // Update height
@@ -445,7 +444,7 @@ class CurtainWallImporter() : TableImporterBase(
 {
     protected override Element? CreateElement(Document doc, Dictionary<string, string?> row)
     {
-        var line = ParseLine2D(row);
+        var curve = ParseCurve2D(row);
         var levelId = IdMap.Resolve(doc, row.GetValueOrDefault("level_id"))
             ?? throw new InvalidOperationException("level_id is required");
 
@@ -455,7 +454,7 @@ class CurtainWallImporter() : TableImporterBase(
             ? UnitConverter.LengthToFeet(UnitConverter.ParseDouble(heightStr))
             : 10.0;
 
-        var wall = Wall.Create(doc, line, wallType.Id, levelId, heightFeet, 0, false, false);
+        var wall = Wall.Create(doc, curve, wallType.Id, levelId, heightFeet, 0, false, false);
 
         var baseOffsetStr = row.GetValueOrDefault("base_offset");
         if (baseOffsetStr is not null)
@@ -480,7 +479,7 @@ class CurtainWallImporter() : TableImporterBase(
         if (element is not Wall wall) return;
 
         if (wall.Location is LocationCurve lc)
-            lc.Curve = ParseLine2D(row);
+            lc.Curve = ParseCurve2D(row);
 
         var heightStr = row.GetValueOrDefault("height");
         if (heightStr is not null)
@@ -798,7 +797,7 @@ class RoomSeparatorImporter() : TableImporterBase("room_separator", 10, [BuiltIn
 {
     protected override Element? CreateElement(Document doc, Dictionary<string, string?> row)
     {
-        var line = ParseLine2D(row);
+        var curve = ParseCurve2D(row);
         var levelId = IdMap.Resolve(doc, row.GetValueOrDefault("level_id"))
             ?? throw new InvalidOperationException("level_id is required");
         var level = (Level)doc.GetElement(levelId);
@@ -807,7 +806,7 @@ class RoomSeparatorImporter() : TableImporterBase("room_separator", 10, [BuiltIn
             Plane.CreateByNormalAndOrigin(XYZ.BasisZ, new XYZ(0, 0, level.Elevation)));
 
         var curveArray = new CurveArray();
-        curveArray.Append(line);
+        curveArray.Append(curve);
         var modelCurve = doc.Create.NewRoomBoundaryLines(sketchPlane, curveArray, doc.ActiveView).get_Item(0);
         SetMark(modelCurve, row);
         return modelCurve;
@@ -816,7 +815,7 @@ class RoomSeparatorImporter() : TableImporterBase("room_separator", 10, [BuiltIn
     protected override void UpdateElement(Document doc, Dictionary<string, string?> row, Element element)
     {
         if (element.Location is LocationCurve lc)
-            lc.Curve = ParseLine2D(row);
+            lc.Curve = ParseCurve2D(row);
 
         SetMark(element, row);
     }
