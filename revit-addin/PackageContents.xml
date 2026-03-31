@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ApplicationPackage
+  SchemaVersion="1.0"
+  ProductType="Application"
+  AutodeskProduct="Revit"
+  Name="BimDown"
+  Description="Export and import BimDown format (CSV + SVG) for AI-native building modeling."
+  AppVersion="1.0.0"
+  FriendlyVersion="1.0.0"
+  ProductCode="b01d0000-ba7c-4e0f-a55e-7ab123456780"
+  UpgradeCode="b01d0000-ba7c-4e0f-a55e-7ab123456780">
+
+  <CompanyDetails Name="BimDown" Email="" Url="" />
+
+  <RuntimeRequirements OS="Win64" Platform="Revit" SeriesMin="R2025" SeriesMax="R2026" />
+
+  <Components Description="BimDown Revit Plugin">
+    <RuntimeRequirements OS="Win64" Platform="Revit" SeriesMin="R2025" SeriesMax="R2025" />
+    <ComponentEntry AppName="BimDown" Version="1.0.0"
+      ModuleName="./Contents/2025/BimDown.addin"
+      AppDescription="BimDown for Revit 2025" />
+  </Components>
+
+  <Components Description="BimDown Revit Plugin">
+    <RuntimeRequirements OS="Win64" Platform="Revit" SeriesMin="R2026" SeriesMax="R2026" />
+    <ComponentEntry AppName="BimDown" Version="1.0.0"
+      ModuleName="./Contents/2026/BimDown.addin"
+      AppDescription="BimDown for Revit 2026" />
+  </Components>
+
+</ApplicationPackage>
