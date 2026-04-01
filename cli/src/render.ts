@@ -197,10 +197,6 @@ function renderHostedElements(
       wy2 = parseFloat(wall.attrs.y2 ?? '0');
     }
 
-    // Center point along wall at parametric position
-    const cx = wx1 + (wx2 - wx1) * position;
-    const cy = wy1 + (wy2 - wy1) * position;
-
     // Direction along wall, normalized
     const dx = wx2 - wx1;
     const dy = wy2 - wy1;
@@ -208,6 +204,10 @@ function renderHostedElements(
     if (len === 0) continue;
     const ux = dx / len;
     const uy = dy / len;
+
+    // Center point along wall at distance (meters) from start
+    const cx = wx1 + ux * position;
+    const cy = wy1 + uy * position;
 
     // Opening line: width/2 in each direction along wall
     const halfW = width / 2;

@@ -124,7 +124,7 @@ Spatial derivatives extracted from SVG at runtime. **Not stored in CSV**. The Du
 | `spatial_line_element`       | extends `line_element` + `start_z`, `end_z` (required, CSV) |
 | `point_element`              | `x`, `y`, `rotation` (all computed from SVG) |
 | `polygon_element`            | `points`, `area` (all computed from SVG) |
-| `hosted_element`             | `host_id` (reference), `position` (0-1 along host) |
+| `hosted_element`             | `host_id` (reference), `position` (distance in meters from host start) |
 | `vertical_span`              | `top_level_id`, `top_offset`, `height` (computed) |
 | `materialized`               | `material` (enum: concrete, steel, wood, clt, glass, aluminum, brick, stone, gypsum, insulation, copper, pvc, ceramic, fiber_cement, composite) |
 | `section_profile`            | `shape` (rect/round), `size_x`, `size_y` |

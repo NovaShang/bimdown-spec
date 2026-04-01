@@ -12,4 +12,4 @@ fields:
   - name: position
     type: float
     required: true
-    description: Parametric position along host element (0.0 = start, 1.0 = end, center of opening)
+    description: Distance in meters from the host element's start point to the center of this opening

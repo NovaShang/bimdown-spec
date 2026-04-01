@@ -113,7 +113,7 @@ project/
   - **Grid and Level** allow any string after prefix: ${freeformExamples.join('; ')}
   - **All other elements** use \`{prefix}-{number}\` (digits only): ${numericExamples.slice(0, 6).join(', ')}, ...
   - **Always run \`bimdown validate\` to confirm your IDs are compliant.**
-- **SVG Coordinate Y-Flip**: All geometry inside \`.svg\` files **MUST** be wrapped in a Y-axis flip group: \`<g transform="scale(1,-1)"> ... </g>\`. This ensures the 2D SVG matches the right-handed BIM coordinate system.
+- **SVG Coordinate Y-Flip**: All geometry inside \`.svg\` files **MUST** be wrapped in a Y-axis flip group: \`<g transform="scale(1,-1)"> ... </g>\`. This is just a fixed boilerplate — you do NOT need to do any coordinate conversion. Use normal Cartesian coordinates (X = right, Y = up) directly inside the group.
 - **CSV vs Computed Fields**: Only write fields that are NOT marked as computed. Specifically, \`level_id\`, \`length\`, \`area\`, \`start_x/y\`, \`end_x/y\`, \`perimeter\`, \`volume\`, \`bbox_*\` are all auto-computed — never write them to CSV.
 
 ## Base Schema Definitions
@@ -152,6 +152,12 @@ Below is a curated whitelist of the **most commonly used** core architectural el
     if (filePath) {
       md += `### Table: \`${table.name}\` (Prefix: \`${table.prefix}\`)\n`;
       md += `- **Geometry**: ${hasSVG ? "SVG required" : "CSV only"}\n`;
+      if (name === 'wall') {
+        md += `- **IMPORTANT**: A wall MUST be one complete straight line (start to end). Do NOT split a wall into segments for doors/windows. Doors and windows attach to the wall via the \`position\` parameter on the host wall.\n`;
+      }
+      if (name === 'door' || name === 'window') {
+        md += `- **position**: Distance in meters from the wall's start point to the center of the ${name}. Calculate from the wall's SVG geometry coordinates.\n`;
+      }
       md += `\`\`\`yaml\n`;
       md += `id_prefix: ${table.prefix}\n`;
       md += `${readFileSync(filePath, 'utf-8').trim()}\n`;

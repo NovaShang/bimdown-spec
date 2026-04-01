@@ -14,7 +14,7 @@
 
 ## Format Key Concepts
 - CSV for attributes, SVG for 2D geometry — both human and AI readable
-- Hosted elements (door, window, opening) are CSV-only with parametric `position` (0-1 along host wall)
+- Hosted elements (door, window, opening) are CSV-only with `position` (distance in meters from host wall start)
 - Spaces are CSV-only seed points (x, y) — boundary auto-derived from walls
 - Wall thickness is in both CSV and SVG stroke-width, CSV is source of truth
 - IDs are level-scoped (unique within each lv-N/ directory)

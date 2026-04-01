@@ -4,7 +4,7 @@ bases:
 description: >
   Opening (void) in a host element. host_id is always required.
   Geometry form depends on the host type:
-  - Wall opening: host_id references a wall. Uses position (0-1 along wall),
+  - Wall opening: host_id references a wall. Uses position (distance in meters from wall start),
     width, and height. No SVG geometry.
   - Slab opening: host_id references a slab. Uses SVG geometry
     (<rect> or <polygon>) to define the void shape.
@@ -17,7 +17,7 @@ fields:
 
   - name: position
     type: float
-    description: Parametric position along host wall (0.0-1.0). Only for wall openings.
+    description: Distance in meters from wall start to center of opening. Only for wall openings.
 
   - name: width
     type: float

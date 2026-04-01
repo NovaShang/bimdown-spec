@@ -156,7 +156,7 @@ w-2,concrete,0.2
 **door.csv** (no SVG needed — position is parametric)
 ```csv
 id,host_id,position,width,height,operation
-d-1,w-1,0.3,0.9,2.1,single_swing
+d-1,w-1,3.0,0.9,2.1,single_swing
 ```
 
 ## Positioning
@@ -182,7 +182,7 @@ The full format specification lives in [`spec/`](./spec/). Key concepts:
 
 - **All coordinates in meters**, Y-axis = North
 - **IDs are level-scoped** — unique within each `lv-N/` directory
-- **Hosted elements** (doors, windows, openings) use `host_id` + `position` (0.0-1.0 along wall)
+- **Hosted elements** (doors, windows, openings) use `host_id` + `position` (distance in meters from wall start)
 - **Spaces** are seed points — boundary auto-derived from surrounding walls
 - **Materials** use a fixed enum: `concrete, steel, wood, clt, glass, aluminum, brick, stone, gypsum, insulation, copper, pvc, ceramic, fiber_cement, composite`
 - **SVG geometry** uses `<path>` (M, L, A commands), `<rect>`, `<circle>`, `<polygon>` — no Bezier curves

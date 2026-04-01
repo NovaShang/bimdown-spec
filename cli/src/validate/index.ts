@@ -92,7 +92,7 @@ export function validate(dir: string): string[] {
     issues.push(...validateRanges(entry.path, entry.table, entry.data));
   }
 
-  // 8b. Hosted element position validation (0-1 range)
+  // 8b. Hosted element position validation (must be non-negative distance in meters)
   for (const entry of csvEntries) {
     if (!entry.table.hostType) continue;
     for (let i = 0; i < entry.data.rows.length; i++) {
@@ -100,9 +100,9 @@ export function validate(dir: string): string[] {
       const pos = row.position;
       if (pos === undefined || pos === '') continue;
       const val = Number(pos);
-      if (isNaN(val) || val < 0 || val > 1) {
+      if (isNaN(val) || val < 0) {
         issues.push(
-          `${entry.path}:${i + 2}  position=${pos} must be between 0.0 and 1.0`,
+          `${entry.path}:${i + 2}  position=${pos} must be a non-negative distance in meters`,
         );
       }
     }

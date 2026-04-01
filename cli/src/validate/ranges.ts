@@ -18,7 +18,7 @@ const FIELD_MAX: Record<string, number> = {
   size_x: 10,
   size_y: 10,
   length: 100,
-  position: 1,          // parametric 0-1
+  position: 100,         // distance in meters along host wall
   start_x: 10000,      // site coordinates can be large
   start_y: 10000,
   end_x: 10000,
