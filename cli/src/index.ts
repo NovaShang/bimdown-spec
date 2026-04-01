@@ -207,6 +207,30 @@ program
     }
   });
 
+// ─── init ───────────────────────────────────────────────
+program
+  .command('init')
+  .argument('<dir>', 'BimDown project directory')
+  .description('Initialize a new BimDown project structure')
+  .action(async (dir: string) => {
+    const absDir = resolve(dir);
+    const { initProject } = await import('./commands/init.js');
+    initProject(absDir);
+  });
+
+// ─── diff ───────────────────────────────────────────────
+program
+  .command('diff')
+  .argument('<dirA>', 'First BimDown project directory')
+  .argument('<dirB>', 'Second BimDown project directory')
+  .description('Show differences between two BimDown projects')
+  .action(async (dirA: string, dirB: string) => {
+    const absA = resolve(dirA);
+    const absB = resolve(dirB);
+    const { diffProjects } = await import('./commands/diff.js');
+    diffProjects(absA, absB);
+  });
+
 program.parse();
 
 // ─── helpers ────────────────────────────────────────────
