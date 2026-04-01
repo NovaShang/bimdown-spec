@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { join } from 'node:path';
 import { readCsv } from './csv.js';
 
-const sampleDir = join(import.meta.dirname, '..', '..', '..', 'sample_data', 'merged');
+const sampleDir = join(import.meta.dirname, '..', '..', '..', 'sample_data', 'snowdon');
 
 describe('CSV reader', () => {
   it('reads level.csv with BOM', () => {
@@ -14,7 +14,7 @@ describe('CSV reader', () => {
   });
 
   it('reads wall.csv with correct headers', () => {
-    const data = readCsv(join(sampleDir, 'lv-2', 'wall.csv'));
+    const data = readCsv(join(sampleDir, 'lv-3', 'wall.csv'));
     expect(data.headers).toContain('id');
     expect(data.headers).toContain('material');
     expect(data.headers).toContain('thickness');
@@ -22,7 +22,7 @@ describe('CSV reader', () => {
   });
 
   it('reads door.csv with position field', () => {
-    const data = readCsv(join(sampleDir, 'lv-2', 'door.csv'));
+    const data = readCsv(join(sampleDir, 'lv-3', 'door.csv'));
     expect(data.headers).toContain('host_id');
     expect(data.headers).toContain('position');
     expect(data.rows.length).toBeGreaterThan(0);
