@@ -74,8 +74,8 @@ Below is a curated whitelist of the **most commonly used** core architectural el
     const hasHost = !!table.hostType;
     const hasSVG = TABLES_WITH_SVG.has(name);
     
-    // List ALL fields for the core tables as requested
-    const allFields = table.allFields;
+    const csvFields = table.csvFields;
+    const computedFields = table.allFields.filter(f => f.computed || f.name === 'level_id');
 
     md += `### Table: \`${table.name}\` (Prefix: \`${table.prefix}\`)\n`;
     md += `- **Has Geometry**: ${hasSVG ? "Yes (.svg required)" : "No (.csv only)"}\n`;
@@ -87,8 +87,8 @@ Below is a curated whitelist of the **most commonly used** core architectural el
       md += `- **Core Rule**: ${table.description}\n`;
     }
 
-    md += `- **CSV Fields**:\n`;
-    for (const f of allFields) {
+    md += `- **CSV Columns (The only fields you write to file)**:\n`;
+    for (const f of csvFields) {
       let constraint = '';
       if (f.reference) {
         constraint += `(Ref: \`${f.reference}\`) `;
@@ -96,11 +96,18 @@ Below is a curated whitelist of the **most commonly used** core architectural el
       if (f.description) {
         constraint += f.description;
       }
-      // Explicitly mark common inferred fields to prevent AI from writing them to CSV
-      const isHeaderField = ['id', 'name', 'number'].includes(f.name) || !['level_id'].includes(f.name);
-      const suffix = f.name === 'level_id' ? " **[INFERRED - DO NOT WRITE TO CSV]**" : "";
-      
-      md += `  - \`${f.name}\`: ${constraint.trim()}${suffix}\n`;
+      md += `  - \`${f.name}\`: ${constraint.trim()}\n`;
+    }
+
+    if (computedFields.length > 0) {
+      md += `- **Virtual Query Fields (Read-only via \`bimdown query\`, DO NOT write to CSV)**:\n`;
+      for (const f of computedFields) {
+        let constraint = '';
+        if (f.description) {
+          constraint += f.description;
+        }
+        md += `  - \`${f.name}\`: ${constraint.trim()}\n`;
+      }
     }
     md += '\n';
   }

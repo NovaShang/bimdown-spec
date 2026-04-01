@@ -55,21 +55,11 @@ Below is a curated whitelist of the **most commonly used** core architectural el
 - **Has Geometry**: No (.csv only)
 - **Topology Rule**: Must be hosted on a `wall`.
 - **Core Rule**: Doors NEVER exist independently. When creating or modifying a door, you MUST ensure it is hosted on a valid wall segment. In scripts, ensure coordinates intersect the wall's line.
-- **CSV Fields**:
+- **CSV Columns (The only fields you write to file)**:
   - `id`: 
   - `number`: 
-  - `level_id`: (Ref: `level`) **[INFERRED - DO NOT WRITE TO CSV]**
-  - `created_at`: 
-  - `updated_at`: 
   - `base_offset`: 
   - `mesh_file`: Optional GLB mesh path for precise 3D visualization
-  - `volume`: 
-  - `bbox_min_x`: 
-  - `bbox_min_y`: 
-  - `bbox_min_z`: 
-  - `bbox_max_x`: 
-  - `bbox_max_y`: 
-  - `bbox_max_z`: 
   - `host_id`: (Ref: `element`)
   - `position`: Parametric position along host element (0.0 = start, 1.0 = end, center of opening)
   - `material`: 
@@ -78,10 +68,21 @@ Below is a curated whitelist of the **most commonly used** core architectural el
   - `operation`: 
   - `hinge_position`: 
   - `swing_side`: 
+- **Virtual Query Fields (Read-only via `bimdown query`, DO NOT write to CSV)**:
+  - `level_id`: 
+  - `created_at`: 
+  - `updated_at`: 
+  - `volume`: 
+  - `bbox_min_x`: 
+  - `bbox_min_y`: 
+  - `bbox_min_z`: 
+  - `bbox_max_x`: 
+  - `bbox_max_y`: 
+  - `bbox_max_z`: 
 
 ### Table: `grid` (Prefix: `gr`)
 - **Has Geometry**: No (.csv only)
-- **CSV Fields**:
+- **CSV Columns (The only fields you write to file)**:
   - `id`: 
   - `number`: 
   - `start_x`: 
@@ -91,7 +92,7 @@ Below is a curated whitelist of the **most commonly used** core architectural el
 
 ### Table: `level` (Prefix: `lv`)
 - **Has Geometry**: No (.csv only)
-- **CSV Fields**:
+- **CSV Columns (The only fields you write to file)**:
   - `id`: 
   - `number`: 
   - `name`: 
@@ -99,14 +100,18 @@ Below is a curated whitelist of the **most commonly used** core architectural el
 
 ### Table: `space` (Prefix: `sp`)
 - **Has Geometry**: No (.csv only)
-- **CSV Fields**:
+- **CSV Columns (The only fields you write to file)**:
   - `id`: 
   - `number`: 
-  - `level_id`: (Ref: `level`) **[INFERRED - DO NOT WRITE TO CSV]**
-  - `created_at`: 
-  - `updated_at`: 
   - `base_offset`: 
   - `mesh_file`: Optional GLB mesh path for precise 3D visualization
+  - `x`: Seed point X coordinate (room interior point)
+  - `y`: Seed point Y coordinate (room interior point)
+  - `name`: 
+- **Virtual Query Fields (Read-only via `bimdown query`, DO NOT write to CSV)**:
+  - `level_id`: 
+  - `created_at`: 
+  - `updated_at`: 
   - `volume`: 
   - `bbox_min_x`: 
   - `bbox_min_y`: 
@@ -114,20 +119,22 @@ Below is a curated whitelist of the **most commonly used** core architectural el
   - `bbox_max_x`: 
   - `bbox_max_y`: 
   - `bbox_max_z`: 
-  - `x`: Seed point X coordinate (room interior point)
-  - `y`: Seed point Y coordinate (room interior point)
-  - `name`: 
 
 ### Table: `wall` (Prefix: `w`)
 - **Has Geometry**: Yes (.svg required)
-- **CSV Fields**:
+- **CSV Columns (The only fields you write to file)**:
   - `id`: 
   - `number`: 
-  - `level_id`: (Ref: `level`) **[INFERRED - DO NOT WRITE TO CSV]**
-  - `created_at`: 
-  - `updated_at`: 
   - `base_offset`: 
   - `mesh_file`: Optional GLB mesh path for precise 3D visualization
+  - `top_level_id`: (Ref: `level`) Top constraint level. Empty = next level above current level.
+  - `top_offset`: Offset from top level. Default 0.
+  - `material`: 
+  - `thickness`: Wall thickness in meters. SVG stroke-width should match but CSV is source of truth.
+- **Virtual Query Fields (Read-only via `bimdown query`, DO NOT write to CSV)**:
+  - `level_id`: 
+  - `created_at`: 
+  - `updated_at`: 
   - `volume`: 
   - `bbox_min_x`: 
   - `bbox_min_y`: 
@@ -140,23 +147,25 @@ Below is a curated whitelist of the **most commonly used** core architectural el
   - `end_x`: 
   - `end_y`: 
   - `length`: 
-  - `top_level_id`: (Ref: `level`) Top constraint level. Empty = next level above current level.
-  - `top_offset`: Offset from top level. Default 0.
   - `height`: 
-  - `material`: 
-  - `thickness`: Wall thickness in meters. SVG stroke-width should match but CSV is source of truth.
 
 ### Table: `window` (Prefix: `wn`)
 - **Has Geometry**: No (.csv only)
 - **Topology Rule**: Must be hosted on a `wall`.
-- **CSV Fields**:
+- **CSV Columns (The only fields you write to file)**:
   - `id`: 
   - `number`: 
-  - `level_id`: (Ref: `level`) **[INFERRED - DO NOT WRITE TO CSV]**
-  - `created_at`: 
-  - `updated_at`: 
   - `base_offset`: 
   - `mesh_file`: Optional GLB mesh path for precise 3D visualization
+  - `host_id`: (Ref: `element`)
+  - `position`: Parametric position along host element (0.0 = start, 1.0 = end, center of opening)
+  - `material`: 
+  - `width`: 
+  - `height`: 
+- **Virtual Query Fields (Read-only via `bimdown query`, DO NOT write to CSV)**:
+  - `level_id`: 
+  - `created_at`: 
+  - `updated_at`: 
   - `volume`: 
   - `bbox_min_x`: 
   - `bbox_min_y`: 
@@ -164,9 +173,4 @@ Below is a curated whitelist of the **most commonly used** core architectural el
   - `bbox_max_x`: 
   - `bbox_max_y`: 
   - `bbox_max_z`: 
-  - `host_id`: (Ref: `element`)
-  - `position`: Parametric position along host element (0.0 = start, 1.0 = end, center of opening)
-  - `material`: 
-  - `width`: 
-  - `height`: 
 
