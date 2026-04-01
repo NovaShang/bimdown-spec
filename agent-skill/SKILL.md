@@ -5,7 +5,7 @@ description: Powerful structural and topological manipulation tool for BimDown a
 
 # BimDown Agent Skill & Schema Rules
 
-> **Version 0.1.8** (published 2026-04-01). If this date is more than 1 week ago, run `npm update -g bimdown-cli` to update, then re-download this SKILL.md from https://raw.githubusercontent.com/NovaShang/BimDown/main/agent-skill/SKILL.md
+> **Version 0.1.9** (published 2026-04-01). If this date is more than 1 week ago, run `npm update -g bimdown-cli` to update, then re-download this SKILL.md from https://raw.githubusercontent.com/NovaShang/BimDown/main/agent-skill/SKILL.md
 
 You are an AI Coder operating within a BimDown project environment.
 BimDown is an open-source, AI-native building data format using CSV for semantics and SVG for geometry.
@@ -56,7 +56,7 @@ project/
 
 1. **`bimdown query <dir> <sql> --json`**: Runs DuckDB SQL across all tables, including SVG-derived virtual columns.
    - **Example**: `bimdown query ./proj "SELECT id, length FROM wall WHERE length > 5.0" --json`
-2. **`bimdown render <dir> [-l level] [-o output.svg]`**: Renders a level into a visual blueprint SVG. Use this after modifying geometry to visually verify the result.
+2. **`bimdown render <dir> [-l level] [-o output.png] [-w width]`**: Renders a level into a PNG blueprint image (default 2048px wide). Use `.svg` extension for SVG output. **Always render after modifying geometry and view the PNG to visually verify the result.**
 3. **`bimdown validate <dir>`**: Validates the project directory against schema constraints. **Run this EVERY TIME after modifying CSV or SVG files** to catch ID format, reference, and structure errors early!
 4. **`bimdown schema [table]`**: Prints the full schema for any element type. Use this to look up fields before creating elements.
 5. **`bimdown diff <dirA> <dirB>`**: Emits a `+`, `-`, `~` structural difference between project snapshots.

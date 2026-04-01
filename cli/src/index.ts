@@ -87,14 +87,21 @@ program
   .command('render')
   .argument('<dir>', 'BimDown project directory')
   .option('-l, --level <id>', 'Level to render (defaults to lv-1)', 'lv-1')
-  .option('-o, --output <file>', 'Output SVG file path (defaults to render.svg)', 'render.svg')
-  .description('Renders the BimDown project into a beautiful visual blueprint (SVG)')
-  .action(async (dir: string, opts: { level: string; output: string }) => {
+  .option('-o, --output <file>', 'Output file path (defaults to render.png)', 'render.png')
+  .option('-w, --width <px>', 'Image width in pixels', '2048')
+  .description('Renders the BimDown project into a visual blueprint (PNG)')
+  .action(async (dir: string, opts: { level: string; output: string; width: string }) => {
     const absDir = resolve(dir);
     const { renderLevel } = await import('./render.js');
     try {
       const svg = renderLevel(absDir, opts.level);
-      writeFileSync(opts.output, svg);
+      if (opts.output.endsWith('.svg')) {
+        writeFileSync(opts.output, svg);
+      } else {
+        const sharp = (await import('sharp')).default;
+        const width = parseInt(opts.width, 10) || 2048;
+        await sharp(Buffer.from(svg)).resize({ width }).png().toFile(opts.output);
+      }
       console.log(`Rendered ${opts.level} to ${opts.output}`);
     } catch (err: any) {
       console.error(`Render failed: ${err.message}`);
