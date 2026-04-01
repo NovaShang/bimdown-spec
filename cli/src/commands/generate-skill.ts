@@ -7,6 +7,9 @@ const CORE_TABLES = new Set(['level', 'grid', 'wall', 'door', 'window', 'space']
 export function generateSkill(outputDir?: string) {
   const registry = buildRegistry(getSpecDir());
 
+  const sortedNames = [...registry.keys()].sort();
+  const allTableNames = sortedNames.map(t => '\`' + t + '\`').join(', ');
+
   let md = `---
 name: bimdown
 description: Powerful structural and topological manipulation tool for BimDown architectural BIM projects. Use when asked to query building elements, build new structures (CSV+SVG), resolve MEP topologies, or analyze spatial BIM data.
@@ -39,12 +42,15 @@ BimDown is an open-source, AI-native building data format using CSV for semantic
 
 Below is a curated whitelist of the **most commonly used** core architectural elements and their hard constraints. 
 
-> **IMPORTANT**: This is NOT the full list of tables! If the user asks you to modify or generate elements not listed here (like \`pipe\`, \`duct\`, \`beam\`, \`column\`, \`stair\`, \`equipment\`, etc.), **YOU MUST RUN** \`bimdown schema <table_name>\` to fetch the strict requirements before you write the code to modify them!
+> **IMPORTANT**: This is NOT the full list of tables! 
+> The complete list of available elements in this project is:
+> ${allTableNames}
+> 
+> If the user asks you to modify or generate elements not listed below in the Core Schema, **YOU MUST RUN** \`bimdown schema <table_name>\` to fetch their strict requirements before you write the code to modify them!
 
 `;
 
   // Process core tables only
-  const sortedNames = [...registry.keys()].sort();
   for (const name of sortedNames) {
     if (!CORE_TABLES.has(name)) continue;
 

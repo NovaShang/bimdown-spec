@@ -30,7 +30,11 @@ BimDown is an open-source, AI-native building data format using CSV for semantic
 
 Below is a curated whitelist of the **most commonly used** core architectural elements and their hard constraints. 
 
-> **IMPORTANT**: This is NOT the full list of tables! If the user asks you to modify or generate elements not listed here (like `pipe`, `duct`, `beam`, `column`, `stair`, `equipment`, etc.), **YOU MUST RUN** `bimdown schema <table_name>` to fetch the strict requirements before you write the code to modify them!
+> **IMPORTANT**: This is NOT the full list of tables! 
+> The complete list of available elements in this project is:
+> `beam`, `brace`, `cable_tray`, `ceiling`, `column`, `conduit`, `curtain_wall`, `door`, `duct`, `equipment`, `foundation`, `grid`, `level`, `mep_node`, `mesh`, `opening`, `pipe`, `railing`, `ramp`, `roof`, `room_separator`, `slab`, `space`, `stair`, `structure_column`, `structure_slab`, `structure_wall`, `terminal`, `wall`, `window`
+> 
+> If the user asks you to modify or generate elements not listed below in the Core Schema, **YOU MUST RUN** `bimdown schema <table_name>` to fetch their strict requirements before you write the code to modify them!
 
 ### Table: `door` (Prefix: `d`)
 - **Has Geometry**: No (.csv only)
