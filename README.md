@@ -1,5 +1,9 @@
 # BimDown
 
+[![NPM Version](https://img.shields.io/npm/v/bimdown.svg)](https://www.npmjs.com/package/bimdown)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![CI Status](https://github.com/NovaShang/BimDown/actions/workflows/ci.yml/badge.svg)](https://github.com/NovaShang/BimDown/actions)
+
 An open-source, AI-native building data format.
 
 BimDown uses **CSV** for attributes and **SVG** for 2D geometry — simple enough for any LLM to read and write, structured enough for real BIM workflows.
@@ -109,11 +113,15 @@ bimdown query ./my-project "SELECT id, material, thickness FROM wall"
 
 ## Revit Add-in
 
-The `revit-addin/` directory contains a C# add-in for Autodesk Revit 2026+ that enables bidirectional sync between Revit models and BimDown format.
+The `revit-addin/` directory contains a C# add-in for Autodesk Revit 2025+ that enables bidirectional sync between Revit models and BimDown format.
 
-```bash
+**Installation (Easiest)**:
+Download the latest `BimDownInstaller.exe` from the [GitHub Releases](https://github.com/NovaShang/BimDown/releases) page and run it.
+
+**Manual Build (Windows)**:
+```powershell
 cd revit-addin
-dotnet build BimDown.RevitAddin.csproj
+.\publish.ps1
 ```
 
 ## Format Spec

@@ -1,6 +1,32 @@
 {
   "name": "bimdown",
   "version": "0.1.0",
+  "description": "An open-source, AI-native building data format using CSV and SVG.",
+  "author": "NovaShang",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NovaShang/BimDown.git"
+  },
+  "homepage": "https://github.com/NovaShang/BimDown#readme",
+  "bugs": {
+    "url": "https://github.com/NovaShang/BimDown/issues"
+  },
+  "keywords": [
+    "bim",
+    "revit",
+    "duckdb",
+    "csv",
+    "svg",
+    "llm",
+    "ai"
+  ],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "package.json"
+  ],
   "type": "module",
   "bin": {
     "bimdown": "./dist/index.js"
