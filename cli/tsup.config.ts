@@ -9,4 +9,5 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   banner: { js: '#!/usr/bin/env node' },
+  publicDir: '../spec',
 });

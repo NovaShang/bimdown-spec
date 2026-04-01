@@ -51,6 +51,15 @@ const RENDER_ORDER = [
 
 function elementBounds(el: SvgElement): { minX: number; minY: number; maxX: number; maxY: number } | null {
   switch (el.tag) {
+    case 'path': {
+      const d = el.attrs.d ?? '';
+      const m = d.match(/M\s*(-?[\d.]+)[,\s]+(-?[\d.]+)\s*L\s*(-?[\d.]+)[,\s]+(-?[\d.]+)/);
+      if (!m) return null;
+      const x1 = parseFloat(m[1]), y1 = parseFloat(m[2]);
+      const x2 = parseFloat(m[3]), y2 = parseFloat(m[4]);
+      const sw = parseFloat(el.attrs['stroke-width'] ?? '0.2') / 2;
+      return { minX: Math.min(x1, x2) - sw, minY: Math.min(y1, y2) - sw, maxX: Math.max(x1, x2) + sw, maxY: Math.max(y1, y2) + sw };
+    }
     case 'line': {
       const x1 = parseFloat(el.attrs.x1 ?? '0'), y1 = parseFloat(el.attrs.y1 ?? '0');
       const x2 = parseFloat(el.attrs.x2 ?? '0'), y2 = parseFloat(el.attrs.y2 ?? '0');
@@ -90,6 +99,15 @@ function renderElement(el: SvgElement, tableName: string): string {
   const isDashed = tableName === 'room_separator';
 
   switch (el.tag) {
+    case 'path': {
+      const attrs = Object.entries(el.attrs)
+        .filter(([k]) => !OVERRIDE_ATTRS.has(k))
+        .map(([k, v]) => `${k}="${v}"`)
+        .join(' ');
+      const sw = el.attrs['stroke-width'] ?? '0.2';
+      const dash = isDashed ? ' stroke-dasharray="0.2,0.1"' : '';
+      return `    <path ${attrs} stroke="${color.stroke}" stroke-width="${sw}" stroke-linecap="square"${dash} />`;
+    }
     case 'line': {
       const attrs = Object.entries(el.attrs)
         .filter(([k]) => !OVERRIDE_ATTRS.has(k))
@@ -165,10 +183,19 @@ function renderHostedElements(
     const wall = wallElements.get(hostId);
     if (!wall) continue;
 
-    const wx1 = parseFloat(wall.attrs.x1 ?? '0');
-    const wy1 = parseFloat(wall.attrs.y1 ?? '0');
-    const wx2 = parseFloat(wall.attrs.x2 ?? '0');
-    const wy2 = parseFloat(wall.attrs.y2 ?? '0');
+    let wx1: number, wy1: number, wx2: number, wy2: number;
+    if (wall.tag === 'path') {
+      const d = wall.attrs.d ?? '';
+      const m = d.match(/M\s*(-?[\d.]+)[,\s]+(-?[\d.]+)\s*L\s*(-?[\d.]+)[,\s]+(-?[\d.]+)/);
+      if (!m) continue;
+      wx1 = parseFloat(m[1]); wy1 = parseFloat(m[2]);
+      wx2 = parseFloat(m[3]); wy2 = parseFloat(m[4]);
+    } else {
+      wx1 = parseFloat(wall.attrs.x1 ?? '0');
+      wy1 = parseFloat(wall.attrs.y1 ?? '0');
+      wx2 = parseFloat(wall.attrs.x2 ?? '0');
+      wy2 = parseFloat(wall.attrs.y2 ?? '0');
+    }
 
     // Center point along wall at parametric position
     const cx = wx1 + (wx2 - wx1) * position;

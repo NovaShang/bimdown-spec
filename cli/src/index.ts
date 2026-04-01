@@ -4,7 +4,7 @@ import { validate } from './validate/index.js';
 import { buildRegistry, getSpecDir } from './schema/registry.js';
 import { discoverLayout, listFiles } from './utils/fs.js';
 import { readCsv } from './utils/csv.js';
-import { existsSync } from 'node:fs';
+import { existsSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const program = new Command();
@@ -79,6 +79,26 @@ program
       console.log('Sync complete — files updated.');
     } finally {
       await closeConnection();
+    }
+  });
+
+// ─── render ─────────────────────────────────────────────
+program
+  .command('render')
+  .argument('<dir>', 'BimDown project directory')
+  .option('-l, --level <id>', 'Level to render (defaults to lv-1)', 'lv-1')
+  .option('-o, --output <file>', 'Output SVG file path (defaults to render.svg)', 'render.svg')
+  .description('Renders the BimDown project into a beautiful visual blueprint (SVG)')
+  .action(async (dir: string, opts: { level: string; output: string }) => {
+    const absDir = resolve(dir);
+    const { renderLevel } = await import('./render.js');
+    try {
+      const svg = renderLevel(absDir, opts.level);
+      writeFileSync(opts.output, svg);
+      console.log(`Rendered ${opts.level} to ${opts.output}`);
+    } catch (err: any) {
+      console.error(`Render failed: ${err.message}`);
+      process.exitCode = 1;
     }
   });
 

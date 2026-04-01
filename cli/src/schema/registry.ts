@@ -1,4 +1,5 @@
 import { join, dirname } from 'node:path';
+import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import type { ResolvedTable, ResolvedField } from './types.js';
 import { loadAllSchemas, resolveFields } from './loader.js';
@@ -79,9 +80,24 @@ export function buildRegistry(specDir: string): Map<string, ResolvedTable> {
 
 export function getSpecDir(): string {
   if (process.env.SPEC_DIR) return process.env.SPEC_DIR;
-  // Resolve spec dir relative to this package (cli/ is sibling to spec/)
-  const thisFile = fileURLToPath(import.meta.url);
-  const thisDir = dirname(thisFile);
-  // thisDir is cli/src/schema or cli/dist — go up to cli/, then sibling spec/
-  return join(thisDir, '..', '..', 'spec');
+
+  const thisDir = dirname(fileURLToPath(import.meta.url));
+
+  // 1. In bundled/installed mode: spec is a sibling to index.js (copied by tsup)
+  const bundledPath = join(thisDir, 'spec');
+  if (existsSync(bundledPath)) return bundledPath;
+
+  // 2. In local dev mode: thisDir is cli/src/schema or cli/dist/spec/.. (if nested)
+  // We need to go up until we find where 'spec' is.
+  let current = thisDir;
+  for (let i = 0; i < 5; i++) {
+    const candidate = join(current, 'spec');
+    if (existsSync(candidate)) return candidate;
+    const parent = dirname(current);
+    if (parent === current) break;
+    current = parent;
+  }
+
+  // Fallback to project root spec if all else fails
+  return join(process.cwd(), 'spec');
 }
