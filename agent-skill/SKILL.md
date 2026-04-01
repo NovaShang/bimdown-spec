@@ -5,30 +5,26 @@ description: Powerful structural and topological manipulation tool for BimDown a
 
 # BimDown Agent Skill & Schema Rules
 
-You are an AI Agent operating within a BimDown project environment.
+You are an AI Coder operating within a BimDown project environment.
 BimDown is an open-source, AI-native building data format using CSV for semantics and SVG for geometry.
 
-## 🏗️ About BimDown Format
+## 🏗️ Core Architecture & Base Concepts
 
-- **Architecture**: A project is split into directories. `global/` contains cross-floor elements (like grids, levels). Other folders represent specific levels (e.g. `lv-1/`).
-- **Dual Nature**: Semantics and properties live in `{name}.csv` files. The 2D geometry lives in a sibling `{name}.svg` file. 
-- **Synchronized Modification**: If you add/modify/remove an entity via your own Python or JS scripts, you MUST ensure both the CSV row and SVG node (sharing the exact same `id`) are updated synchronously. Do not leave zombies.
-
-### Common Fields
-All CSV tables implicitly require these universally understood fields:
-- `id`: Unique string identifier (required). Must match the `id` attribute in the SVG node.
-- `name`: Human readable name.
-- `level_id`: Only applies to elements placed on a specific level. Maps to a `level.csv` ID.
+- **Dual Nature**: Properties live in `{name}.csv`. 2D geometry lives in a sibling `{name}.svg` file.
+- **Direct Scripting Encouraged**: You are an AI capable of writing code. You are **STRONGLY ENCOURAGED** to write and execute Python or Node.js scripts to perform bulk edits on CSV/SVG files. Just ensure that the `id` fields across CSV and SVG match perfectly and topological constraints are met!
+- **Base Classes**:
+  - `element`: All objects have `id`, `name`, and `level_id`.
+  - `hosted_element`: Elements (like Door, Window) that CANNOT exist independently. They possess a `host_id` and must geometrically intersect their host.
+  - `vertical_span`: Elements spanning heights (like walls) requiring `top_level_id` and `top_offset`.
+  - `line/point/polygon_element`: Dictates whether the SVG geometry must be a linear `<path>`, a point-coordinate `<circle/rect>`, or a closed `<polygon>`.
 
 ## 🛠️ CLI Tools & Best Practices
 
-The `bimdown` CLI is your most powerful tool. You should use it to query data instead of parsing massive CSVs yourself, and use it to validate your edits.
-
-1. **`bimdown query <dir> <sql> --json`**: Runs DuckDB SQL across all tables. ALWAYS use this instead of writing raw regex/parsers to analyze CSV files. Example: `bimdown query . "SELECT id, thickness FROM wall WHERE level_id='lv-1'" --json`.
-2. **`bimdown validate <dir>`**: Validates the project directory against schema constraints. **Run this EVERY TIME after you modify CSV or SVG files** to ensure you didn't break topological constraints!
-3. **`bimdown schema [table]`**: Prints the full schema data for any specific element type. Use this when you need to know exactly what fields an obscure table requires.
-4. **`bimdown diff <dirA> <dirB>`**: Emits a simple `+`, `-`, `~` structural difference between two project snapshots.
-5. **`bimdown init <dir>`**: Scaffolds a fresh, empty project skeleton.
+1. **`bimdown query <dir> <sql> --json`**: Runs DuckDB SQL across all tables. **MAGIC TIP**: The CLI automatically extracts spatial geometry from the `.svg` files and injects them as virtual columns into the SQL tables! You CAN write SQL queries to filter elements by lengths, coordinates, or spatial rules even though those numbers don't explicitly exist in the CSV!
+2. **`bimdown render <dir> [options]`**: Renders the BimDown project into a beautiful visual blueprint (PNG/SVG). **As a multimodal AI, you MUST use this tool to generate an image and then "view" it to visually QA your geometry modifications.**
+3. **`bimdown validate <dir>`**: Validates the project directory against schema constraints. **Run this EVERY TIME after your scripts modify CSV or SVG files** to ensure you didn't break topological constraints!
+4. **`bimdown schema [table]`**: Prints the full schema data for any element type.
+5. **`bimdown diff <dirA> <dirB>`**: Emits a `+`, `-`, `~` structural difference between project snapshots.
 
 ## 📐 Core Schema Topologies (Progressive Disclosure)
 
