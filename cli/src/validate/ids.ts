@@ -13,9 +13,13 @@ export function validateIdFormat(
     const id = data.rows[i].id;
     if (!id) continue; // caught by required check
 
-    const regex = new RegExp(`^${prefix}-\\d+$`);
+    // grid and level allow any non-empty string after prefix; others require digits only
+    const freeformTables = new Set(['grid', 'level']);
+    const pattern = freeformTables.has(table.name) ? `^${prefix}-.+$` : `^${prefix}-\\d+$`;
+    const regex = new RegExp(pattern);
     if (!regex.test(id)) {
-      issues.push(`${path}:${i + 2}  id "${id}" has wrong format, expected "${prefix}-{n}"`);
+      const expected = freeformTables.has(table.name) ? `"${prefix}-{name}"` : `"${prefix}-{n}"`;
+      issues.push(`${path}:${i + 2}  id "${id}" has wrong format, expected ${expected}`);
     }
   }
 
