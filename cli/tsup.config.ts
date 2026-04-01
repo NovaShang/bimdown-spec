@@ -9,5 +9,5 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   banner: { js: '#!/usr/bin/env node' },
-  publicDir: '../spec',
+  onSuccess: 'cp -r ../spec dist/spec',
 });

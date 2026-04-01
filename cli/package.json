@@ -1,6 +1,6 @@
 {
   "name": "bimdown-cli",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "An open-source, AI-native building data format using CSV and SVG.",
   "author": "NovaShang",
   "license": "MIT",
