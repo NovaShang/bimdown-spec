@@ -115,6 +115,13 @@ project/
   - **Always run \`bimdown validate\` to confirm your IDs are compliant.**
 - **SVG Coordinate Y-Flip**: All geometry inside \`.svg\` files **MUST** be wrapped in a Y-axis flip group: \`<g transform="scale(1,-1)"> ... </g>\`. This is just a fixed boilerplate — you do NOT need to do any coordinate conversion. Use normal Cartesian coordinates (X = right, Y = up) directly inside the group.
 - **CSV vs Computed Fields**: Only write fields that are NOT marked as computed. Specifically, \`level_id\`, \`length\`, \`area\`, \`start_x/y\`, \`end_x/y\`, \`perimeter\`, \`volume\`, \`bbox_*\` are all auto-computed — never write them to CSV.
+- **Vertical positioning** (walls, columns, and other vertical elements):
+  - \`level_id\`: auto-inferred from folder name — do NOT write to CSV
+  - \`base_offset\`: vertical offset in meters from the element's level. Default 0. Usually leave empty.
+  - \`top_level_id\`: the level where the element's top is constrained. **Leave empty** to default to the next level above. Only set this if the element spans to a non-adjacent level.
+  - \`top_offset\`: vertical offset in meters from the top level. Default 0. Usually leave empty.
+  - \`height\`: auto-computed from level elevations and offsets — do NOT write to CSV.
+  - **For most single-story walls**: leave \`top_level_id\`, \`top_offset\`, and \`base_offset\` all empty — the CLI will compute the correct height from level elevations.
 
 ## Base Schema Definitions
 
