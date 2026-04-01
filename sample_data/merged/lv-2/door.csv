@@ -1,7 +1,0 @@
-id,number,base_offset,host_id,position,material,width,height,operation,hinge_position,swing_side
-d-1,150,0,w-7,0.905,aluminum,0.914,2.134,single_swing,,
-d-2,151,0,w-12,0.1431,aluminum,0.914,2.134,single_swing,,
-d-3,189,0,w-16,0.718,glass,2.54,2.54,double_swing,,
-d-4,190,0,w-6,0.144,aluminum,1.829,2.032,double_swing,,
-d-5,191,0,w-5,0.32,aluminum,0.914,2.032,single_swing,,
-d-6,,0,w-16,0.4571,concrete,0.9,2.1,single_swing,start,left
