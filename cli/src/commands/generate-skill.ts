@@ -67,8 +67,8 @@ Below is a curated whitelist of the **most commonly used** core architectural el
     const hasHost = !!table.hostType;
     const hasSVG = TABLES_WITH_SVG.has(name);
     
-    // Only extract constraints that are heavily domain specific (references or hand-written descriptions)
-    const fieldDescs = table.allFields.filter((f) => f.description || f.reference);
+    // List ALL fields for the core tables as requested
+    const allFields = table.allFields;
 
     md += `### Table: \`${table.name}\` (Prefix: \`${table.prefix}\`)\n`;
     md += `- **Has Geometry**: ${hasSVG ? "Yes (.svg required)" : "No (.csv only)"}\n`;
@@ -80,18 +80,20 @@ Below is a curated whitelist of the **most commonly used** core architectural el
       md += `- **Core Rule**: ${table.description}\n`;
     }
 
-    if (fieldDescs.length > 0) {
-      md += `- **Field Constraints**:\n`;
-      for (const f of fieldDescs) {
-        let constraint = '';
-        if (f.reference) {
-          constraint += `Must reference a valid \`${f.reference}\` ID. `;
-        }
-        if (f.description) {
-          constraint += f.description;
-        }
-        md += `  - \`${f.name}\`: ${constraint.trim()}\n`;
+    md += `- **CSV Fields**:\n`;
+    for (const f of allFields) {
+      let constraint = '';
+      if (f.reference) {
+        constraint += `(Ref: \`${f.reference}\`) `;
       }
+      if (f.description) {
+        constraint += f.description;
+      }
+      // Explicitly mark common inferred fields to prevent AI from writing them to CSV
+      const isHeaderField = ['id', 'name', 'number'].includes(f.name) || !['level_id'].includes(f.name);
+      const suffix = f.name === 'level_id' ? " **[INFERRED - DO NOT WRITE TO CSV]**" : "";
+      
+      md += `  - \`${f.name}\`: ${constraint.trim()}${suffix}\n`;
     }
     md += '\n';
   }
