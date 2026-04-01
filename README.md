@@ -4,9 +4,11 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![CI Status](https://github.com/NovaShang/BimDown/actions/workflows/ci.yml/badge.svg)](https://github.com/NovaShang/BimDown/actions)
 
-An open-source, AI-native building data format.
+[中文文档](./README.zh-CN.md)
 
-BimDown uses **CSV** for attributes and **SVG** for 2D geometry — simple enough for any LLM to read and write, structured enough for real BIM workflows.
+An open-source, AI-native building data format — with **full round-trip support for Autodesk Revit**.
+
+BimDown uses **CSV** for attributes and **SVG** for 2D geometry — simple enough for any LLM to read and write, structured enough for real BIM workflows. The included Revit add-in enables **bidirectional sync**: export from Revit to BimDown, let AI agents modify the data, then import back into Revit with changes preserved.
 
 ## Positioning
 
@@ -14,6 +16,7 @@ BimDown is a **LOD 200 lightweight alternative to Revit**, targeting the schemat
 
 Use BimDown when you need:
 - AI agents to read, write, and reason about building data directly
+- **Round-trip interop with Revit** — export, edit (by human or AI), import back
 - Git-based version control and diffing for building models
 - SQL queries over building data (via DuckDB)
 - A lightweight interchange format between design tools
@@ -29,9 +32,9 @@ Use Revit (or other full BIM tools) when you need:
 BIM data is trapped in proprietary formats that AI can't touch. BimDown fixes this:
 
 - **CSV + SVG** — human-readable, git-diffable, AI-writable
+- **Revit round-trip** — bidirectional import/export via the included Revit add-in, no data loss for supported elements
 - **SQL-queryable** — load into DuckDB, query with SQL
-- **Revit interop** — bidirectional import/export via the included Revit add-in
-- **Extensible** — add new building analysis capabilities by writing a [skill](#ai-agent-integration)
+- **Extensible** — add new building analysis capabilities by writing a [skill](#ai-agent-skills)
 
 ## Quick Look
 
@@ -72,6 +75,140 @@ id,host_id,position,width,height,operation
 d-1,w-1,0.3,0.9,2.1,single_swing
 ```
 
+## Revit Round-Trip
+
+The `revit-addin/` directory contains a C# add-in for Autodesk Revit 2025+ that enables **bidirectional sync** between Revit models and BimDown format:
+
+- **Export**: Revit model -> BimDown (CSV + SVG files)
+- **Import**: BimDown (CSV + SVG files) -> Revit model
+- **Round-trip**: Export, edit with AI or by hand, import back — changes are applied to the original Revit model
+
+**Installation**:
+Download the latest `BimDownInstaller.exe` from the [GitHub Releases](https://github.com/NovaShang/BimDown/releases) page and run it.
+
+**Manual Build (Windows)**:
+```powershell
+cd revit-addin
+.\publish.ps1
+```
+
+## AI Agent Skills
+
+BimDown is designed to be natively operated by AI agents like Claude Code and OpenClaw. By installing a **skill file**, the agent learns the full BimDown schema, coordinate rules, and CLI usage — enabling it to create, query, and modify building models autonomously.
+
+### Setup (Claude Code / OpenClaw)
+
+Copy and paste the following into your AI chat:
+
+> **"Install the BimDown CLI and configure the agent skill:**
+> ```
+> npm install -g bimdown-cli && mkdir -p .claude/skills/bimdown && curl -sL https://raw.githubusercontent.com/NovaShang/BimDown/main/agent-skill/SKILL.md -o .claude/skills/bimdown/SKILL.md
+> ```
+> **Read the SKILL.md to understand the architectural rules, then wait for my instructions."**
+
+Once configured, the agent can:
+- Create building floor plans from natural language descriptions
+- Query building data with SQL (e.g. "find all walls thicker than 0.3m")
+- Modify geometry and attributes, then validate the result
+- Render visual blueprints for review
+
+### Custom Skills
+
+To add custom domain capabilities (e.g. energy modeling, ESG reports), generate your own skill definition:
+
+```bash
+bimdown generate-skill
+```
+
+## CLI
+
+```bash
+npm install -g bimdown-cli
+```
+
+### Project Management
+
+```bash
+bimdown init ./my-project               # create a new BimDown project
+bimdown validate ./my-project            # validate against schema constraints
+bimdown info ./my-project                # print project summary (levels, element counts)
+```
+
+### Querying
+
+BimDown loads all CSV files into an in-memory DuckDB database, with geometry fields (length, area, start/end coordinates) auto-computed from SVG. Query with standard SQL:
+
+```bash
+# List all walls and their lengths
+bimdown query ./my-project "SELECT id, material, length FROM wall"
+
+# Find thick walls
+bimdown query ./my-project "SELECT id, thickness FROM wall WHERE thickness > 0.3"
+
+# Count doors per level
+bimdown query ./my-project "SELECT level_id, COUNT(*) FROM door GROUP BY level_id"
+
+# JSON output for scripting
+bimdown query ./my-project "SELECT * FROM wall" --json
+```
+
+### Schema Inspection
+
+```bash
+bimdown schema              # list all element types and their fields
+bimdown schema wall          # show fields for a specific element type
+```
+
+### Rendering
+
+```bash
+bimdown render ./my-project                     # render lv-1 to render.svg
+bimdown render ./my-project -l lv-3             # render a specific level
+bimdown render ./my-project -o blueprint.svg    # custom output path
+```
+
+### Diffing & Merging
+
+```bash
+bimdown diff ./project-v1 ./project-v2          # show structural differences (+, -, ~)
+bimdown merge ./projectA ./projectB -o ./merged  # merge projects, resolving ID conflicts
+```
+
+### MEP Topology
+
+```bash
+bimdown resolve-topology ./my-project   # auto-detect coincident endpoints,
+                                         # generate mep_nodes, fill connectivity
+```
+
+### Sync
+
+```bash
+bimdown sync ./my-project   # hydrate into DuckDB, then dehydrate back to CSV/SVG
+```
+
+## Format Spec
+
+The full format specification lives in [`spec/`](./spec/). Key concepts:
+
+- **All coordinates in meters**, Y-axis = North
+- **IDs are level-scoped** — unique within each `lv-N/` directory
+- **Hosted elements** (doors, windows, openings) use `host_id` + `position` (0.0-1.0 along wall)
+- **Spaces** are seed points — boundary auto-derived from surrounding walls
+- **Materials** use a fixed enum: `concrete, steel, wood, clt, glass, aluminum, brick, stone, gypsum, insulation, copper, pvc, ceramic, fiber_cement, composite`
+- **SVG geometry** uses `<path>` (M, L, A commands), `<rect>`, `<circle>`, `<polygon>` — no Bezier curves
+- **Mesh fallback** — any element can have an optional `mesh_file` (GLB) for 3D visualization
+- **MEP topology** — bipartite graph of curves and nodes, auto-resolved by CLI
+
+### Element Types
+
+| Category | Elements |
+|---|---|
+| Architecture | wall, column, slab, door, window, opening, space, stair, ramp, railing, curtain_wall, ceiling, roof, room_separator |
+| Structure | structure_wall, structure_column, structure_slab, beam, brace, foundation |
+| MEP | duct, pipe, cable_tray, conduit, equipment, terminal, mep_node |
+| Other | level, grid, mesh (non-parametric fallback) |
+
 ## What BimDown Cannot Represent
 
 The following Revit scenarios fall outside BimDown's scope and will be exported as `mesh` (GLB fallback) or lost:
@@ -99,67 +236,6 @@ The following Revit scenarios fall outside BimDown's scope and will be exported 
 - **Site and topography** — toposolids, property lines, site components
 - **Furniture and fixtures** — exported as `mesh` (GLB) rather than parametric elements
 - **Views and sheets** — sections, elevations, detail views, annotation, dimensions, schedules
-
-## CLI
-
-```bash
-npm install -g bimdown-cli
-
-bimdown validate ./my-project     # check for errors
-bimdown info ./my-project         # project summary
-bimdown schema wall               # show column definitions
-bimdown query ./my-project "SELECT id, material, thickness FROM wall"
-```
-
-## Revit Add-in
-
-The `revit-addin/` directory contains a C# add-in for Autodesk Revit 2025+ that enables bidirectional sync between Revit models and BimDown format.
-
-**Installation (Easiest)**:
-Download the latest `BimDownInstaller.exe` from the [GitHub Releases](https://github.com/NovaShang/BimDown/releases) page and run it.
-
-**Manual Build (Windows)**:
-```powershell
-cd revit-addin
-.\publish.ps1
-```
-
-## Format Spec
-
-The full format specification lives in [`spec/`](./spec/). Key concepts:
-
-- **All coordinates in meters**, Y-axis = North
-- **IDs are level-scoped** — unique within each `lv-N/` directory
-- **Hosted elements** (doors, windows, openings) use `host_id` + `position` (0.0-1.0 along wall)
-- **Spaces** are seed points — boundary auto-derived from surrounding walls
-- **Materials** use a fixed enum: `concrete, steel, wood, clt, glass, aluminum, brick, stone, gypsum, insulation, copper, pvc, ceramic, fiber_cement, composite`
-- **SVG geometry** uses `<path>` (M, L, A commands), `<rect>`, `<circle>`, `<polygon>` — no Bezier curves
-- **Mesh fallback** — any element can have an optional `mesh_file` (GLB) for 3D visualization
-- **MEP topology** — bipartite graph of curves and nodes, auto-resolved by CLI
-
-### Element Types
-
-| Category | Elements |
-|---|---|
-| Architecture | wall, column, slab, door, window, opening, space, stair, ramp, railing, curtain_wall, ceiling, roof, room_separator |
-| Structure | structure_wall, structure_column, structure_slab, beam, brace, foundation |
-| MEP | duct, pipe, cable_tray, conduit, equipment, terminal, mep_node |
-| Other | level, grid, mesh (non-parametric fallback) |
-
-## AI Agent Integration
-
-BimDown is designed to be natively operated by AI agents like OpenClaw and Claude Code. 
-
-### Quickstart (OpenClaw / Claude Code)
-
-To grant your AI Agent the ability to understand and manipulate BimDown projects, **copy and paste the following prompt directly into your AI chat:**
-
-> **"Please install the BimDown CLI and configure your agent skill. Execute the following commands in my terminal: 
-> `npm install -g bimdown-cli && mkdir -p .claude/skills/bimdown && curl -sL https://raw.githubusercontent.com/NovaShang/BimDown/main/agent-skill/SKILL.md -o .claude/skills/bimdown/SKILL.md`
-> 
-> Once downloaded, read the SKILL.md to understand the architectural rules and wait for my next instructions."**
-
-To add custom domain capabilities (e.g. energy modeling, ESG reports), you can generate your own skill definition using `bimdown generate-skill`.
 
 ## Related Projects
 
