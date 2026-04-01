@@ -1,4 +1,5 @@
 name: door
+description: "Doors NEVER exist independently. When creating or modifying a door, you MUST ensure it is hosted on a valid wall segment. In scripts, ensure coordinates intersect the wall's line."
 bases:
   - hosted_element
   - materialized

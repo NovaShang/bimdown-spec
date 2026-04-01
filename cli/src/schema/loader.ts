@@ -67,5 +67,6 @@ function normalizeField(raw: RawField): ResolvedField {
     computed: raw.computed ?? false,
     reference: raw.reference,
     values: raw.values,
+    description: raw.description,
   };
 }

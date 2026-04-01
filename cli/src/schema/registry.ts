@@ -64,6 +64,7 @@ export function buildRegistry(specDir: string): Map<string, ResolvedTable> {
     registry.set(name, {
       name,
       prefix,
+      description: schema.description,
       hostType: schema.host_type,
       allFields,
       csvFields,

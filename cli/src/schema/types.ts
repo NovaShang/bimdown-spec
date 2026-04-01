@@ -5,6 +5,7 @@ export interface RawField {
   computed?: boolean;
   reference?: string;
   values?: string[];
+  description?: string;
 }
 
 export interface RawSchema {
@@ -12,6 +13,7 @@ export interface RawSchema {
   abstract?: boolean;
   bases?: string[];
   host_type?: string;
+  description?: string;
   fields: RawField[];
 }
 
@@ -22,6 +24,7 @@ export interface ResolvedField {
   computed: boolean;
   reference?: string;
   values?: string[];
+  description?: string;
 }
 
 export interface ResolvedTable {
@@ -31,4 +34,5 @@ export interface ResolvedTable {
   allFields: ResolvedField[];
   csvFields: ResolvedField[];
   computedFields: ResolvedField[];
+  description?: string;
 }

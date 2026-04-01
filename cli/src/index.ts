@@ -231,6 +231,16 @@ program
     diffProjects(absA, absB);
   });
 
+// ─── generate-skill ─────────────────────────────────────
+program
+  .command('generate-skill')
+  .description('Generate AI Agent SKILL.md documentation from YAML schemas')
+  .action(async () => {
+    const { generateSkill } = await import('./commands/generate-skill.js');
+    // Output one directory up from cli (at repo root)
+    generateSkill('..');
+  });
+
 program.parse();
 
 // ─── helpers ────────────────────────────────────────────
