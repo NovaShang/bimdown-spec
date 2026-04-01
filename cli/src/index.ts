@@ -7,12 +7,14 @@ import { readCsv } from './utils/csv.js';
 import { existsSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+declare const CLI_VERSION: string;
+
 const program = new Command();
 
 program
   .name('bimdown')
   .description('BimDown CLI — validate, query, and manage BimDown projects')
-  .version('0.1.0');
+  .version(typeof CLI_VERSION !== 'undefined' ? CLI_VERSION : '0.0.0');
 
 // ─── validate ───────────────────────────────────────────
 program
