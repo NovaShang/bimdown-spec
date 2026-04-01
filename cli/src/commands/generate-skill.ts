@@ -22,8 +22,16 @@ BimDown is an open-source, AI-native building data format using CSV for semantic
 
 ## 🏗️ Core Architecture & Base Concepts
 
+- **Global Unit is METERS**: All coordinates, widths, and structural attributes in CSV/SVG MUST strictly use METERS. BimDown simulates real-world dimensions.
 - **Dual Nature**: Properties live in \`{name}.csv\`. 2D geometry lives in a sibling \`{name}.svg\` file.
 - **Direct Scripting Encouraged**: You are an AI capable of writing code. You are **STRONGLY ENCOURAGED** to write and execute Python or Node.js scripts to perform bulk edits on CSV/SVG files. Just ensure that the \`id\` fields across CSV and SVG match perfectly and topological constraints are met!
+- **Concrete Example of CSV+SVG Linked State**:
+  > \`lv-1/wall.csv\`:
+  > \`id,name,level_id,thickness\`
+  > \`w-1,MainWall,lv-1,0.2\`
+  > 
+  > \`lv-1/wall.svg\`:
+  > \`<svg xmlns="http://www.w3.org/2000/svg">  <path id="w-1" d="M 0 0 L 10 0" stroke-width="0.2" />  </svg>\`
 - **Base Classes**:
   - \`element\`: All objects have \`id\`, \`name\`, and \`level_id\`.
   - \`hosted_element\`: Elements (like Door, Window) that CANNOT exist independently. They possess a \`host_id\` and must geometrically intersect their host.
