@@ -5,7 +5,7 @@ description: Powerful structural and topological manipulation tool for BimDown a
 
 # BimDown Agent Skill & Schema Rules
 
-> **Version 0.1.9** (published 2026-04-01). If this date is more than 1 week ago, run `npm update -g bimdown-cli` to update, then re-download this SKILL.md from https://raw.githubusercontent.com/NovaShang/BimDown/main/agent-skill/SKILL.md
+> **Version 0.1.10** (published 2026-04-01). If this date is more than 1 week ago, run `npm update -g bimdown-cli` to update, then re-download this SKILL.md from https://raw.githubusercontent.com/NovaShang/BimDown/main/agent-skill/SKILL.md
 
 You are an AI Coder operating within a BimDown project environment.
 BimDown is an open-source, AI-native building data format using CSV for semantics and SVG for geometry.
@@ -51,6 +51,15 @@ project/
 - `level.csv`, `grid.csv`, `mesh.csv` MUST live in `global/`, never in `lv-N/` directories
 - Per-level elements (wall, door, slab, space, etc.) go in `lv-N/` directories
 - The folder name (e.g. `lv-1`) becomes the element's `level_id` — do NOT write `level_id` to CSV
+
+## Recommended Workflow for Creating/Modifying Buildings
+
+1. **Plan spatial layout first**: Before writing any files, reason through the spatial relationships — wall positions, room adjacencies, door/window placements. Sketch coordinates mentally or on paper.
+2. **Write SVG geometry first**: Create the `.svg` files (walls, slabs, columns) with correct coordinates. Geometry determines everything else.
+3. **Write CSV attributes second**: Create the `.csv` files with element properties (material, thickness, etc.). Remember: do NOT include computed fields like `level_id`, `length`, `area`.
+4. **Render and visually verify**: Run `bimdown render <dir> -o render.png` and **view the PNG image** to confirm the layout is correct. Check that walls connect properly, rooms are enclosed, and doors/windows are in the right positions.
+5. **Validate**: Run `bimdown validate <dir>` to catch any schema or reference errors.
+6. **Iterate**: If the render shows problems, fix the SVG geometry and re-render until the layout looks right.
 
 ## CLI Tools & Best Practices
 

@@ -88,6 +88,15 @@ project/
 - Per-level elements (wall, door, slab, space, etc.) go in \`lv-N/\` directories
 - The folder name (e.g. \`lv-1\`) becomes the element's \`level_id\` — do NOT write \`level_id\` to CSV
 
+## Recommended Workflow for Creating/Modifying Buildings
+
+1. **Plan spatial layout first**: Before writing any files, reason through the spatial relationships — wall positions, room adjacencies, door/window placements. Sketch coordinates mentally or on paper.
+2. **Write SVG geometry first**: Create the \`.svg\` files (walls, slabs, columns) with correct coordinates. Geometry determines everything else.
+3. **Write CSV attributes second**: Create the \`.csv\` files with element properties (material, thickness, etc.). Remember: do NOT include computed fields like \`level_id\`, \`length\`, \`area\`.
+4. **Render and visually verify**: Run \`bimdown render <dir> -o render.png\` and **view the PNG image** to confirm the layout is correct. Check that walls connect properly, rooms are enclosed, and doors/windows are in the right positions.
+5. **Validate**: Run \`bimdown validate <dir>\` to catch any schema or reference errors.
+6. **Iterate**: If the render shows problems, fix the SVG geometry and re-render until the layout looks right.
+
 ## CLI Tools & Best Practices
 
 1. **\`bimdown query <dir> <sql> --json\`**: Runs DuckDB SQL across all tables, including SVG-derived virtual columns.
