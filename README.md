@@ -18,11 +18,7 @@ BimDown is designed to be natively operated by AI agents like **OpenClaw**, **Cl
 
 Copy and paste the following into your AI chat:
 
-> **"Install the BimDown CLI and configure the agent skill:**
-> ```
-> npm install -g bimdown-cli && mkdir -p .claude/skills/bimdown && curl -sL https://raw.githubusercontent.com/NovaShang/BimDown/main/agent-skill/SKILL.md -o .claude/skills/bimdown/SKILL.md
-> ```
-> **Read the SKILL.md to understand the architectural rules, then wait for my instructions."**
+> Install the BimDown CLI: `npm install -g bimdown-cli`. Download the skill file from https://raw.githubusercontent.com/NovaShang/BimDown/main/agent-skill/SKILL.md and install it to `<your-global-skill-directory>/bimdown/SKILL.md`.
 
 ### What the Agent Can Do
 

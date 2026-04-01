@@ -18,11 +18,7 @@ BimDown 天生为 AI Agent 设计，支持 **OpenClaw**、**Claude Code**、**Ge
 
 将以下内容复制粘贴到你的 AI 对话中：
 
-> **"安装 BimDown CLI 并配置 Agent Skill：**
-> ```
-> npm install -g bimdown-cli && mkdir -p .claude/skills/bimdown && curl -sL https://raw.githubusercontent.com/NovaShang/BimDown/main/agent-skill/SKILL.md -o .claude/skills/bimdown/SKILL.md
-> ```
-> **读取 SKILL.md 理解建筑规则，然后等待我的指示。"**
+> 安装 BimDown CLI：`npm install -g bimdown-cli`。下载 Skill 文件 https://raw.githubusercontent.com/NovaShang/BimDown/main/agent-skill/SKILL.md ，并安装到 `<你的全局Skill目录>/bimdown/SKILL.md`。
 
 ### Agent 能做什么
 
