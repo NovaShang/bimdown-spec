@@ -10,69 +10,42 @@ An open-source, AI-native building data format — with **full round-trip suppor
 
 BimDown uses **CSV** for attributes and **SVG** for 2D geometry — simple enough for any LLM to read and write, structured enough for real BIM workflows. The included Revit add-in enables **bidirectional sync**: export from Revit to BimDown, let AI agents modify the data, then import back into Revit with changes preserved.
 
-## Positioning
+## Use with AI Coding Agents
 
-BimDown is a **LOD 200 lightweight alternative to Revit**, targeting the schematic design phase. It captures building elements at the level of "what, where, and how big" — not "how exactly it's constructed."
+BimDown is designed to be natively operated by AI coding agents. By installing a **skill file**, the agent learns the full BimDown schema, coordinate rules, and CLI usage — enabling it to create, query, and modify building models autonomously.
 
-Use BimDown when you need:
-- AI agents to read, write, and reason about building data directly
-- **Round-trip interop with Revit** — export, edit (by human or AI), import back
-- Git-based version control and diffing for building models
-- SQL queries over building data (via DuckDB)
-- A lightweight interchange format between design tools
+### Claude Code / OpenClaw
 
-Use Revit (or other full BIM tools) when you need:
-- Construction-level detail (LOD 300+)
-- Multi-layer wall/slab assemblies
-- Structural/energy analysis with physical material properties
-- Construction documentation and detailing
+Copy and paste the following into your AI chat:
 
-## Why
+> **"Install the BimDown CLI and configure the agent skill:**
+> ```
+> npm install -g bimdown-cli && mkdir -p .claude/skills/bimdown && curl -sL https://raw.githubusercontent.com/NovaShang/BimDown/main/agent-skill/SKILL.md -o .claude/skills/bimdown/SKILL.md
+> ```
+> **Read the SKILL.md to understand the architectural rules, then wait for my instructions."**
 
-BIM data is trapped in proprietary formats that AI can't touch. BimDown fixes this:
+### Other Coding Agents (Cursor, Windsurf, Cline, etc.)
 
-- **CSV + SVG** — human-readable, git-diffable, AI-writable
-- **Revit round-trip** — bidirectional import/export via the included Revit add-in, no data loss for supported elements
-- **SQL-queryable** — load into DuckDB, query with SQL
-- **Extensible** — add new building analysis capabilities by writing a [skill](#ai-agent-skills)
+For any agent that supports custom instructions or system prompts:
 
-## Quick Look
+1. Install the CLI: `npm install -g bimdown-cli`
+2. Download the skill file: `curl -sL https://raw.githubusercontent.com/NovaShang/BimDown/main/agent-skill/SKILL.md -o SKILL.md`
+3. Add the content of `SKILL.md` to your agent's custom instructions / rules / system prompt
 
-```
-project/
-  project_metadata.json    # format version, project name, units
-  global/
-    level.csv              # building levels
-    grid.csv               # structural grids
-  lv-1/
-    wall.csv + wall.svg    # walls (CSV attributes + SVG geometry)
-    door.csv               # doors (CSV-only, parametric position on wall)
-    slab.csv + slab.svg    # floor slabs
-    space.csv              # rooms (seed point + name)
-    ...
-```
+### What the Agent Can Do
 
-**wall.csv**
-```csv
-id,material,thickness
-w-1,concrete,0.2
-w-2,concrete,0.2
-```
+Once configured, the agent can:
+- Create building floor plans from natural language descriptions
+- Query building data with SQL (e.g. "find all walls thicker than 0.3m")
+- Modify geometry and attributes, then validate the result
+- Render visual blueprints for review
 
-**wall.svg**
-```xml
-<svg xmlns="http://www.w3.org/2000/svg">
-  <g transform="scale(1,-1)">
-    <path id="w-1" d="M 0,0 L 10,0" />
-    <path id="w-2" d="M 10,0 L 10,8" />
-  </g>
-</svg>
-```
+### Custom Skills
 
-**door.csv** (no SVG needed — position is parametric)
-```csv
-id,host_id,position,width,height,operation
-d-1,w-1,0.3,0.9,2.1,single_swing
+To add custom domain capabilities (e.g. energy modeling, ESG reports), generate your own skill definition:
+
+```bash
+bimdown generate-skill
 ```
 
 ## Revit Round-Trip
@@ -90,34 +63,6 @@ Download the latest `BimDownInstaller.exe` from the [GitHub Releases](https://gi
 ```powershell
 cd revit-addin
 .\publish.ps1
-```
-
-## AI Agent Skills
-
-BimDown is designed to be natively operated by AI agents like Claude Code and OpenClaw. By installing a **skill file**, the agent learns the full BimDown schema, coordinate rules, and CLI usage — enabling it to create, query, and modify building models autonomously.
-
-### Setup (Claude Code / OpenClaw)
-
-Copy and paste the following into your AI chat:
-
-> **"Install the BimDown CLI and configure the agent skill:**
-> ```
-> npm install -g bimdown-cli && mkdir -p .claude/skills/bimdown && curl -sL https://raw.githubusercontent.com/NovaShang/BimDown/main/agent-skill/SKILL.md -o .claude/skills/bimdown/SKILL.md
-> ```
-> **Read the SKILL.md to understand the architectural rules, then wait for my instructions."**
-
-Once configured, the agent can:
-- Create building floor plans from natural language descriptions
-- Query building data with SQL (e.g. "find all walls thicker than 0.3m")
-- Modify geometry and attributes, then validate the result
-- Render visual blueprints for review
-
-### Custom Skills
-
-To add custom domain capabilities (e.g. energy modeling, ESG reports), generate your own skill definition:
-
-```bash
-bimdown generate-skill
 ```
 
 ## CLI
@@ -186,6 +131,62 @@ bimdown resolve-topology ./my-project   # auto-detect coincident endpoints,
 ```bash
 bimdown sync ./my-project   # hydrate into DuckDB, then dehydrate back to CSV/SVG
 ```
+
+## Quick Look
+
+```
+project/
+  project_metadata.json    # format version, project name, units
+  global/
+    level.csv              # building levels
+    grid.csv               # structural grids
+  lv-1/
+    wall.csv + wall.svg    # walls (CSV attributes + SVG geometry)
+    door.csv               # doors (CSV-only, parametric position on wall)
+    slab.csv + slab.svg    # floor slabs
+    space.csv              # rooms (seed point + name)
+    ...
+```
+
+**wall.csv**
+```csv
+id,material,thickness
+w-1,concrete,0.2
+w-2,concrete,0.2
+```
+
+**wall.svg**
+```xml
+<svg xmlns="http://www.w3.org/2000/svg">
+  <g transform="scale(1,-1)">
+    <path id="w-1" d="M 0,0 L 10,0" />
+    <path id="w-2" d="M 10,0 L 10,8" />
+  </g>
+</svg>
+```
+
+**door.csv** (no SVG needed — position is parametric)
+```csv
+id,host_id,position,width,height,operation
+d-1,w-1,0.3,0.9,2.1,single_swing
+```
+
+## Positioning
+
+BimDown is a **LOD 200 lightweight alternative to Revit**, targeting the schematic design phase. It captures building elements at the level of "what, where, and how big" — not "how exactly it's constructed."
+
+Use BimDown when you need:
+- AI agents to read, write, and reason about building data directly
+- **Round-trip interop with Revit** — export, edit (by human or AI), import back
+- Git-based version control and diffing for building models
+- SQL queries over building data (via DuckDB)
+- A lightweight interchange format between design tools
+
+Use Revit (or other full BIM tools) when you need:
+- Construction-level detail (LOD 300+)
+- Multi-layer wall/slab assemblies
+- Structural/energy analysis with physical material properties
+- Construction documentation and detailing
 
 ## Format Spec
 

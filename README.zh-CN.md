@@ -4,73 +4,48 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![CI Status](https://github.com/NovaShang/BimDown/actions/workflows/ci.yml/badge.svg)](https://github.com/NovaShang/BimDown/actions)
 
+[English](./README.md)
+
 开源的 AI 原生建筑数据格式 — **支持与 Autodesk Revit 双向互通（Round-Trip）**。
 
 BimDown 用 **CSV** 存储属性，用 **SVG** 存储二维几何 — 简单到任何大语言模型都能直接读写，同时又足够结构化来支撑真实的 BIM 工作流。内置的 Revit 插件实现了**双向同步**：从 Revit 导出到 BimDown，用 AI 或手动修改数据，再导回 Revit，改动完整保留。
 
-## 定位
+## 配合 AI 编程 Agent 使用
 
-BimDown 是一个 **LOD 200 级别的轻量 Revit 替代方案**，面向方案设计阶段。它记录建筑构件的"是什么、在哪里、多大" — 而不是"具体怎么构造"。
+BimDown 天生为 AI 编程 Agent 设计。通过安装一个 **Skill 文件**，Agent 可以学习完整的 BimDown 数据模式、坐标规则和 CLI 用法 — 从而自主创建、查询和修改建筑模型。
 
-适合使用 BimDown 的场景：
-- AI Agent 直接读写和推理建筑数据
-- **与 Revit 双向互通** — 导出、编辑（人工或 AI）、导回
-- 基于 Git 的建筑模型版本控制与差异对比
-- 用 SQL 查询建筑数据（通过 DuckDB）
-- 设计工具之间的轻量交换格式
+### Claude Code / OpenClaw
 
-适合使用 Revit（或其他完整 BIM 工具）的场景：
-- 施工级别的详细程度（LOD 300+）
-- 多层墙体 / 楼板构造
-- 结构 / 能耗分析（需要物理材料属性）
-- 施工图和详图
+将以下内容复制粘贴到你的 AI 对话中：
 
-## 为什么选择 BimDown
+> **"安装 BimDown CLI 并配置 Agent Skill：**
+> ```
+> npm install -g bimdown-cli && mkdir -p .claude/skills/bimdown && curl -sL https://raw.githubusercontent.com/NovaShang/BimDown/main/agent-skill/SKILL.md -o .claude/skills/bimdown/SKILL.md
+> ```
+> **读取 SKILL.md 理解建筑规则，然后等待我的指示。"**
 
-BIM 数据被锁在 AI 无法触及的私有格式里。BimDown 解决了这个问题：
+### 其他编程 Agent（Cursor、Windsurf、Cline 等）
 
-- **CSV + SVG** — 人类可读、Git 可 diff、AI 可写
-- **Revit 双向互通** — 通过内置 Revit 插件实现双向导入导出，支持的构件无数据丢失
-- **SQL 可查询** — 加载到 DuckDB，用 SQL 查询
-- **可扩展** — 通过编写 [Skill](#ai-agent-技能) 添加新的建筑分析能力
+对于任何支持自定义指令或系统提示词的 Agent：
 
-## 快速一览
+1. 安装 CLI：`npm install -g bimdown-cli`
+2. 下载 Skill 文件：`curl -sL https://raw.githubusercontent.com/NovaShang/BimDown/main/agent-skill/SKILL.md -o SKILL.md`
+3. 将 `SKILL.md` 的内容添加到你的 Agent 的自定义指令 / 规则 / 系统提示词中
 
-```
-project/
-  project_metadata.json    # 格式版本、项目名称、单位
-  global/
-    level.csv              # 建筑楼层
-    grid.csv               # 结构轴网
-  lv-1/
-    wall.csv + wall.svg    # 墙（CSV 属性 + SVG 几何）
-    door.csv               # 门（仅 CSV，参数化定位在宿主墙上）
-    slab.csv + slab.svg    # 楼板
-    space.csv              # 房间（种子点 + 名称）
-    ...
-```
+### Agent 能做什么
 
-**wall.csv**
-```csv
-id,material,thickness
-w-1,concrete,0.2
-w-2,concrete,0.2
-```
+配置完成后，Agent 可以：
+- 根据自然语言描述创建建筑平面图
+- 用 SQL 查询建筑数据（例如"找出所有厚度超过 0.3m 的墙"）
+- 修改几何和属性，然后验证结果
+- 渲染可视化蓝图供审查
 
-**wall.svg**
-```xml
-<svg xmlns="http://www.w3.org/2000/svg">
-  <g transform="scale(1,-1)">
-    <path id="w-1" d="M 0,0 L 10,0" />
-    <path id="w-2" d="M 10,0 L 10,8" />
-  </g>
-</svg>
-```
+### 自定义 Skill
 
-**door.csv**（无需 SVG — 位置是参数化的）
-```csv
-id,host_id,position,width,height,operation
-d-1,w-1,0.3,0.9,2.1,single_swing
+要添加自定义领域能力（如能耗模型、ESG 报告），可以生成你自己的 Skill 定义：
+
+```bash
+bimdown generate-skill
 ```
 
 ## Revit 双向互通
@@ -88,34 +63,6 @@ d-1,w-1,0.3,0.9,2.1,single_swing
 ```powershell
 cd revit-addin
 .\publish.ps1
-```
-
-## AI Agent 技能
-
-BimDown 天生为 AI Agent（如 Claude Code、OpenClaw）设计。通过安装一个 **Skill 文件**，Agent 可以学习完整的 BimDown 数据模式、坐标规则和 CLI 用法 — 从而自主创建、查询和修改建筑模型。
-
-### 配置（Claude Code / OpenClaw）
-
-将以下内容复制粘贴到你的 AI 对话中：
-
-> **"安装 BimDown CLI 并配置 Agent Skill：**
-> ```
-> npm install -g bimdown-cli && mkdir -p .claude/skills/bimdown && curl -sL https://raw.githubusercontent.com/NovaShang/BimDown/main/agent-skill/SKILL.md -o .claude/skills/bimdown/SKILL.md
-> ```
-> **读取 SKILL.md 理解建筑规则，然后等待我的指示。"**
-
-配置完成后，Agent 可以：
-- 根据自然语言描述创建建筑平面图
-- 用 SQL 查询建筑数据（例如"找出所有厚度超过 0.3m 的墙"）
-- 修改几何和属性，然后验证结果
-- 渲染可视化蓝图供审查
-
-### 自定义 Skill
-
-要添加自定义领域能力（如能耗模型、ESG 报告），可以生成你自己的 Skill 定义：
-
-```bash
-bimdown generate-skill
 ```
 
 ## CLI
@@ -184,6 +131,62 @@ bimdown resolve-topology ./my-project   # 自动检测重合端点，
 ```bash
 bimdown sync ./my-project   # 加载到 DuckDB，再写回 CSV/SVG
 ```
+
+## 快速一览
+
+```
+project/
+  project_metadata.json    # 格式版本、项目名称、单位
+  global/
+    level.csv              # 建筑楼层
+    grid.csv               # 结构轴网
+  lv-1/
+    wall.csv + wall.svg    # 墙（CSV 属性 + SVG 几何）
+    door.csv               # 门（仅 CSV，参数化定位在宿主墙上）
+    slab.csv + slab.svg    # 楼板
+    space.csv              # 房间（种子点 + 名称）
+    ...
+```
+
+**wall.csv**
+```csv
+id,material,thickness
+w-1,concrete,0.2
+w-2,concrete,0.2
+```
+
+**wall.svg**
+```xml
+<svg xmlns="http://www.w3.org/2000/svg">
+  <g transform="scale(1,-1)">
+    <path id="w-1" d="M 0,0 L 10,0" />
+    <path id="w-2" d="M 10,0 L 10,8" />
+  </g>
+</svg>
+```
+
+**door.csv**（无需 SVG — 位置是参数化的）
+```csv
+id,host_id,position,width,height,operation
+d-1,w-1,0.3,0.9,2.1,single_swing
+```
+
+## 定位
+
+BimDown 是一个 **LOD 200 级别的轻量 Revit 替代方案**，面向方案设计阶段。它记录建筑构件的"是什么、在哪里、多大" — 而不是"具体怎么构造"。
+
+适合使用 BimDown 的场景：
+- AI Agent 直接读写和推理建筑数据
+- **与 Revit 双向互通** — 导出、编辑（人工或 AI）、导回
+- 基于 Git 的建筑模型版本控制与差异对比
+- 用 SQL 查询建筑数据（通过 DuckDB）
+- 设计工具之间的轻量交换格式
+
+适合使用 Revit（或其他完整 BIM 工具）的场景：
+- 施工级别的详细程度（LOD 300+）
+- 多层墙体 / 楼板构造
+- 结构 / 能耗分析（需要物理材料属性）
+- 施工图和详图
 
 ## 格式规范
 
