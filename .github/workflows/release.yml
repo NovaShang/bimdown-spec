@@ -47,7 +47,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           
       - name: Install dependencies
-        run: cd cli && npm ci
+        run: cd cli && npm install
         
       - name: Build CLI
         run: cd cli && npm run build

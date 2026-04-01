@@ -1,6 +1,6 @@
 {
   "name": "bimdown",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "An open-source, AI-native building data format using CSV and SVG.",
   "author": "NovaShang",
   "license": "MIT",

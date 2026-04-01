@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
+    <UseWPF>true</UseWPF>
     <!-- Default Revit version if not specified: dotnet build -p:RevitVersion=2026 -->
     <RevitVersion Condition="'$(RevitVersion)' == ''">2026</RevitVersion>
   </PropertyGroup>
