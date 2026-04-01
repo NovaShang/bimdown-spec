@@ -2,6 +2,7 @@ import { buildRegistry, getSpecDir, TABLES_WITH_SVG, GLOBAL_ONLY_TABLES, ID_PREF
 import { loadAllSchemas } from '../schema/loader.js';
 import { existsSync, mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
+declare const CLI_VERSION: string;
 
 const CORE_TABLES = new Set(['level', 'grid', 'wall', 'door', 'window', 'space']);
 const BASE_SCHEMAS = new Set(['element', 'hosted_element', 'materialized', 'vertical_span', 'line_element', 'point_element', 'polygon_element']);
@@ -30,12 +31,19 @@ export function generateSkill(outputDir?: string) {
   const freeformExamples = idExamples.filter((_, i) => FREEFORM_ID_TABLES.has(Object.keys(ID_PREFIXES)[i]));
   const numericExamples = idExamples.filter((_, i) => !FREEFORM_ID_TABLES.has(Object.keys(ID_PREFIXES)[i]));
 
+  const today = new Date();
+  const publishDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+  const cliVersion = typeof CLI_VERSION !== 'undefined' ? CLI_VERSION : 'unknown';
+
   let md = `---
 name: bimdown
 description: Powerful structural and topological manipulation tool for BimDown architectural BIM projects. Use when asked to query building elements, build new structures (CSV+SVG), resolve MEP topologies, or analyze spatial BIM data.
 ---
 
 # BimDown Agent Skill & Schema Rules
+
+> **Version ${cliVersion}** (published ${publishDate}). If this date is more than 1 week ago, run \`npm update -g bimdown-cli\` to update, then re-download this SKILL.md.
 
 You are an AI Coder operating within a BimDown project environment.
 BimDown is an open-source, AI-native building data format using CSV for semantics and SVG for geometry.

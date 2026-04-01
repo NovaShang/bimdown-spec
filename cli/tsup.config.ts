@@ -1,4 +1,5 @@
 import { defineConfig } from 'tsup';
+import pkg from './package.json' assert { type: 'json' };
 
 export default defineConfig({
   entry: ['src/index.ts'],
@@ -9,5 +10,8 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   banner: { js: '#!/usr/bin/env node' },
+  define: {
+    'CLI_VERSION': JSON.stringify(pkg.version),
+  },
   onSuccess: 'cp -r ../spec dist/spec',
 });
