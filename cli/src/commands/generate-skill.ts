@@ -43,7 +43,7 @@ description: Powerful structural and topological manipulation tool for BimDown a
 
 # BimDown Agent Skill & Schema Rules
 
-> **Version ${cliVersion}** (published ${publishDate}). If this date is more than 1 week ago, run \`npm update -g bimdown-cli\` to update, then re-download this SKILL.md.
+> **Version ${cliVersion}** (published ${publishDate}). If this date is more than 1 week ago, run \`npm update -g bimdown-cli\` to update, then re-download this SKILL.md from https://raw.githubusercontent.com/NovaShang/BimDown/main/agent-skill/SKILL.md
 
 You are an AI Coder operating within a BimDown project environment.
 BimDown is an open-source, AI-native building data format using CSV for semantics and SVG for geometry.
