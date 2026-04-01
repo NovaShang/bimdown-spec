@@ -96,7 +96,8 @@ Below is a curated whitelist of the **most commonly used** core architectural el
       if (f.description) {
         constraint += f.description;
       }
-      md += `  - \`${f.name}\`: ${constraint.trim()}\n`;
+      const reqTag = f.required ? "**[REQUIRED]**" : "[OPTIONAL]";
+      md += `  - \`${f.name}\`: ${reqTag} ${constraint.trim()}\n`;
     }
 
     if (computedFields.length > 0) {

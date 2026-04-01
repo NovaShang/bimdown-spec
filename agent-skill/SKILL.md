@@ -56,18 +56,18 @@ Below is a curated whitelist of the **most commonly used** core architectural el
 - **Topology Rule**: Must be hosted on a `wall`.
 - **Core Rule**: Doors NEVER exist independently. When creating or modifying a door, you MUST ensure it is hosted on a valid wall segment. In scripts, ensure coordinates intersect the wall's line.
 - **CSV Columns (The only fields you write to file)**:
-  - `id`: 
-  - `number`: 
-  - `base_offset`: 
-  - `mesh_file`: Optional GLB mesh path for precise 3D visualization
-  - `host_id`: (Ref: `element`)
-  - `position`: Parametric position along host element (0.0 = start, 1.0 = end, center of opening)
-  - `material`: 
-  - `width`: 
-  - `height`: 
-  - `operation`: 
-  - `hinge_position`: 
-  - `swing_side`: 
+  - `id`: **[REQUIRED]** 
+  - `number`: [OPTIONAL] 
+  - `base_offset`: [OPTIONAL] 
+  - `mesh_file`: [OPTIONAL] Optional GLB mesh path for precise 3D visualization
+  - `host_id`: **[REQUIRED]** (Ref: `element`)
+  - `position`: **[REQUIRED]** Parametric position along host element (0.0 = start, 1.0 = end, center of opening)
+  - `material`: [OPTIONAL] 
+  - `width`: **[REQUIRED]** 
+  - `height`: [OPTIONAL] 
+  - `operation`: [OPTIONAL] 
+  - `hinge_position`: [OPTIONAL] 
+  - `swing_side`: [OPTIONAL] 
 - **Virtual Query Fields (Read-only via `bimdown query`, DO NOT write to CSV)**:
   - `level_id`: 
   - `created_at`: 
@@ -83,31 +83,31 @@ Below is a curated whitelist of the **most commonly used** core architectural el
 ### Table: `grid` (Prefix: `gr`)
 - **Has Geometry**: No (.csv only)
 - **CSV Columns (The only fields you write to file)**:
-  - `id`: 
-  - `number`: 
-  - `start_x`: 
-  - `start_y`: 
-  - `end_x`: 
-  - `end_y`: 
+  - `id`: **[REQUIRED]** 
+  - `number`: **[REQUIRED]** 
+  - `start_x`: **[REQUIRED]** 
+  - `start_y`: **[REQUIRED]** 
+  - `end_x`: **[REQUIRED]** 
+  - `end_y`: **[REQUIRED]** 
 
 ### Table: `level` (Prefix: `lv`)
 - **Has Geometry**: No (.csv only)
 - **CSV Columns (The only fields you write to file)**:
-  - `id`: 
-  - `number`: 
-  - `name`: 
-  - `elevation`: 
+  - `id`: **[REQUIRED]** 
+  - `number`: **[REQUIRED]** 
+  - `name`: [OPTIONAL] 
+  - `elevation`: **[REQUIRED]** 
 
 ### Table: `space` (Prefix: `sp`)
 - **Has Geometry**: No (.csv only)
 - **CSV Columns (The only fields you write to file)**:
-  - `id`: 
-  - `number`: 
-  - `base_offset`: 
-  - `mesh_file`: Optional GLB mesh path for precise 3D visualization
-  - `x`: Seed point X coordinate (room interior point)
-  - `y`: Seed point Y coordinate (room interior point)
-  - `name`: 
+  - `id`: **[REQUIRED]** 
+  - `number`: [OPTIONAL] 
+  - `base_offset`: [OPTIONAL] 
+  - `mesh_file`: [OPTIONAL] Optional GLB mesh path for precise 3D visualization
+  - `x`: **[REQUIRED]** Seed point X coordinate (room interior point)
+  - `y`: **[REQUIRED]** Seed point Y coordinate (room interior point)
+  - `name`: [OPTIONAL] 
 - **Virtual Query Fields (Read-only via `bimdown query`, DO NOT write to CSV)**:
   - `level_id`: 
   - `created_at`: 
@@ -123,14 +123,14 @@ Below is a curated whitelist of the **most commonly used** core architectural el
 ### Table: `wall` (Prefix: `w`)
 - **Has Geometry**: Yes (.svg required)
 - **CSV Columns (The only fields you write to file)**:
-  - `id`: 
-  - `number`: 
-  - `base_offset`: 
-  - `mesh_file`: Optional GLB mesh path for precise 3D visualization
-  - `top_level_id`: (Ref: `level`) Top constraint level. Empty = next level above current level.
-  - `top_offset`: Offset from top level. Default 0.
-  - `material`: 
-  - `thickness`: Wall thickness in meters. SVG stroke-width should match but CSV is source of truth.
+  - `id`: **[REQUIRED]** 
+  - `number`: [OPTIONAL] 
+  - `base_offset`: [OPTIONAL] 
+  - `mesh_file`: [OPTIONAL] Optional GLB mesh path for precise 3D visualization
+  - `top_level_id`: [OPTIONAL] (Ref: `level`) Top constraint level. Empty = next level above current level.
+  - `top_offset`: [OPTIONAL] Offset from top level. Default 0.
+  - `material`: [OPTIONAL] 
+  - `thickness`: **[REQUIRED]** Wall thickness in meters. SVG stroke-width should match but CSV is source of truth.
 - **Virtual Query Fields (Read-only via `bimdown query`, DO NOT write to CSV)**:
   - `level_id`: 
   - `created_at`: 
@@ -153,15 +153,15 @@ Below is a curated whitelist of the **most commonly used** core architectural el
 - **Has Geometry**: No (.csv only)
 - **Topology Rule**: Must be hosted on a `wall`.
 - **CSV Columns (The only fields you write to file)**:
-  - `id`: 
-  - `number`: 
-  - `base_offset`: 
-  - `mesh_file`: Optional GLB mesh path for precise 3D visualization
-  - `host_id`: (Ref: `element`)
-  - `position`: Parametric position along host element (0.0 = start, 1.0 = end, center of opening)
-  - `material`: 
-  - `width`: 
-  - `height`: 
+  - `id`: **[REQUIRED]** 
+  - `number`: [OPTIONAL] 
+  - `base_offset`: [OPTIONAL] 
+  - `mesh_file`: [OPTIONAL] Optional GLB mesh path for precise 3D visualization
+  - `host_id`: **[REQUIRED]** (Ref: `element`)
+  - `position`: **[REQUIRED]** Parametric position along host element (0.0 = start, 1.0 = end, center of opening)
+  - `material`: [OPTIONAL] 
+  - `width`: **[REQUIRED]** 
+  - `height`: [OPTIONAL] 
 - **Virtual Query Fields (Read-only via `bimdown query`, DO NOT write to CSV)**:
   - `level_id`: 
   - `created_at`: 
