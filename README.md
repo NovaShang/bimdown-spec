@@ -14,7 +14,7 @@ BimDown uses **CSV** for attributes and **SVG** for 2D geometry — simple enoug
 
 BimDown is designed to be natively operated by AI agents like **OpenClaw**, **Claude Code**, **Gemini CLI**, **Cursor**, **VS Code with Copilot**, **Antigravity**, and any other agent that supports agent skills / custom instructions. By installing a **skill file**, the agent learns the full BimDown schema, coordinate rules, and CLI usage — enabling it to create, query, and modify building models autonomously.
 
-### Claude Code / OpenClaw
+### Setup
 
 Copy and paste the following into your AI chat:
 
@@ -23,14 +23,6 @@ Copy and paste the following into your AI chat:
 > npm install -g bimdown-cli && mkdir -p .claude/skills/bimdown && curl -sL https://raw.githubusercontent.com/NovaShang/BimDown/main/agent-skill/SKILL.md -o .claude/skills/bimdown/SKILL.md
 > ```
 > **Read the SKILL.md to understand the architectural rules, then wait for my instructions."**
-
-### Other Agents (Gemini CLI, Cursor, VS Code + Copilot, Antigravity, etc.)
-
-For any agent that supports custom instructions or system prompts:
-
-1. Install the CLI: `npm install -g bimdown-cli`
-2. Download the skill file: `curl -sL https://raw.githubusercontent.com/NovaShang/BimDown/main/agent-skill/SKILL.md -o SKILL.md`
-3. Add the content of `SKILL.md` to your agent's custom instructions / rules / system prompt
 
 ### What the Agent Can Do
 
