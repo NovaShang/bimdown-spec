@@ -253,7 +253,7 @@ function renderSpaces(levelDir: { path: string }): CsvOnlyElement[] {
     const name = row.name ?? row.id ?? '';
     const r = 0.15;
     let markup = `    <circle id="${row.id}" cx="${x.toFixed(3)}" cy="${y.toFixed(3)}" r="${r}" fill="${color.fill ?? 'none'}" stroke="${color.stroke}" stroke-width="0.03" />`;
-    markup += `\n    <text x="${x.toFixed(3)}" y="${(-y).toFixed(3)}" font-size="0.4" fill="${color.stroke}" text-anchor="middle" dominant-baseline="central">${escapeXml(name)}</text>`;
+    markup += `\n    <text x="${x.toFixed(3)}" y="${y.toFixed(3)}" font-size="0.4" fill="${color.stroke}" text-anchor="middle" dominant-baseline="central" transform="scale(1,-1) translate(0,${(-2 * y).toFixed(3)})">${escapeXml(name)}</text>`;
 
     results.push({
       tableName: 'space',
