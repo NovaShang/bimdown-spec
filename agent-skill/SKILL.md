@@ -1,211 +1,67 @@
 ---
 name: bimdown
-description: Powerful structural and topological manipulation tool for BimDown architectural BIM projects (CSV+SVG formats). Use when asked to query building elements, build new structures, resolve MEP topologies, or analyze spatial BIM data.
+description: Powerful structural and topological manipulation tool for BimDown architectural BIM projects. Use when asked to query building elements, build new structures (CSV+SVG), resolve MEP topologies, or analyze spatial BIM data.
 ---
 
 # BimDown Agent Skill & Schema Rules
 
 You are an AI Agent operating within a BimDown project environment.
-BimDown is an open-source, AI-native building data format using CSV and SVG.
+BimDown is an open-source, AI-native building data format using CSV for semantics and SVG for geometry.
 
-## 🛠️ Global Directives
+## 🏗️ About BimDown Format
 
-1. **CLI is your Toolkit**: ALWAYS use the `bimdown query <dir> <sql> --json` and `bimdown validate` commands to interact with data. Avoid writing raw parsers if CLI commands can fulfill the requirement.
-2. **Synchronized Modification**: BimDown semantics live in CSV, geometry in SVG. If you add/modify/remove an entity in script, you MUST ensure both the CSV row and SVG node (if applicable) are handled synchronously.
-3. **No Zombies**: Do not leave unhosted elements or missing references in the files. Use the schema definitions below to understand topological relationships.
+- **Architecture**: A project is split into directories. `global/` contains cross-floor elements (like grids, levels). Other folders represent specific levels (e.g. `lv-1/`).
+- **Dual Nature**: Semantics and properties live in `{name}.csv` files. The 2D geometry lives in a sibling `{name}.svg` file. 
+- **Synchronized Modification**: If you add/modify/remove an entity via your own Python or JS scripts, you MUST ensure both the CSV row and SVG node (sharing the exact same `id`) are updated synchronously. Do not leave zombies.
 
+### Common Fields
+All CSV tables implicitly require these universally understood fields:
+- `id`: Unique string identifier (required). Must match the `id` attribute in the SVG node.
+- `name`: Human readable name.
+- `level_id`: Only applies to elements placed on a specific level. Maps to a `level.csv` ID.
 
-## 📐 Schema Topologies & Constraints
+## 🛠️ CLI Tools & Best Practices
 
-The following rules are automatically derived from the core YAML schema specifications. 
-Fields not listed here represent intuitive numeric/string standard attributes.
+The `bimdown` CLI is your most powerful tool. You should use it to query data instead of parsing massive CSVs yourself, and use it to validate your edits.
 
-### Table: `beam` (Prefix: `bm`)
-- **Field Constraints**:
-  - `level_id`: Must reference a valid `level` ID.
-  - `mesh_file`: Optional GLB mesh path for precise 3D visualization
+1. **`bimdown query <dir> <sql> --json`**: Runs DuckDB SQL across all tables. ALWAYS use this instead of writing raw regex/parsers to analyze CSV files. Example: `bimdown query . "SELECT id, thickness FROM wall WHERE level_id='lv-1'" --json`.
+2. **`bimdown validate <dir>`**: Validates the project directory against schema constraints. **Run this EVERY TIME after you modify CSV or SVG files** to ensure you didn't break topological constraints!
+3. **`bimdown schema [table]`**: Prints the full schema data for any specific element type. Use this when you need to know exactly what fields an obscure table requires.
+4. **`bimdown diff <dirA> <dirB>`**: Emits a simple `+`, `-`, `~` structural difference between two project snapshots.
+5. **`bimdown init <dir>`**: Scaffolds a fresh, empty project skeleton.
 
-### Table: `brace` (Prefix: `br`)
-- **Field Constraints**:
-  - `level_id`: Must reference a valid `level` ID.
-  - `mesh_file`: Optional GLB mesh path for precise 3D visualization
+## 📐 Core Schema Topologies (Progressive Disclosure)
 
-### Table: `cable_tray` (Prefix: `ct`)
-- **Field Constraints**:
-  - `level_id`: Must reference a valid `level` ID.
-  - `mesh_file`: Optional GLB mesh path for precise 3D visualization
-  - `system_type`: Revit system classification (e.g. "CHWS", "CHR", "SA", "RA", "DW")
-  - `start_node_id`: ID of the upstream node (equipment, terminal, or mep_node). Written by Revit export; supplemented by CLI resolve-topology.
-  - `end_node_id`: ID of the downstream node (equipment, terminal, or mep_node). Written by Revit export; supplemented by CLI resolve-topology.
+Below is a curated whitelist of the **most commonly used** core architectural elements and their hard constraints. 
 
-### Table: `ceiling` (Prefix: `cl`)
-- **Field Constraints**:
-  - `level_id`: Must reference a valid `level` ID.
-  - `mesh_file`: Optional GLB mesh path for precise 3D visualization
-  - `height_offset`: Offset below level elevation (e.g. -0.3 for 30cm dropped ceiling)
-
-### Table: `column` (Prefix: `c`)
-- **Field Constraints**:
-  - `level_id`: Must reference a valid `level` ID.
-  - `mesh_file`: Optional GLB mesh path for precise 3D visualization
-  - `top_level_id`: Must reference a valid `level` ID. Top constraint level. Empty = next level above current level.
-  - `top_offset`: Offset from top level. Default 0.
-
-### Table: `conduit` (Prefix: `co`)
-- **Field Constraints**:
-  - `level_id`: Must reference a valid `level` ID.
-  - `mesh_file`: Optional GLB mesh path for precise 3D visualization
-  - `system_type`: Revit system classification (e.g. "CHWS", "CHR", "SA", "RA", "DW")
-  - `start_node_id`: ID of the upstream node (equipment, terminal, or mep_node). Written by Revit export; supplemented by CLI resolve-topology.
-  - `end_node_id`: ID of the downstream node (equipment, terminal, or mep_node). Written by Revit export; supplemented by CLI resolve-topology.
-
-### Table: `curtain_wall` (Prefix: `cw`)
-- **Field Constraints**:
-  - `level_id`: Must reference a valid `level` ID.
-  - `mesh_file`: Optional GLB mesh path for precise 3D visualization
-  - `top_level_id`: Must reference a valid `level` ID. Top constraint level. Empty = next level above current level.
-  - `top_offset`: Offset from top level. Default 0.
-  - `u_grid_count`: Number of horizontal (U) grid lines
-  - `v_grid_count`: Number of vertical (V) grid lines
-  - `u_spacing`: Uniform U grid spacing in meters (null if irregular)
-  - `v_spacing`: Uniform V grid spacing in meters (null if irregular)
-  - `panel_count`: Total number of curtain panels
-  - `panel_material`: Dominant panel material name
+> **IMPORTANT**: This is NOT the full list of tables! If the user asks you to modify or generate elements not listed here (like `pipe`, `duct`, `beam`, `column`, `stair`, `equipment`, etc.), **YOU MUST RUN** `bimdown schema <table_name>` to fetch the strict requirements before you write the code to modify them!
 
 ### Table: `door` (Prefix: `d`)
+- **Has Geometry**: No (.csv only)
 - **Topology Rule**: Must be hosted on a `wall`.
-- **Rule**: Doors NEVER exist independently. When creating or modifying a door, you MUST ensure it is hosted on a valid wall segment. In scripts, ensure coordinates intersect the wall's line.
+- **Core Rule**: Doors NEVER exist independently. When creating or modifying a door, you MUST ensure it is hosted on a valid wall segment. In scripts, ensure coordinates intersect the wall's line.
 - **Field Constraints**:
   - `level_id`: Must reference a valid `level` ID.
   - `mesh_file`: Optional GLB mesh path for precise 3D visualization
   - `host_id`: Must reference a valid `element` ID.
   - `position`: Parametric position along host element (0.0 = start, 1.0 = end, center of opening)
 
-### Table: `duct` (Prefix: `du`)
-- **Field Constraints**:
-  - `level_id`: Must reference a valid `level` ID.
-  - `mesh_file`: Optional GLB mesh path for precise 3D visualization
-  - `system_type`: Revit system classification (e.g. "CHWS", "CHR", "SA", "RA", "DW")
-  - `start_node_id`: ID of the upstream node (equipment, terminal, or mep_node). Written by Revit export; supplemented by CLI resolve-topology.
-  - `end_node_id`: ID of the downstream node (equipment, terminal, or mep_node). Written by Revit export; supplemented by CLI resolve-topology.
+### Table: `grid` (Prefix: `gr`)
+- **Has Geometry**: No (.csv only)
 
-### Table: `equipment` (Prefix: `eq`)
-- **Field Constraints**:
-  - `level_id`: Must reference a valid `level` ID.
-  - `mesh_file`: Optional GLB mesh path for precise 3D visualization
-  - `system_type`: Revit system classification (e.g. "CHWS", "CHR", "SA", "RA", "DW")
-
-### Table: `foundation` (Prefix: `f`)
-- **Rule**: Unified foundation type. Geometry form is determined by the SVG element: - <rect>/<circle> (point-based): isolated/pad footing - <path> (line-based): strip/continuous footing - <polygon> (polygon-based): raft/mat foundation Computed geometry fields are hydrated from SVG at query time.
-
-- **Field Constraints**:
-  - `level_id`: Must reference a valid `level` ID.
-  - `mesh_file`: Optional GLB mesh path for precise 3D visualization
-  - `width`: Width of strip foundation or pad dimension
-  - `length`: Length of pad foundation
-
-### Table: `mep_node` (Prefix: `mn`)
-- **Field Constraints**:
-  - `level_id`: Must reference a valid `level` ID.
-  - `mesh_file`: Optional GLB mesh path for precise 3D visualization
-  - `system_type`: Revit system classification (e.g. "CHWS", "CHR", "SA", "RA", "DW")
-
-### Table: `mesh` (Prefix: `ms`)
-- **Field Constraints**:
-  - `category`: Revit category name (e.g. "Railings", "Generic Models", "Furniture", "Plumbing Fixtures")
-  - `level_id`: Must reference a valid `level` ID.
-  - `mesh_file`: Path to GLB file relative to project root
-  - `rotation`: Rotation around Z axis in degrees
-
-### Table: `opening` (Prefix: `op`)
-- **Rule**: Opening (void) in a host element. host_id is always required. Geometry form depends on the host type: - Wall opening: host_id references a wall. Uses position (0-1 along wall),
-  width, and height. No SVG geometry.
-- Slab opening: host_id references a slab. Uses SVG geometry
-  (<rect> or <polygon>) to define the void shape.
-
-- **Field Constraints**:
-  - `level_id`: Must reference a valid `level` ID.
-  - `mesh_file`: Optional GLB mesh path for precise 3D visualization
-  - `host_id`: Must reference a valid `element` ID.
-  - `position`: Parametric position along host wall (0.0-1.0). Only for wall openings.
-  - `width`: Opening width. Required for wall openings.
-  - `height`: Opening height. Only for wall openings.
-  - `shape`: Opening shape. Only for wall openings.
-
-### Table: `pipe` (Prefix: `pi`)
-- **Field Constraints**:
-  - `level_id`: Must reference a valid `level` ID.
-  - `mesh_file`: Optional GLB mesh path for precise 3D visualization
-  - `system_type`: Revit system classification (e.g. "CHWS", "CHR", "SA", "RA", "DW")
-  - `start_node_id`: ID of the upstream node (equipment, terminal, or mep_node). Written by Revit export; supplemented by CLI resolve-topology.
-  - `end_node_id`: ID of the downstream node (equipment, terminal, or mep_node). Written by Revit export; supplemented by CLI resolve-topology.
-
-### Table: `railing` (Prefix: `rl`)
-- **Field Constraints**:
-  - `level_id`: Must reference a valid `level` ID.
-  - `mesh_file`: Optional GLB mesh path for precise 3D visualization
-
-### Table: `ramp` (Prefix: `rp`)
-- **Field Constraints**:
-  - `level_id`: Must reference a valid `level` ID.
-  - `mesh_file`: Optional GLB mesh path for precise 3D visualization
-
-### Table: `roof` (Prefix: `ro`)
-- **Field Constraints**:
-  - `level_id`: Must reference a valid `level` ID.
-  - `mesh_file`: Optional GLB mesh path for precise 3D visualization
-  - `slope`: Slope angle in degrees (0 = flat roof)
-
-### Table: `room_separator` (Prefix: `rs`)
-- **Field Constraints**:
-  - `level_id`: Must reference a valid `level` ID.
-  - `mesh_file`: Optional GLB mesh path for precise 3D visualization
-
-### Table: `slab` (Prefix: `sl`)
-- **Field Constraints**:
-  - `level_id`: Must reference a valid `level` ID.
-  - `mesh_file`: Optional GLB mesh path for precise 3D visualization
+### Table: `level` (Prefix: `lv`)
+- **Has Geometry**: No (.csv only)
 
 ### Table: `space` (Prefix: `sp`)
+- **Has Geometry**: No (.csv only)
 - **Field Constraints**:
   - `level_id`: Must reference a valid `level` ID.
   - `mesh_file`: Optional GLB mesh path for precise 3D visualization
   - `x`: Seed point X coordinate (room interior point)
   - `y`: Seed point Y coordinate (room interior point)
 
-### Table: `stair` (Prefix: `st`)
-- **Field Constraints**:
-  - `level_id`: Must reference a valid `level` ID.
-  - `mesh_file`: Optional GLB mesh path for precise 3D visualization
-  - `top_level_id`: Must reference a valid `level` ID. Top constraint level. Empty = next level above current level.
-  - `top_offset`: Offset from top level. Default 0.
-
-### Table: `structure_column` (Prefix: `sc`)
-- **Field Constraints**:
-  - `level_id`: Must reference a valid `level` ID.
-  - `mesh_file`: Optional GLB mesh path for precise 3D visualization
-  - `top_level_id`: Must reference a valid `level` ID. Top constraint level. Empty = next level above current level.
-  - `top_offset`: Offset from top level. Default 0.
-
-### Table: `structure_slab` (Prefix: `ss`)
-- **Field Constraints**:
-  - `level_id`: Must reference a valid `level` ID.
-  - `mesh_file`: Optional GLB mesh path for precise 3D visualization
-
-### Table: `structure_wall` (Prefix: `sw`)
-- **Field Constraints**:
-  - `level_id`: Must reference a valid `level` ID.
-  - `mesh_file`: Optional GLB mesh path for precise 3D visualization
-  - `top_level_id`: Must reference a valid `level` ID. Top constraint level. Empty = next level above current level.
-  - `top_offset`: Offset from top level. Default 0.
-
-### Table: `terminal` (Prefix: `tm`)
-- **Field Constraints**:
-  - `level_id`: Must reference a valid `level` ID.
-  - `mesh_file`: Optional GLB mesh path for precise 3D visualization
-  - `system_type`: Revit system classification (e.g. "CHWS", "CHR", "SA", "RA", "DW")
-
 ### Table: `wall` (Prefix: `w`)
+- **Has Geometry**: Yes (.svg required)
 - **Field Constraints**:
   - `level_id`: Must reference a valid `level` ID.
   - `mesh_file`: Optional GLB mesh path for precise 3D visualization
@@ -214,6 +70,7 @@ Fields not listed here represent intuitive numeric/string standard attributes.
   - `thickness`: Wall thickness in meters. SVG stroke-width should match but CSV is source of truth.
 
 ### Table: `window` (Prefix: `wn`)
+- **Has Geometry**: No (.csv only)
 - **Topology Rule**: Must be hosted on a `wall`.
 - **Field Constraints**:
   - `level_id`: Must reference a valid `level` ID.
