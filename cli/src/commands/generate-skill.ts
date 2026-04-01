@@ -5,16 +5,22 @@ import { join, resolve } from 'node:path';
 export function generateSkill(outputDir?: string) {
   const registry = buildRegistry(getSpecDir());
 
-  let md = `# BimDown Agent Skill & Schema Rules
+  let md = `---
+name: bimdown
+description: Powerful structural and topological manipulation tool for BimDown architectural BIM projects (CSV+SVG formats). Use when asked to query building elements, build new structures, resolve MEP topologies, or analyze spatial BIM data.
+---
+
+# BimDown Agent Skill & Schema Rules
 
 You are an AI Agent operating within a BimDown project environment.
 BimDown is an open-source, AI-native building data format using CSV and SVG.
 
 ## 🛠️ Global Directives
 
-1. **CLI is your Toolkit**: ALWAYS use the \`bimdown query\` and \`bimdown validate\` commands to interact with data. Avoid writing raw parsers if CLI commands can fulfill the requirement.
+1. **CLI is your Toolkit**: ALWAYS use the \`bimdown query <dir> <sql> --json\` and \`bimdown validate\` commands to interact with data. Avoid writing raw parsers if CLI commands can fulfill the requirement.
 2. **Synchronized Modification**: BimDown semantics live in CSV, geometry in SVG. If you add/modify/remove an entity in script, you MUST ensure both the CSV row and SVG node (if applicable) are handled synchronously.
-3. **No Zombies**: Do not leave unhosted elements or missing references in the files. Use the schema definitions below to understand relationships.
+3. **No Zombies**: Do not leave unhosted elements or missing references in the files. Use the schema definitions below to understand topological relationships.
+
 
 ## 📐 Schema Topologies & Constraints
 
