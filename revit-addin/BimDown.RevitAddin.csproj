@@ -19,6 +19,13 @@
     <Compile Remove="Tests\**" />
     <EmbeddedResource Remove="Tests\**" />
     <None Remove="Tests\**" />
+    <Compile Remove="Installer\**" />
+    <EmbeddedResource Remove="Installer\**" />
+    <None Remove="Installer\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="System.IO" />
   </ItemGroup>
 
   <ItemGroup>
