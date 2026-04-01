@@ -42,9 +42,16 @@ BimDown is an open-source, AI-native building data format using CSV for semantic
 
 1. **\`bimdown query <dir> <sql> --json\`**: Runs DuckDB SQL across all tables. **MAGIC TIP**: The CLI automatically extracts spatial geometry from the \`.svg\` files and injects them as virtual columns into the SQL tables! You CAN write SQL queries to filter elements by lengths, coordinates, or spatial rules even though those numbers don't explicitly exist in the CSV!
 2. **\`bimdown render <dir> [options]\`**: Renders the BimDown project into a beautiful visual blueprint (PNG/SVG). **As a multimodal AI, you MUST use this tool to generate an image and then "view" it to visually QA your geometry modifications.**
-3. **\`bimdown validate <dir>\`**: Validates the project directory against schema constraints. **Run this EVERY TIME after your scripts modify CSV or SVG files** to ensure you didn't break topological constraints!
+3. **\`bimdown validate <dir>\`**: Validates the project directory against schema constraints. **Run this EVERY TIME after your scripts modify CSV or SVG files** to ensure you didn't break topological or ID format constraints!
 4. **\`bimdown schema [table]\`**: Prints the full schema data for any element type.
 5. **\`bimdown diff <dirA> <dirB>\`**: Emits a \`+\`, \`-\`, \`~\` structural difference between project snapshots.
+
+## 📏 Critical File & Geometry Rules
+
+- **Strict ID Formats**: Many elements require specific ID patterns. For example, Grids MUST be \`gr-{number}\` (e.g. \`gr-1\`), Levels MUST be \`lv-{name}\`. **Always run \`bimdown validate\` early to confirm your ID naming is compliant.**
+- **SVG Coordinate Y-Flip**: All geometry inside \`.svg\` files **MUST** be wrapped in a Y-axis flip group: \`<g transform="scale(1,-1)"> ... </g>\`. This ensures the 2D SVG matches the right-handed BIM coordinate system.
+- **CSV vs Inferred Fields**: Only attributes listed in the schema that are NOT marked as 'inferred' should be written to the CSV. Specifically, \`level_id\` is always inferred from the folder structure and MUST be omitted from CSV files.
+- **Global Unit is METERS**: All coordinates, widths, and structural attributes in CSV/SVG MUST strictly use METERS. BimDown simulates real-world dimensions.
 
 ## 📐 Core Schema Topologies (Progressive Disclosure)
 
