@@ -148,9 +148,18 @@ The full format specification lives in [`spec/`](./spec/). Key concepts:
 
 ## AI Agent Integration
 
-BimDown is designed to be operated by AI agents. The format's simplicity (CSV + SVG) means any LLM can read and write building data without specialized APIs.
+BimDown is designed to be natively operated by AI agents like OpenClaw and Claude Code. 
 
-To add domain capabilities (energy modeling, ESG reports, compliance checking), write a skill definition following the [OpenClaw SKILL.md format](https://github.com/nicepkg/openclaw). See [BimClaw](https://bimclaw.com) for a hosted AI agent that works with BimDown out of the box.
+### Quickstart (OpenClaw / Claude Code)
+
+To grant your AI Agent the ability to understand and manipulate BimDown projects, **copy and paste the following prompt directly into your AI chat:**
+
+> **"Please install the BimDown CLI and configure your agent skill. Execute the following commands in my terminal: 
+> `npm install -g bimdown-cli && mkdir -p .claude/skills/bimdown && curl -sL https://raw.githubusercontent.com/NovaShang/BimDown/main/agent-skill/SKILL.md -o .claude/skills/bimdown/SKILL.md`
+> 
+> Once downloaded, read the SKILL.md to understand the architectural rules and wait for my next instructions."**
+
+To add custom domain capabilities (e.g. energy modeling, ESG reports), you can generate your own skill definition using `bimdown generate-skill`.
 
 ## Related Projects
 
