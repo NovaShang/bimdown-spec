@@ -1,6 +1,6 @@
 # BimDown
 
-[![NPM Version](https://img.shields.io/npm/v/bimdown.svg)](https://www.npmjs.com/package/bimdown)
+[![NPM Version](https://img.shields.io/npm/v/bimdown-cli.svg)](https://www.npmjs.com/package/bimdown-cli)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![CI Status](https://github.com/NovaShang/BimDown/actions/workflows/ci.yml/badge.svg)](https://github.com/NovaShang/BimDown/actions)
 
@@ -103,7 +103,7 @@ The following Revit scenarios fall outside BimDown's scope and will be exported 
 ## CLI
 
 ```bash
-npm install -g bimdown
+npm install -g bimdown-cli
 
 bimdown validate ./my-project     # check for errors
 bimdown info ./my-project         # project summary
