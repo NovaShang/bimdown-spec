@@ -10,9 +10,9 @@ An open-source, AI-native building data format — with **full round-trip suppor
 
 BimDown uses **CSV** for attributes and **SVG** for 2D geometry — simple enough for any LLM to read and write, structured enough for real BIM workflows. The included Revit add-in enables **bidirectional sync**: export from Revit to BimDown, let AI agents modify the data, then import back into Revit with changes preserved.
 
-## Use with AI Coding Agents
+## Use with AI Agents
 
-BimDown is designed to be natively operated by AI coding agents. By installing a **skill file**, the agent learns the full BimDown schema, coordinate rules, and CLI usage — enabling it to create, query, and modify building models autonomously.
+BimDown is designed to be natively operated by AI agents like **OpenClaw**, **Claude Code**, **Gemini CLI**, **Cursor**, **VS Code with Copilot**, **Antigravity**, and any other agent that supports agent skills / custom instructions. By installing a **skill file**, the agent learns the full BimDown schema, coordinate rules, and CLI usage — enabling it to create, query, and modify building models autonomously.
 
 ### Claude Code / OpenClaw
 
@@ -24,7 +24,7 @@ Copy and paste the following into your AI chat:
 > ```
 > **Read the SKILL.md to understand the architectural rules, then wait for my instructions."**
 
-### Other Coding Agents (Cursor, Windsurf, Cline, etc.)
+### Other Agents (Gemini CLI, Cursor, VS Code + Copilot, Antigravity, etc.)
 
 For any agent that supports custom instructions or system prompts:
 
