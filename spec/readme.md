@@ -58,7 +58,7 @@ All elements belong to a **base level** (their `level_id`).
 | `wall`           | Line            | `<path>` | Architectural wall with thickness and vertical span |
 | `column`         | Point           | `<rect>`/`<circle>` | Architectural column with section profile |
 | `slab`           | Polygon         | `<polygon>` | Floor/roof/finish slab |
-| `space`          | Seed point      | No      | Named space/room (boundary derived from walls + room_separator) |
+| `space`          | Seed point      | `<polygon>` (computed) | Named space/room (boundary computed by `build` from walls, curtain walls, room separators) |
 | `door`           | Hosted on wall  | No      | Door with operation type |
 | `window`         | Hosted on wall  | No      | Window with dimensions |
 | `opening`        | Hosted          | Conditional | Wall opening (no SVG) or slab opening (`<rect>`/`<polygon>`) |
@@ -196,7 +196,7 @@ Line elements use `<path>` with `M`, `L`, `A` commands. This naturally supports 
 
 Some elements have no SVG representation:
 - **Door/Window**: Fully defined by `host_id` + `position` (parametric placement on wall). Absolute coordinates would require re-syncing whenever the host wall moves.
-- **Space**: Defined by seed point `(x, y)`. Boundary is auto-derived from surrounding walls and room separators.
+- **Space**: Defined by seed point `(x, y)` in CSV. Boundary polygon is auto-computed by `bimdown build` from surrounding walls, curtain walls, room separators, and structure walls using a half-edge face tracing algorithm. The generated `space.svg` contains `<polygon>` elements whose IDs match the space CSV rows.
 - **Grid/Level**: Global reference data with coordinates in CSV.
 
 ### Unified Foundation Type
@@ -222,7 +222,7 @@ MEP networks form a **bipartite graph**: `mep_curve` (duct, pipe, cable_tray, co
 **AI authoring workflow**:
 1. Place equipment and terminals (anchors)
 2. Draw duct/pipe segments connecting them (endpoint coordinates)
-3. Call CLI `validate` / `resolve-topology` — this detects coincident endpoints, generates `mep_node` entries at junctions, and back-fills `start_node_id`/`end_node_id` on each segment. Warns about disconnected endpoints.
+3. Call CLI `build` / `resolve-topology` — this detects coincident endpoints, generates `mep_node` entries at junctions, and back-fills `start_node_id`/`end_node_id` on each segment. Warns about disconnected endpoints.
 
 **Revit export**: Fittings and accessories are exported as `mep_node`. Curve endpoints are taken from connector positions (not `LocationCurve`), so they naturally coincide with node positions. `start_node_id`/`end_node_id` are derived from Revit's connector relationships.
 

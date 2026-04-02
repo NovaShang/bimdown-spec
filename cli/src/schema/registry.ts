@@ -29,7 +29,7 @@ export const GLOBAL_ALLOWED_TABLES = new Set([
 ]);
 
 // Tables without SVG geometry (level/grid are global-only, door/window use CSV position)
-const TABLES_WITHOUT_SVG = new Set(['level', 'grid', 'door', 'window', 'space', 'mesh']);
+const TABLES_WITHOUT_SVG = new Set(['level', 'grid', 'door', 'window', 'mesh']);
 
 // SVG file name mapping: table name -> svg file name (without extension)
 // SVG files use the same name as the CSV (both singular): wall.csv + wall.svg

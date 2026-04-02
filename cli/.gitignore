@@ -15,7 +15,7 @@ jspm_packages/
 dist/
 dist-ssr/
 out/
-build/
+/build/
 
 # TypeScript
 *.tsbuildinfo

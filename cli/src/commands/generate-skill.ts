@@ -77,7 +77,7 @@ project/
   lv-1/                        # per-level files
     wall.csv + wall.svg        # elements with geometry have paired CSV+SVG
     door.csv                   # hosted elements are CSV-only (parametric position on host wall)
-    space.csv                  # spaces are CSV-only (seed point, boundary auto-derived)
+    space.csv                  # spaces: CSV seed point + space.svg boundary (computed by build)
     ...
   lv-2/
     ...
@@ -94,15 +94,15 @@ project/
 2. **Write SVG geometry first**: Create the \`.svg\` files (walls, slabs, columns) with correct coordinates. Geometry determines everything else.
 3. **Write CSV attributes second**: Create the \`.csv\` files with element properties (material, thickness, etc.). Remember: do NOT include computed fields like \`level_id\`, \`length\`, \`area\`.
 4. **Render and visually verify**: Run \`bimdown render <dir> -o render.png\` and **view the PNG image** to confirm the layout is correct. Check that walls connect properly, rooms are enclosed, and doors/windows are in the right positions.
-5. **Validate**: Run \`bimdown validate <dir>\` to catch any schema or reference errors.
-6. **Iterate**: If the render shows problems, fix the SVG geometry and re-render until the layout looks right.
+5. **Build**: Run \`bimdown build <dir>\` to validate schema, check geometry, and compute space boundaries (generates \`space.svg\` from seed points).
+6. **Iterate**: If the render or build shows problems, fix the SVG geometry and re-render until the layout looks right.
 
 ## CLI Tools & Best Practices
 
 1. **\`bimdown query <dir> <sql> --json\`**: Runs DuckDB SQL across all tables, including SVG-derived virtual columns.
    - **Example**: \`bimdown query ./proj "SELECT id, length FROM wall WHERE length > 5.0" --json\`
 2. **\`bimdown render <dir> [-l level] [-o output.png] [-w width]\`**: Renders a level into a PNG blueprint image (default 2048px wide). Use \`.svg\` extension for SVG output. **Always render after modifying geometry and view the PNG to visually verify the result.**
-3. **\`bimdown validate <dir>\`**: Validates the project directory against schema constraints. **Run this EVERY TIME after modifying CSV or SVG files** to catch ID format, reference, and structure errors early!
+3. **\`bimdown build <dir>\`**: Validates the project, checks geometry (wall connectivity, hosted element bounds), and computes space boundaries (generates \`space.svg\`). **Run this EVERY TIME after modifying CSV or SVG files!** Also available as \`bimdown validate\` (alias).
 4. **\`bimdown schema [table]\`**: Prints the full schema for any element type. Use this to look up fields before creating elements.
 5. **\`bimdown diff <dirA> <dirB>\`**: Emits a \`+\`, \`-\`, \`~\` structural difference between project snapshots.
 6. **\`bimdown init <dir>\`**: Creates a new empty BimDown project with the correct directory structure.
@@ -112,7 +112,7 @@ project/
 - **ID format**:
   - **Grid and Level** allow any string after prefix: ${freeformExamples.join('; ')}
   - **All other elements** use \`{prefix}-{number}\` (digits only): ${numericExamples.slice(0, 6).join(', ')}, ...
-  - **Always run \`bimdown validate\` to confirm your IDs are compliant.**
+  - **Always run \`bimdown build\` to confirm your IDs are compliant.**
 - **SVG Coordinate Y-Flip**: All geometry inside \`.svg\` files **MUST** be wrapped in a Y-axis flip group: \`<g transform="scale(1,-1)"> ... </g>\`. This is just a fixed boilerplate — you do NOT need to do any coordinate conversion. Use normal Cartesian coordinates (X = right, Y = up) directly inside the group.
 - **CSV vs Computed Fields**: Only write fields that are NOT marked as computed. Specifically, \`level_id\`, \`length\`, \`area\`, \`start_x/y\`, \`end_x/y\`, \`perimeter\`, \`volume\`, \`bbox_*\` are all auto-computed — never write them to CSV.
 - **Vertical positioning** (walls, columns, and other vertical elements):
@@ -122,6 +122,43 @@ project/
   - \`top_offset\`: vertical offset in meters from the top level. Default 0. Usually leave empty.
   - \`height\`: auto-computed from level elevations and offsets — do NOT write to CSV.
   - **For most single-story walls**: leave \`top_level_id\`, \`top_offset\`, and \`base_offset\` all empty — the CLI will compute the correct height from level elevations.
+
+## Generation Tips
+
+### Typical Values (meters)
+| Element | Field | Typical Range |
+|---------|-------|--------------|
+| Wall (partition) | thickness | 0.1 – 0.15 |
+| Wall (exterior) | thickness | 0.2 – 0.3 |
+| Wall (structural) | thickness | 0.3 – 0.6 |
+| Door (single) | width × height | 0.9 × 2.1 |
+| Door (double) | width × height | 1.8 × 2.1 |
+| Window | width × height | 1.2–1.8 × 1.5 |
+| Column | size_x × size_y | 0.3–0.6 × 0.3–0.6 |
+| Slab | thickness | 0.15 – 0.25 |
+| Level spacing | elevation diff | 3.0 – 4.0 |
+
+### Room Boundary Connectivity
+Rooms are enclosed by **walls, curtain walls, columns, and room separators**. For the boundary to close properly:
+- Line element endpoints (walls, curtain walls, room separators) must meet exactly at shared coordinates
+- Example: w-1 ends at (10,0) → w-2 must start at (10,0) for an L-junction
+- The CLI \`build\` command warns about unconnected endpoints and computes space boundaries from closed loops
+
+### Door/Window Placement Rules
+- \`position\` = distance in meters from wall **start point** (the M coordinate in SVG path) to the opening **center**
+- Must satisfy: \`position - width/2 >= 0\` AND \`position + width/2 <= wall_length\`
+- Multiple openings on the same wall must not overlap
+- The CLI \`build\` command warns about out-of-bounds and overlapping placements
+
+### SVG File Template
+Always use this structure for SVG files:
+\`\`\`xml
+<svg xmlns="http://www.w3.org/2000/svg">
+  <g transform="scale(1,-1)">
+    <!-- elements here, using normal Cartesian coordinates (X=right, Y=up) -->
+  </g>
+</svg>
+\`\`\`
 
 ## Base Schema Definitions
 
