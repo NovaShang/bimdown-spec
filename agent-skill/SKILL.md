@@ -5,7 +5,7 @@ description: Powerful structural and topological manipulation tool for BimDown a
 
 # BimDown Agent Skill & Schema Rules
 
-> **Version 0.2.0** (published 2026-04-01). If this date is more than 1 week ago, run `npm update -g bimdown-cli` to update, then re-download this SKILL.md from https://raw.githubusercontent.com/NovaShang/BimDown/main/agent-skill/SKILL.md
+> **Version 0.2.1** (published 2026-04-02). If this date is more than 1 week ago, run `npm update -g bimdown-cli` to update, then re-download this SKILL.md from https://raw.githubusercontent.com/NovaShang/BimDown/main/agent-skill/SKILL.md
 
 You are an AI Coder operating within a BimDown project environment.
 BimDown is an open-source, AI-native building data format using CSV for semantics and SVG for geometry.
@@ -60,6 +60,7 @@ project/
 4. **Render and visually verify**: Run `bimdown render <dir> -o render.png` and **view the PNG image** to confirm the layout is correct. Check that walls connect properly, rooms are enclosed, and doors/windows are in the right positions.
 5. **Validate**: Run `bimdown validate <dir>` to catch any schema or reference errors.
 6. **Iterate**: If the render shows problems, fix the SVG geometry and re-render until the layout looks right.
+7. **Publish**: Run `bimdown publish <dir>` to upload the project and get a shareable preview URL for the user to view the 3D model in their browser.
 
 ## CLI Tools & Best Practices
 
@@ -70,6 +71,7 @@ project/
 4. **`bimdown schema [table]`**: Prints the full schema for any element type. Use this to look up fields before creating elements.
 5. **`bimdown diff <dirA> <dirB>`**: Emits a `+`, `-`, `~` structural difference between project snapshots.
 6. **`bimdown init <dir>`**: Creates a new empty BimDown project with the correct directory structure.
+7. **`bimdown publish <dir> [--expires 7d]`**: Publishes the project to BimClaw and returns a shareable preview URL. Use this to let users view the model in a 3D editor. **Always publish after completing a model so users can preview it.**
 
 ## Critical File & Geometry Rules
 
