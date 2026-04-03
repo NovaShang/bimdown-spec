@@ -320,19 +320,34 @@ public class ExportCommand : IExternalCommand
 
         RunStep("Mesh fallback GLB", errors, () =>
         {
+            var typeToMeshPath = new Dictionary<ElementId, string?>();
+
             foreach (var (elementId, _) in meshFallback.Elements)
             {
                 if (!elementIdToRow.TryGetValue(elementId, out var entry)) continue;
                 var element = doc.GetElement(elementId);
                 if (element is null) continue;
 
+                var typeId = element.GetTypeId();
+
+                // Reuse GLB for same type
+                if (typeId != ElementId.InvalidElementId && typeToMeshPath.TryGetValue(typeId, out var cached))
+                {
+                    entry.Row["mesh_file"] = cached ?? "";
+                    continue;
+                }
+
                 try
                 {
                     var meshPath = GlbExporter.ExportElement(element, outputDir, entry.ShortId);
                     entry.Row["mesh_file"] = meshPath ?? "";
+                    if (typeId != ElementId.InvalidElementId)
+                        typeToMeshPath[typeId] = meshPath;
                 }
                 catch (Exception ex)
                 {
+                    if (typeId != ElementId.InvalidElementId)
+                        typeToMeshPath[typeId] = null;
                     System.Diagnostics.Debug.WriteLine($"GLB fallback failed for {entry.ShortId}: {ex}");
                 }
             }
