@@ -63,7 +63,7 @@ npm install -g bimdown-cli
 
 ```bash
 bimdown init ./my-project               # create a new BimDown project
-bimdown validate ./my-project            # validate against schema constraints
+bimdown build ./my-project               # validate & compute boundaries (alias: validate)
 bimdown info ./my-project                # print project summary (levels, element counts)
 ```
 
