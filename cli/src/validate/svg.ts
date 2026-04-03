@@ -30,6 +30,7 @@ const EXPECTED_TAGS: Record<string, Set<string>> = {
   roof: new Set(['polygon']),
   ceiling: new Set(['polygon']),
   structure_slab: new Set(['polygon']),
+  space: new Set(['polygon']),
   // Mixed geometry
   foundation: new Set(['rect', 'circle', 'path', 'polygon']),
   opening: new Set(['rect', 'polygon']),

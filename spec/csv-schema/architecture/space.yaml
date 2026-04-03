@@ -15,3 +15,13 @@ fields:
 
   - name: name
     type: string
+
+  - name: boundary_points
+    type: string
+    computed: true
+    description: Space boundary polygon vertices (computed by build from surrounding walls)
+
+  - name: area
+    type: float
+    computed: true
+    description: Space area in square meters (computed from boundary polygon)
