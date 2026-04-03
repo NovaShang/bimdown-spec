@@ -76,8 +76,54 @@ public static class ArchitectureTableExporters
                 }
                 var thickness = e.get_Parameter(BuiltInParameter.ROOF_ATTR_THICKNESS_PARAM)?.AsDouble();
                 fields["thickness"] = thickness is { } t ? UnitConverter.FormatDouble(UnitConverter.Length(t)) : null;
+
+                // For FootprintRoof, override polygon with the footprint sketch
+                // (PolygonElementExtractor uses top solid face which is wrong for sloped roofs)
+                var footprint = GetRoofFootprint(e);
+                if (footprint is not null)
+                {
+                    fields["points"] = GeometryUtils.SerializePolygon(footprint.Value.Points);
+                    if (footprint.Value.HasCurvedEdges)
+                        fields["_has_curved_edges"] = "true";
+                }
                 return fields;
             }));
+
+    static (IList<XYZ> Points, bool HasCurvedEdges)? GetRoofFootprint(Element element)
+    {
+        if (element is not FootPrintRoof fpRoof) return null;
+
+        var profiles = fpRoof.GetProfiles();
+        if (profiles.Size == 0) return null;
+
+        // Use the largest profile (outer boundary)
+        ModelCurveArray? bestProfile = null;
+        double bestLength = 0;
+        foreach (ModelCurveArray profile in profiles)
+        {
+            double len = 0;
+            foreach (ModelCurve mc in profile)
+                len += mc.GeometryCurve.Length;
+            if (len > bestLength)
+            {
+                bestLength = len;
+                bestProfile = profile;
+            }
+        }
+
+        if (bestProfile is null) return null;
+
+        var points = new List<XYZ>();
+        var hasCurvedEdges = false;
+        foreach (ModelCurve mc in bestProfile)
+        {
+            var curve = mc.GeometryCurve;
+            points.Add(curve.GetEndPoint(0));
+            if (curve is not Line) hasCurvedEdges = true;
+        }
+
+        return points.Count >= 3 ? (points, hasCurvedEdges) : null;
+    }
 
     public static ITableExporter Ceiling() => new TableExporter(
         "ceiling",
