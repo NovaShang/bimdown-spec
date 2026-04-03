@@ -6,13 +6,13 @@
 
 [English](./README.md)
 
-开源的 AI 原生建筑数据格式 — **支持与 Autodesk Revit 双向互通（Round-Trip）**。
+开源的 AI 原生建筑数据格式、命令行工具以及 **BIM 领域 AI Agent Skill** — **支持与 Autodesk Revit 双向互通（Round-Trip）**。
 
 BimDown 用 **CSV** 存储属性，用 **SVG** 存储二维几何 — 简单到任何大语言模型都能直接读写，同时又足够结构化来支撑真实的 BIM 工作流。内置的 Revit 插件实现了**双向同步**：从 Revit 导出到 BimDown，用 AI 或手动修改数据，再导回 Revit，改动完整保留。
 
-## 配合 AI Agent 使用
+## 配合 AI Agent 使用 (BIM Skill)
 
-BimDown 天生为 AI Agent 设计，支持 **OpenClaw**、**Claude Code**、**Gemini CLI**、**Cursor**、**VS Code + Copilot**、**Antigravity** 等所有支持 Agent Skill / 自定义指令的 Agent。通过安装一个 **Skill 文件**，Agent 可以学习完整的 BimDown 数据模式、坐标规则和 CLI 用法 — 从而自主创建、查询和修改建筑模型。
+BimDown 天生为 AI Agent 设计，支持 **OpenClaw**、**Claude Code**、**Gemini CLI**、**Cursor**、**VS Code + Copilot**、**Antigravity** 等所有支持 Agent Skill / 自定义指令的 Agent。通过安装 **BimDown AI Agent Skill**，你的大模型可以学习完整的 BIM 数据模式、坐标规则和 CLI 用法 — 从而自主创建、查询和修改建筑模型。
 
 ### 配置
 
@@ -63,7 +63,7 @@ npm install -g bimdown-cli
 
 ```bash
 bimdown init ./my-project               # 创建新的 BimDown 项目
-bimdown validate ./my-project            # 按 schema 约束验证项目
+bimdown build ./my-project               # 验证并计算边界（别名：validate）
 bimdown info ./my-project                # 打印项目概要（楼层、构件数量）
 ```
 
@@ -105,6 +105,12 @@ bimdown render ./my-project -o blueprint.svg    # 自定义输出路径
 ```bash
 bimdown diff ./project-v1 ./project-v2          # 显示结构差异（+, -, ~）
 bimdown merge ./projectA ./projectB -o ./merged  # 合并项目，自动解决 ID 冲突
+```
+
+### 发布
+
+```bash
+bimdown publish ./my-project          # 发布到 BimClaw并获取分享链接
 ```
 
 ### MEP 拓扑
