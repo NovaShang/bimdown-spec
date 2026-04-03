@@ -67,6 +67,22 @@ static class L
     public static string Warnings(int count) => S($"\n\nWarnings ({count}):", $"\n\n警告 ({count}):");
     public static string Errors(int count) => S($"\n\nErrors ({count}):", $"\n\n错误 ({count}):");
 
+    // ── Share ──
+    public static string ShareButton => S("Share", "分享");
+    public static string ShareTooltip => S("Export and share model via BimClaw", "导出并通过 BimClaw 分享模型");
+    public static string ShareProgressTitle => S("BimDown Share", "BimDown 分享中");
+    public static string ShareExporting => S("Exporting model...", "正在导出模型...");
+    public static string SharePacking => S("Packing files...", "正在打包文件...");
+    public static string ShareUploading => S("Uploading to BimClaw...", "正在上传到 BimClaw...");
+    public static string ShareResultTitle => S("Share Link", "分享链接");
+    public static string ShareSuccess(string url, string expiresAt) =>
+        S($"Share link created!\n\n{url}\n\nExpires: {expiresAt}", $"分享链接已创建！\n\n{url}\n\n过期时间: {expiresAt}");
+    public static string ShareCopyLink => S("Copy Link", "复制链接");
+    public static string ShareOpenBrowser => S("Open in Browser", "在浏览器中打开");
+    public static string ShareFailed(string error) =>
+        S($"Share failed:\n{error}", $"分享失败:\n{error}");
+    public static string ShareClose => S("Close", "关闭");
+
     // ── Category Names ──
     public static string CatWall => S("Wall", "墙");
     public static string CatColumn => S("Column", "柱");

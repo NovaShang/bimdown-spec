@@ -21,7 +21,23 @@ public class ExportCommand : IExternalCommand
             return Result.Cancelled;
 
         var settings = settingsForm.Result;
-        var outputDir = settings.OutputDir;
+        var (tableCount, errors) = RunExport(doc, settings, settings.OutputDir);
+
+        var msg = $"Exported {tableCount} tables to:\n{settings.OutputDir}";
+        if (errors.Count > 0)
+            msg += $"\n\nWarnings ({errors.Count}):\n" + string.Join("\n", errors);
+
+        Autodesk.Revit.UI.TaskDialog.Show("BimDown Export", msg);
+        return Result.Succeeded;
+    }
+
+    /// <summary>
+    /// Runs the full export pipeline to the specified directory.
+    /// Returns the number of exported tables and any errors encountered.
+    /// </summary>
+    internal static (int TableCount, List<string> Errors) RunExport(
+        Document doc, ExportSettings settings, string outputDir)
+    {
         var enabled = settings.EnabledTables;
 
         ITableExporter[] allExporters =
@@ -62,7 +78,6 @@ public class ExportCommand : IExternalCommand
         ];
 
         var exporters = allExporters.Where(e => enabled.Contains(e.TableName)).ToArray();
-        // Mesh exporter is always included if enabled in settings
         ITableExporter[] withMesh = settings.ExportMesh
             ? [.. exporters, new MeshExporter()]
             : exporters;
@@ -71,7 +86,6 @@ public class ExportCommand : IExternalCommand
         var errors = new List<string>();
         var meshFallback = new MeshFallbackSet();
 
-        // Wire up mesh fallback detection on all TableExporters
         foreach (var exp in withMesh)
         {
             if (exp is TableExporter te)
@@ -82,12 +96,10 @@ public class ExportCommand : IExternalCommand
         SeedIds(doc, idGen, errors);
         var exported = ExportTables(doc, withMesh, errors);
 
-        // Two-pass ID remapping: global tables first, then level-partitioned tables
         RemapGlobalIds(exported, idGen);
         var levelIndex = BuildLevelIndex(exported);
         RemapPartitionedIds(exported, idGen, levelIndex);
 
-        // Export GLB for mesh fallback elements and set mesh_file in their rows
         if (settings.ExportMesh)
         {
             ExportMeshFiles(outputDir, exported, idGen, errors);
@@ -101,12 +113,7 @@ public class ExportCommand : IExternalCommand
         if (settings.WriteIdsToModel)
             WriteIdsToModel(doc, idGen, errors);
 
-        var msg = $"Exported {exported.Count} tables to:\n{outputDir}";
-        if (errors.Count > 0)
-            msg += $"\n\nWarnings ({errors.Count}):\n" + string.Join("\n", errors);
-
-        Autodesk.Revit.UI.TaskDialog.Show("BimDown Export", msg);
-        return Result.Succeeded;
+        return (exported.Count, errors);
     }
 
     static void EnsureParameter(Document doc, List<string> errors)

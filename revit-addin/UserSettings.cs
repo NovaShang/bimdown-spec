@@ -23,6 +23,18 @@ static class UserSettings
         set => Set("LastImportPath", value);
     }
 
+    public static string ShareApiBase
+    {
+        get => Get("ShareApiBase") ?? "https://bim-claw.com";
+        set => Set("ShareApiBase", value);
+    }
+
+    public static string ShareExpires
+    {
+        get => Get("ShareExpires") ?? "7d";
+        set => Set("ShareExpires", value);
+    }
+
     public static List<string>? GetList(string key)
     {
         var raw = Get(key);
