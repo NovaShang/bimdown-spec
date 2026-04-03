@@ -121,10 +121,20 @@ public class ShareCommand : IExternalCommand
         var expires = UserSettings.ShareExpires;
 
         using var content = new MultipartFormDataContent();
-        var fileBytes = File.ReadAllBytes(zipPath);
-        content.Add(new ByteArrayContent(fileBytes), "file", Path.GetFileName(zipPath));
-        content.Add(new StringContent(projectName), "name");
-        content.Add(new StringContent(expires), "expires");
+
+        var fileContent = new ByteArrayContent(File.ReadAllBytes(zipPath));
+        fileContent.Headers.ContentType = new("application/zip");
+        fileContent.Headers.ContentDisposition =
+            new("form-data") { Name = "\"file\"", FileName = "\"project.zip\"" };
+        content.Add(fileContent);
+
+        var nameContent = new StringContent(projectName);
+        nameContent.Headers.ContentDisposition = new("form-data") { Name = "\"name\"" };
+        content.Add(nameContent);
+
+        var expiresContent = new StringContent(expires);
+        expiresContent.Headers.ContentDisposition = new("form-data") { Name = "\"expires\"" };
+        content.Add(expiresContent);
 
         var response = Http.PostAsync($"{apiBase}/api/shares/publish", content)
             .GetAwaiter().GetResult();
