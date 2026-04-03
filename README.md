@@ -107,6 +107,12 @@ bimdown diff ./project-v1 ./project-v2          # show structural differences (+
 bimdown merge ./projectA ./projectB -o ./merged  # merge projects, resolving ID conflicts
 ```
 
+### Publishing
+
+```bash
+bimdown publish ./my-project          # publish to BimClaw and get a shareable link
+```
+
 ### MEP Topology
 
 ```bash

@@ -108,6 +108,10 @@ project/
 5. **\`bimdown diff <dirA> <dirB>\`**: Emits a \`+\`, \`-\`, \`~\` structural difference between project snapshots.
 6. **\`bimdown init <dir>\`**: Creates a new empty BimDown project with the correct directory structure.
 7. **\`bimdown publish <dir> [--expires 7d]\`**: Publishes the project to BimClaw and returns a shareable preview URL. Use this to let users view the model in a 3D editor. **Always publish after completing a model so users can preview it.**
+8. **\`bimdown info <dir>\`**: Prints project summary (levels, element counts).
+9. **\`bimdown resolve-topology <dir>\`**: Auto-detects coincident endpoints for MEP curves, generates \`mep_nodes\`, and fills connectivity fields.
+10. **\`bimdown merge <dirs...> -o <output>\`**: Merges multiple project directories into one, resolving ID conflicts.
+11. **\`bimdown sync <dir>\`**: Hydrates into DuckDB and dehydrates back out to CSV/SVG, applying computed defaults.
 
 ## Critical File & Geometry Rules
 
