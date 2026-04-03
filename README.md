@@ -6,13 +6,13 @@
 
 [中文文档](./README.zh-CN.md)
 
-An open-source, AI-native building data format — with **full round-trip support for Autodesk Revit**.
+An open-source, AI-native building data format and **AI Agent Skill for BIM** — with **full round-trip support for Autodesk Revit**.
 
 BimDown uses **CSV** for attributes and **SVG** for 2D geometry — simple enough for any LLM to read and write, structured enough for real BIM workflows. The included Revit add-in enables **bidirectional sync**: export from Revit to BimDown, let AI agents modify the data, then import back into Revit with changes preserved.
 
-## Use with AI Agents
+## Use with AI Agents (BIM Skill)
 
-BimDown is designed to be natively operated by AI agents like **OpenClaw**, **Claude Code**, **Gemini CLI**, **Cursor**, **VS Code with Copilot**, **Antigravity**, and any other agent that supports agent skills / custom instructions. By installing a **skill file**, the agent learns the full BimDown schema, coordinate rules, and CLI usage — enabling it to create, query, and modify building models autonomously.
+BimDown is designed to be natively operated by AI agents like **OpenClaw**, **Claude Code**, **Gemini CLI**, **Cursor**, **VS Code with Copilot**, **Antigravity**, and any other agent that supports agent skills / custom instructions. By installing the **BimDown AI Agent Skill**, your LLM learns the full BIM schema, coordinate rules, and CLI usage — enabling it to create, query, and modify building models autonomously.
 
 ### Setup
 

@@ -19,7 +19,9 @@
     "csv",
     "svg",
     "llm",
-    "ai"
+    "ai",
+    "agent",
+    "skill"
   ],
   "files": [
     "dist",
