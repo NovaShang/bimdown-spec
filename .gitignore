@@ -16,6 +16,13 @@ libs/
 # Source Revit models (large binaries)
 SourceRevitModels/
 
+# Revit addin publish output
+revit-addin/publish/
+
+# Sample data exports (regenerated from Revit)
+sample_data/snowdon_*/
+sample_data/merged/
+
 # OS
 .DS_Store
 Thumbs.db
