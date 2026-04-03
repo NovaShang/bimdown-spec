@@ -1,4 +1,5 @@
 using Autodesk.Revit.DB;
+using Autodesk.Revit.DB.Visual;
 using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
@@ -7,11 +8,13 @@ using SharpGLTF.Scenes;
 namespace BimDown.RevitAddin;
 
 using VERTEX = VertexPosition;
+using Vec3 = System.Numerics.Vector3;
+using Vec4 = System.Numerics.Vector4;
 
 static class GlbExporter
 {
     /// <summary>
-    /// Exports an element's geometry to a GLB file.
+    /// Exports an element's geometry to a GLB file with per-face PBR materials.
     /// Returns the relative path (e.g., "mesh/mesh-1.glb") or null if no geometry found.
     /// </summary>
     internal static string? ExportElement(Element element, string outputDir, string shortId)
@@ -19,20 +22,16 @@ static class GlbExporter
         var triangles = ExtractTriangles(element);
         if (triangles.Count == 0) return null;
 
-        var material = new MaterialBuilder("default")
-            .WithDoubleSide(true)
-            .WithMetallicRoughnessShader()
-            .WithBaseColor(new System.Numerics.Vector4(0.7f, 0.7f, 0.7f, 1f));
-
+        var doc = element.Document;
+        var materialCache = new Dictionary<ElementId, MaterialBuilder>();
         var mesh = new MeshBuilder<VERTEX>("mesh");
-        var primitive = mesh.UsePrimitive(material);
 
-        foreach (var (a, b, c) in triangles)
+        foreach (var group in triangles.GroupBy(t => t.MaterialId))
         {
-            primitive.AddTriangle(
-                new VERTEX(a),
-                new VERTEX(b),
-                new VERTEX(c));
+            var matBuilder = GetOrCreateMaterial(doc, group.Key, materialCache);
+            var primitive = mesh.UsePrimitive(matBuilder);
+            foreach (var (a, b, c, _) in group)
+                primitive.AddTriangle(new VERTEX(a), new VERTEX(b), new VERTEX(c));
         }
 
         var scene = new SceneBuilder();
@@ -48,10 +47,129 @@ static class GlbExporter
         return $"mesh/{fileName}";
     }
 
-    static List<(System.Numerics.Vector3 A, System.Numerics.Vector3 B, System.Numerics.Vector3 C)>
+    static MaterialBuilder GetOrCreateMaterial(Document doc, ElementId materialId,
+        Dictionary<ElementId, MaterialBuilder> cache)
+    {
+        if (cache.TryGetValue(materialId, out var cached)) return cached;
+
+        var mat = BuildPbrMaterial(doc, materialId);
+        cache[materialId] = mat;
+        return mat;
+    }
+
+    static MaterialBuilder BuildPbrMaterial(Document doc, ElementId materialId)
+    {
+        var revitMat = materialId != ElementId.InvalidElementId
+            ? doc.GetElement(materialId) as Material
+            : null;
+
+        if (revitMat is null) return DefaultMaterial();
+
+        // Try appearance asset for PBR properties
+        if (revitMat.AppearanceAssetId != ElementId.InvalidElementId
+            && doc.GetElement(revitMat.AppearanceAssetId) is AppearanceAssetElement assetElem)
+        {
+            var asset = assetElem.GetRenderingAsset();
+            if (asset is not null)
+            {
+                var result = ExtractFromAsset(asset, revitMat.Name);
+                if (result is not null) return result;
+            }
+        }
+
+        // Fallback to Material.Color / Transparency
+        return BuildFromBasicProperties(revitMat);
+    }
+
+    static MaterialBuilder? ExtractFromAsset(Asset asset, string name)
+    {
+        var color = GetAssetColor(asset, "generic_diffuse");
+        if (color is null) return null;
+
+        var transparency = GetAssetFloat(asset, "generic_transparency") ?? 0f;
+        var glossiness = GetAssetFloat(asset, "generic_glossiness") ?? 0.5f;
+        var reflectivity = GetAssetFloat(asset, "generic_reflectivity_at_0deg") ?? 0.04f;
+
+        var alpha = 1f - transparency;
+        var metallic = reflectivity > 0.5f ? reflectivity : 0f;
+        var roughness = 1f - glossiness;
+
+        var mat = new MaterialBuilder(name)
+            .WithDoubleSide(true)
+            .WithMetallicRoughnessShader()
+            .WithBaseColor(new Vec4(color.Value.X, color.Value.Y, color.Value.Z, alpha))
+            .WithMetallicRoughness(metallic, roughness);
+
+        if (alpha < 1f)
+            mat.WithAlpha(AlphaMode.BLEND);
+
+        return mat;
+    }
+
+    static Vec3? GetAssetColor(Asset asset, string propertyName)
+    {
+        for (var i = 0; i < asset.Size; i++)
+        {
+            var prop = asset[i];
+            if (prop.Name != propertyName) continue;
+
+            if (prop is AssetPropertyDoubleArray4d color4d)
+            {
+                var c = color4d.GetValueAsColor();
+                return new Vec3(c.Red / 255f, c.Green / 255f, c.Blue / 255f);
+            }
+        }
+        return null;
+    }
+
+    static float? GetAssetFloat(Asset asset, string propertyName)
+    {
+        for (var i = 0; i < asset.Size; i++)
+        {
+            var prop = asset[i];
+            if (prop.Name != propertyName) continue;
+
+            if (prop is AssetPropertyDouble d)
+                return (float)d.Value;
+            if (prop is AssetPropertyFloat f)
+                return f.Value;
+            if (prop is AssetPropertyInteger intProp)
+                return intProp.Value / 100f; // transparency/glossiness often stored as 0-100 int
+        }
+        return null;
+    }
+
+    static MaterialBuilder BuildFromBasicProperties(Material revitMat)
+    {
+        var c = revitMat.Color;
+        var r = c.IsValid ? c.Red / 255f : 0.7f;
+        var g = c.IsValid ? c.Green / 255f : 0.7f;
+        var b = c.IsValid ? c.Blue / 255f : 0.7f;
+        var alpha = 1f - revitMat.Transparency / 100f;
+
+        var mat = new MaterialBuilder(revitMat.Name)
+            .WithDoubleSide(true)
+            .WithMetallicRoughnessShader()
+            .WithBaseColor(new Vec4(r, g, b, alpha))
+            .WithMetallicRoughness(0f, 0.8f);
+
+        if (alpha < 1f)
+            mat.WithAlpha(AlphaMode.BLEND);
+
+        return mat;
+    }
+
+    static MaterialBuilder DefaultMaterial() =>
+        new MaterialBuilder("default")
+            .WithDoubleSide(true)
+            .WithMetallicRoughnessShader()
+            .WithBaseColor(new Vec4(0.7f, 0.7f, 0.7f, 1f))
+            .WithMetallicRoughness(0f, 0.8f);
+
+    static List<(Vec3 A, Vec3 B, Vec3 C, ElementId MaterialId)>
         ExtractTriangles(Element element)
     {
-        var result = new List<(System.Numerics.Vector3, System.Numerics.Vector3, System.Numerics.Vector3)>();
+        var result = new List<(Vec3, Vec3, Vec3, ElementId)>();
 
         var options = new Options
         {
@@ -67,7 +185,7 @@ static class GlbExporter
     }
 
     static void CollectTriangles(GeometryElement geomElement,
-        List<(System.Numerics.Vector3, System.Numerics.Vector3, System.Numerics.Vector3)> result)
+        List<(Vec3, Vec3, Vec3, ElementId)> result)
     {
         foreach (var geomObj in geomElement)
         {
@@ -78,13 +196,15 @@ static class GlbExporter
                     {
                         var mesh = face.Triangulate();
                         if (mesh is null) continue;
+                        var matId = face.MaterialElementId;
                         for (var i = 0; i < mesh.NumTriangles; i++)
                         {
                             var tri = mesh.get_Triangle(i);
                             result.Add((
                                 ToVec3(tri.get_Vertex(0)),
                                 ToVec3(tri.get_Vertex(1)),
-                                ToVec3(tri.get_Vertex(2))));
+                                ToVec3(tri.get_Vertex(2)),
+                                matId));
                         }
                     }
                     break;
@@ -95,11 +215,11 @@ static class GlbExporter
         }
     }
 
-    static System.Numerics.Vector3 ToVec3(XYZ pt)
+    static Vec3 ToVec3(XYZ pt)
     {
         // Convert from Revit feet to meters
         var m = UnitConverter.Length(1.0); // feet-to-meters factor
-        return new System.Numerics.Vector3(
+        return new Vec3(
             (float)(pt.X * m),
             (float)(pt.Z * m),  // Revit Z → GLB Y (up)
             (float)(-pt.Y * m)); // Revit Y → GLB -Z (forward)

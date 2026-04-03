@@ -637,8 +637,11 @@ class OpeningImporter() : TableImporterBase(
         if (positionStr is null || wall.Location is not LocationCurve hostCurve)
             throw new InvalidOperationException("position and host wall curve required");
 
-        var param = UnitConverter.ParseDouble(positionStr);
-        var rawParam = hostCurve.Curve.ComputeRawParameter(param);
+        var distanceMeters = UnitConverter.ParseDouble(positionStr);
+        var curveLength = hostCurve.Curve.Length; // feet
+        var normalizedParam = UnitConverter.LengthToFeet(distanceMeters) / curveLength;
+        normalizedParam = Math.Clamp(normalizedParam, 0, 1);
+        var rawParam = hostCurve.Curve.ComputeRawParameter(normalizedParam);
         var insertPt = hostCurve.Curve.Evaluate(rawParam, false);
 
         var widthStr = row.GetValueOrDefault("width") ?? "0.9";
@@ -699,13 +702,16 @@ static class HostedOpeningHelper
             if (!symbol.IsActive) symbol.Activate();
         }
 
-        // Calculate insertion point from position on host curve
+        // Calculate insertion point from position (distance in meters) on host curve
         XYZ insertPt;
         var locationParamStr = row.GetValueOrDefault("position");
         if (locationParamStr is not null && host.Location is LocationCurve hostCurve)
         {
-            var param = UnitConverter.ParseDouble(locationParamStr);
-            var rawParam = hostCurve.Curve.ComputeRawParameter(param);
+            var distanceMeters = UnitConverter.ParseDouble(locationParamStr);
+            var curveLength = hostCurve.Curve.Length; // feet
+            var normalizedParam = UnitConverter.LengthToFeet(distanceMeters) / curveLength;
+            normalizedParam = Math.Clamp(normalizedParam, 0, 1);
+            var rawParam = hostCurve.Curve.ComputeRawParameter(normalizedParam);
             insertPt = hostCurve.Curve.Evaluate(rawParam, false);
         }
         else
@@ -741,13 +747,16 @@ static class HostedOpeningHelper
                 fi.Symbol = newSymbol;
         }
 
-        // Update position on host
+        // Update position on host (position is distance in meters along wall)
         var locationParamStr = row.GetValueOrDefault("position");
         if (locationParamStr is not null && fi.Host is Wall host && host.Location is LocationCurve hostCurve
             && fi.Location is LocationPoint lp)
         {
-            var param = UnitConverter.ParseDouble(locationParamStr);
-            var rawParam = hostCurve.Curve.ComputeRawParameter(param);
+            var distanceMeters = UnitConverter.ParseDouble(locationParamStr);
+            var curveLength = hostCurve.Curve.Length; // feet
+            var normalizedParam = UnitConverter.LengthToFeet(distanceMeters) / curveLength;
+            normalizedParam = Math.Clamp(normalizedParam, 0, 1);
+            var rawParam = hostCurve.Curve.ComputeRawParameter(normalizedParam);
             var newPt = hostCurve.Curve.Evaluate(rawParam, false);
             lp.Point = newPt;
         }

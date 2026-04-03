@@ -282,7 +282,7 @@ public class ExportCommand : IExternalCommand
         if (meshData.Exporter is MeshExporter meshExporter && meshData.Rows is not null)
         {
             RunStep("GLB export", errors, () =>
-                meshExporter.ExportGlbFiles(outputDir, meshData.Rows, idGen.Mappings));
+                errors.AddRange(meshExporter.ExportGlbFiles(outputDir, meshData.Rows, idGen.Mappings)));
         }
     }
 
@@ -331,9 +331,9 @@ public class ExportCommand : IExternalCommand
                     var meshPath = GlbExporter.ExportElement(element, outputDir, entry.ShortId);
                     entry.Row["mesh_file"] = meshPath ?? "";
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // Skip elements whose geometry can't be exported
+                    System.Diagnostics.Debug.WriteLine($"GLB fallback failed for {entry.ShortId}: {ex}");
                 }
             }
         });

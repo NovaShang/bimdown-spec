@@ -65,9 +65,12 @@ class MeshExporter : ITableExporter
     /// Export GLB files for all mesh elements. Call after ID remapping so short IDs are used for filenames.
     /// Updates the mesh_file field in each row.
     /// </summary>
-    internal void ExportGlbFiles(string outputDir, List<Dictionary<string, string?>> rows,
+    internal List<string> ExportGlbFiles(string outputDir, List<Dictionary<string, string?>> rows,
         IReadOnlyDictionary<string, string> uidToShortId)
     {
+        var errors = new List<string>();
+        int ok = 0, noUid = 0, noElem = 0, noGeom = 0, fail = 0;
+
         foreach (var row in rows)
         {
             var shortId = row.GetValueOrDefault("id");
@@ -76,18 +79,28 @@ class MeshExporter : ITableExporter
             // Find the original element — look up the UID from the reverse mapping
             var uid = uidToShortId
                 .FirstOrDefault(kvp => kvp.Value == shortId).Key;
-            if (uid is null || !_elementsByUid.TryGetValue(uid, out var element)) continue;
+            if (uid is null) { noUid++; continue; }
+            if (!_elementsByUid.TryGetValue(uid, out var element)) { noElem++; continue; }
 
             try
             {
                 var meshPath = GlbExporter.ExportElement(element, outputDir, shortId);
                 row["mesh_file"] = meshPath ?? "";
+                if (meshPath is not null) ok++;
+                else noGeom++;
             }
-            catch
+            catch (Exception ex)
             {
                 row["mesh_file"] = "";
+                fail++;
+                if (fail <= 3)
+                    errors.Add($"GLB {shortId}: {ex.Message}");
             }
         }
+
+        if (fail > 0 || noUid > 0 || noElem > 0)
+            errors.Insert(0, $"GLB: {ok} ok, {noGeom} no geometry, {noUid} no UID, {noElem} no element, {fail} failed (of {rows.Count})");
+        return errors;
     }
 
     static Dictionary<string, string?>? ExtractRow(Element element)
