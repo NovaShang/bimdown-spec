@@ -34,4 +34,7 @@ cli/src/**/*.js
 
 # Local runtime data
 .data/
-api/api-log.txt
+api/api-log.txtdocs/
+
+
+docs/
