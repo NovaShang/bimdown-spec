@@ -282,6 +282,19 @@ program
     diffProjects(absA, absB);
   });
 
+// ─── publish ───────────────────────────────────────────
+program
+  .command('publish')
+  .argument('<dir>', 'BimDown project directory')
+  .option('--expires <duration>', 'Expiration time (e.g. 7d, 24h, 30m)', '7d')
+  .option('--api <url>', 'BimClaw API base URL')
+  .option('--name <name>', 'Project name')
+  .description('Publish a BimDown project to BimClaw for sharing')
+  .action(async (dir: string, opts: { expires?: string; api?: string; name?: string }) => {
+    const { publish } = await import('./commands/publish.js');
+    await publish(dir, opts);
+  });
+
 // ─── generate-skill ─────────────────────────────────────
 program
   .command('generate-skill')
