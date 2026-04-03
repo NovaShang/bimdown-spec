@@ -122,6 +122,13 @@ public class SampleProjectExportTests : RevitApiTest
                 levelIndex[sorted[i]["id"]!] = i;
         }
 
+        // Pass 3: export GLB mesh files (before CSV so mesh_file field is populated)
+        var meshData = exported.FirstOrDefault(e => e.Exporter is MeshExporter);
+        if (meshData.Exporter is MeshExporter meshExporter && meshData.Rows is not null)
+        {
+            errors.AddRange(meshExporter.ExportGlbFiles(outputDir, meshData.Rows, idGen.Mappings));
+        }
+
         // Write CSVs
         foreach (var (exporter, rows) in exported)
         {
@@ -188,20 +195,6 @@ public class SampleProjectExportTests : RevitApiTest
         var json = System.Text.Json.JsonSerializer.Serialize(metadata,
             new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
         File.WriteAllText(Path.Combine(outputDir, "project_metadata.json"), json);
-
-        // Pass 3: export GLB mesh files
-        var meshData = exported.FirstOrDefault(e => e.Exporter is MeshExporter);
-        if (meshData.Exporter is MeshExporter meshExporter && meshData.Rows is not null)
-        {
-            try
-            {
-                meshExporter.ExportGlbFiles(outputDir, meshData.Rows, idGen.Mappings);
-            }
-            catch (Exception ex)
-            {
-                errors.Add($"GLB export: {ex.Message}");
-            }
-        }
 
         // Pass 4: write SVG geometry layer
         if (levelData.Rows is not null)

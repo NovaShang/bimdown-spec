@@ -18,11 +18,13 @@ public class HostedElementExtractor : IFieldExtractor
             // Project the hosted element's location onto the host's curve to get the normalized parameter
             if (element.Location is LocationPoint lp && host.Location is LocationCurve hostCurve)
             {
-                var result = hostCurve.Curve.Project(lp.Point);
+                var curve = hostCurve.Curve;
+                var result = curve.Project(lp.Point);
                 if (result is not null)
                 {
-                    var normalized = hostCurve.Curve.ComputeNormalizedParameter(result.Parameter);
-                    fields["position"] = UnitConverter.FormatDouble(normalized);
+                    var normalized = curve.ComputeNormalizedParameter(result.Parameter);
+                    var distanceMeters = UnitConverter.Length(normalized * curve.Length);
+                    fields["position"] = UnitConverter.FormatDouble(distanceMeters);
                 }
             }
         }

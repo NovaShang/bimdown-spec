@@ -52,16 +52,26 @@ public class TableExporter(
     {
         if (MeshFallback is null) return;
 
-        // B1: Profile-edited wall
         if (element is Wall wall)
         {
-            if (wall.SketchId != ElementId.InvalidElementId)
-                MeshFallback.Add(element.Id, "edited_profile");
+            if (wall.WallType.Kind == WallKind.Curtain)
+            {
+                // Curtain wall: check base curve and profile geometry
+                if (wall.Location is LocationCurve lc && lc.Curve is not (Line or Arc))
+                    MeshFallback.Add(element.Id, "curved");
+                else if (!HasRectangularProfile(wall))
+                    MeshFallback.Add(element.Id, "edited_profile");
+            }
+            else
+            {
+                // Basic/stacked wall
+                if (wall.SketchId != ElementId.InvalidElementId)
+                    MeshFallback.Add(element.Id, "edited_profile");
 
-            // B2: Slanted wall
-            var slantAngle = wall.get_Parameter(BuiltInParameter.WALL_SINGLE_SLANT_ANGLE_FROM_VERTICAL)?.AsDouble() ?? 0;
-            if (Math.Abs(slantAngle) > 0.001)
-                MeshFallback.Add(element.Id, "slanted");
+                var slantAngle = wall.get_Parameter(BuiltInParameter.WALL_SINGLE_SLANT_ANGLE_FROM_VERTICAL)?.AsDouble() ?? 0;
+                if (Math.Abs(slantAngle) > 0.001)
+                    MeshFallback.Add(element.Id, "slanted");
+            }
         }
 
         // C1-C3: Curved polygon edges
@@ -71,5 +81,37 @@ public class TableExporter(
         // D: Point-based ramps/railings (no LocationCurve → geometry fields empty)
         if (tableName is "ramp" or "railing" && element.Location is not LocationCurve)
             MeshFallback.Add(element.Id, "point_based");
+    }
+
+    /// <summary>
+    /// Checks if a wall's sketch profile forms a rectangle (4 perpendicular lines).
+    /// Walls without a sketch are assumed rectangular (default profile).
+    /// </summary>
+    static bool HasRectangularProfile(Wall wall)
+    {
+        if (wall.SketchId == ElementId.InvalidElementId) return true;
+        if (wall.Document.GetElement(wall.SketchId) is not Sketch sketch) return true;
+
+        var profile = sketch.Profile;
+        if (profile.Size != 1) return false;
+
+        var loop = profile.get_Item(0);
+        if (loop.Size != 4) return false;
+
+        var lines = new List<Line>(4);
+        foreach (Curve curve in loop)
+        {
+            if (curve is not Line line) return false;
+            lines.Add(line);
+        }
+
+        // All consecutive edges must be perpendicular
+        for (var i = 0; i < 4; i++)
+        {
+            var dot = lines[i].Direction.DotProduct(lines[(i + 1) % 4].Direction);
+            if (Math.Abs(dot) > 0.01) return false;
+        }
+
+        return true;
     }
 }

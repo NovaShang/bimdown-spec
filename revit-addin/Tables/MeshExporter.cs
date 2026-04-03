@@ -65,29 +65,64 @@ class MeshExporter : ITableExporter
     /// Export GLB files for all mesh elements. Call after ID remapping so short IDs are used for filenames.
     /// Updates the mesh_file field in each row.
     /// </summary>
-    internal void ExportGlbFiles(string outputDir, List<Dictionary<string, string?>> rows,
+    internal List<string> ExportGlbFiles(string outputDir, List<Dictionary<string, string?>> rows,
         IReadOnlyDictionary<string, string> uidToShortId)
     {
+        var errors = new List<string>();
+        int ok = 0, noUid = 0, noElem = 0, noGeom = 0, fail = 0;
+
+        // Group rows by TypeId to deduplicate identical meshes
+        var typeToMeshPath = new Dictionary<ElementId, string?>();
+        var rowsWithElements = new List<(Dictionary<string, string?> Row, Element Element, string ShortId)>();
+
         foreach (var row in rows)
         {
             var shortId = row.GetValueOrDefault("id");
             if (shortId is null) continue;
 
-            // Find the original element — look up the UID from the reverse mapping
-            var uid = uidToShortId
-                .FirstOrDefault(kvp => kvp.Value == shortId).Key;
-            if (uid is null || !_elementsByUid.TryGetValue(uid, out var element)) continue;
+            var uid = uidToShortId.FirstOrDefault(kvp => kvp.Value == shortId).Key;
+            if (uid is null) { noUid++; continue; }
+            if (!_elementsByUid.TryGetValue(uid, out var element)) { noElem++; continue; }
+
+            rowsWithElements.Add((row, element, shortId));
+        }
+
+        foreach (var (row, element, shortId) in rowsWithElements)
+        {
+            var typeId = element.GetTypeId();
+
+            // If we already exported this type, reuse the path
+            if (typeId != ElementId.InvalidElementId && typeToMeshPath.TryGetValue(typeId, out var cached))
+            {
+                row["mesh_file"] = cached ?? "";
+                if (cached is not null) ok++;
+                else noGeom++;
+                continue;
+            }
 
             try
             {
                 var meshPath = GlbExporter.ExportElement(element, outputDir, shortId);
                 row["mesh_file"] = meshPath ?? "";
+                if (typeId != ElementId.InvalidElementId)
+                    typeToMeshPath[typeId] = meshPath;
+                if (meshPath is not null) ok++;
+                else noGeom++;
             }
-            catch
+            catch (Exception ex)
             {
                 row["mesh_file"] = "";
+                if (typeId != ElementId.InvalidElementId)
+                    typeToMeshPath[typeId] = null;
+                fail++;
+                if (fail <= 3)
+                    errors.Add($"GLB {shortId}: {ex.Message}");
             }
         }
+
+        if (fail > 0 || noUid > 0 || noElem > 0)
+            errors.Insert(0, $"GLB: {ok} ok, {noGeom} no geometry, {noUid} no UID, {noElem} no element, {fail} failed (of {rows.Count})");
+        return errors;
     }
 
     static Dictionary<string, string?>? ExtractRow(Element element)

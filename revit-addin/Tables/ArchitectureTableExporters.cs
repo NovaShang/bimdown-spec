@@ -93,64 +93,7 @@ public static class ArchitectureTableExporters
                 return fields;
             }));
 
-    public static ITableExporter Opening() => new TableExporter(
-        "opening",
-        [BuiltInCategory.OST_SWallRectOpening, BuiltInCategory.OST_FloorOpening, BuiltInCategory.OST_ShaftOpening],
-        new CompositeExtractor(
-            [new ElementExtractor()],
-            ["host_id", "position", "width", "height", "shape", "points", "area"],
-            e =>
-            {
-                var fields = new Dictionary<string, string?>();
-
-                // Determine host
-                Element? host = null;
-                if (e is Opening opening)
-                    host = opening.Host;
-                else if (e is FamilyInstance fi)
-                    host = fi.Host;
-
-                if (host is not null)
-                    fields["host_id"] = host.UniqueId;
-
-                // Wall opening mode
-                if (host is Wall)
-                {
-                    // Position along wall
-                    if (e is FamilyInstance fami && fami.Host is Wall hostWall
-                        && hostWall.Location is LocationCurve hostLc && fami.Location is LocationPoint lp)
-                    {
-                        var curve = hostLc.Curve;
-                        var result = curve.Project(lp.Point);
-                        if (result is not null)
-                            fields["position"] = UnitConverter.FormatDouble(
-                                curve.ComputeNormalizedParameter(result.Parameter));
-                    }
-
-                    var w = e.get_Parameter(BuiltInParameter.FAMILY_WIDTH_PARAM)?.AsDouble()
-                         ?? FindDoubleParameterByNames(e, "width", "w", "宽");
-                    var h = e.get_Parameter(BuiltInParameter.FAMILY_HEIGHT_PARAM)?.AsDouble()
-                         ?? FindDoubleParameterByNames(e, "height", "h", "高");
-                    fields["width"] = w is { } wv ? UnitConverter.FormatDouble(UnitConverter.Length(wv)) : null;
-                    fields["height"] = h is { } hv ? UnitConverter.FormatDouble(UnitConverter.Length(hv)) : null;
-                    fields["shape"] = "rect";
-                }
-                // Slab opening mode — extract polygon boundary
-                else if (e is Opening slabOpening)
-                {
-                    var boundary = slabOpening.BoundaryCurves;
-                    if (boundary is not null && boundary.Size > 0)
-                    {
-                        var pts = new List<XYZ>();
-                        foreach (Curve curve in boundary)
-                            pts.Add(curve.GetEndPoint(0));
-                        fields["points"] = GeometryUtils.SerializePolygon(pts);
-                    }
-                }
-
-                return fields;
-            },
-            ["points", "area"]));
+    public static ITableExporter Opening() => new OpeningTableExporter();
 
     public static ITableExporter Space() => new TableExporter(
         "space",

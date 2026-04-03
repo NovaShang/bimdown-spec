@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import { resolve } from 'node:path';
-import { validate } from './validate/index.js';
+import { build } from './build/index.js';
 import { buildRegistry, getSpecDir } from './schema/registry.js';
 import { discoverLayout, listFiles } from './utils/fs.js';
 import { readCsv } from './utils/csv.js';
@@ -13,27 +13,49 @@ const program = new Command();
 
 program
   .name('bimdown')
-  .description('BimDown CLI — validate, query, and manage BimDown projects')
+  .description('BimDown CLI — build, query, and manage BimDown projects')
   .version(typeof CLI_VERSION !== 'undefined' ? CLI_VERSION : '0.0.0');
 
-// ─── validate ───────────────────────────────────────────
+// ─── build ──────────────────────────────────────────────
+function runBuild(dir: string) {
+  const absDir = resolve(dir);
+  const result = build(absDir);
+
+  if (result.issues.length > 0) {
+    for (const issue of result.issues) {
+      console.log(issue);
+    }
+    console.log(`\n${result.issues.length} issue(s) found.`);
+    process.exitCode = 1;
+  }
+
+  if (result.warnings.length > 0) {
+    for (const w of result.warnings) {
+      console.log(w);
+    }
+    console.log(`\n${result.warnings.length} warning(s).`);
+  }
+
+  if (result.artifacts.length > 0) {
+    console.log(`\nGenerated: ${result.artifacts.join(', ')}`);
+  }
+
+  if (result.issues.length === 0 && result.warnings.length === 0) {
+    console.log('Build successful. No issues found.');
+  }
+}
+
+program
+  .command('build')
+  .argument('<dir>', 'BimDown project directory')
+  .description('Build a BimDown project (validate + compute space boundaries)')
+  .action((dir: string) => runBuild(dir));
+
 program
   .command('validate')
   .argument('<dir>', 'BimDown project directory')
-  .description('Validate a BimDown project directory')
-  .action((dir: string) => {
-    const absDir = resolve(dir);
-    const issues = validate(absDir);
-    if (issues.length === 0) {
-      console.log('No issues found.');
-    } else {
-      for (const issue of issues) {
-        console.log(issue);
-      }
-      console.log(`\n${issues.length} issue(s) found.`);
-      process.exitCode = 1;
-    }
-  });
+  .description('Alias for build')
+  .action((dir: string) => runBuild(dir));
 
 // ─── query ──────────────────────────────────────────────
 program

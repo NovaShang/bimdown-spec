@@ -35,8 +35,18 @@ public class BimDownApp : IExternalApplication
             Image = CreateIcon("I", 16),
         };
 
+        var shareButton = new PushButtonData(
+            "BimDownShare", L.ShareButton, assemblyPath,
+            typeof(ShareCommand).FullName)
+        {
+            ToolTip = L.ShareTooltip,
+            LargeImage = CreateIcon("S", 32),
+            Image = CreateIcon("S", 16),
+        };
+
         panel.AddItem(exportButton);
         panel.AddItem(importButton);
+        panel.AddItem(shareButton);
 
         return Result.Succeeded;
     }

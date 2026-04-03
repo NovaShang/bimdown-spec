@@ -21,7 +21,23 @@ public class ExportCommand : IExternalCommand
             return Result.Cancelled;
 
         var settings = settingsForm.Result;
-        var outputDir = settings.OutputDir;
+        var (tableCount, errors) = RunExport(doc, settings, settings.OutputDir);
+
+        var msg = $"Exported {tableCount} tables to:\n{settings.OutputDir}";
+        if (errors.Count > 0)
+            msg += $"\n\nWarnings ({errors.Count}):\n" + string.Join("\n", errors);
+
+        Autodesk.Revit.UI.TaskDialog.Show("BimDown Export", msg);
+        return Result.Succeeded;
+    }
+
+    /// <summary>
+    /// Runs the full export pipeline to the specified directory.
+    /// Returns the number of exported tables and any errors encountered.
+    /// </summary>
+    internal static (int TableCount, List<string> Errors) RunExport(
+        Document doc, ExportSettings settings, string outputDir)
+    {
         var enabled = settings.EnabledTables;
 
         ITableExporter[] allExporters =
@@ -62,7 +78,6 @@ public class ExportCommand : IExternalCommand
         ];
 
         var exporters = allExporters.Where(e => enabled.Contains(e.TableName)).ToArray();
-        // Mesh exporter is always included if enabled in settings
         ITableExporter[] withMesh = settings.ExportMesh
             ? [.. exporters, new MeshExporter()]
             : exporters;
@@ -71,7 +86,6 @@ public class ExportCommand : IExternalCommand
         var errors = new List<string>();
         var meshFallback = new MeshFallbackSet();
 
-        // Wire up mesh fallback detection on all TableExporters
         foreach (var exp in withMesh)
         {
             if (exp is TableExporter te)
@@ -82,12 +96,10 @@ public class ExportCommand : IExternalCommand
         SeedIds(doc, idGen, errors);
         var exported = ExportTables(doc, withMesh, errors);
 
-        // Two-pass ID remapping: global tables first, then level-partitioned tables
         RemapGlobalIds(exported, idGen);
         var levelIndex = BuildLevelIndex(exported);
         RemapPartitionedIds(exported, idGen, levelIndex);
 
-        // Export GLB for mesh fallback elements and set mesh_file in their rows
         if (settings.ExportMesh)
         {
             ExportMeshFiles(outputDir, exported, idGen, errors);
@@ -101,12 +113,7 @@ public class ExportCommand : IExternalCommand
         if (settings.WriteIdsToModel)
             WriteIdsToModel(doc, idGen, errors);
 
-        var msg = $"Exported {exported.Count} tables to:\n{outputDir}";
-        if (errors.Count > 0)
-            msg += $"\n\nWarnings ({errors.Count}):\n" + string.Join("\n", errors);
-
-        Autodesk.Revit.UI.TaskDialog.Show("BimDown Export", msg);
-        return Result.Succeeded;
+        return (exported.Count, errors);
     }
 
     static void EnsureParameter(Document doc, List<string> errors)
@@ -275,7 +282,7 @@ public class ExportCommand : IExternalCommand
         if (meshData.Exporter is MeshExporter meshExporter && meshData.Rows is not null)
         {
             RunStep("GLB export", errors, () =>
-                meshExporter.ExportGlbFiles(outputDir, meshData.Rows, idGen.Mappings));
+                errors.AddRange(meshExporter.ExportGlbFiles(outputDir, meshData.Rows, idGen.Mappings)));
         }
     }
 
@@ -313,20 +320,35 @@ public class ExportCommand : IExternalCommand
 
         RunStep("Mesh fallback GLB", errors, () =>
         {
+            var typeToMeshPath = new Dictionary<ElementId, string?>();
+
             foreach (var (elementId, _) in meshFallback.Elements)
             {
                 if (!elementIdToRow.TryGetValue(elementId, out var entry)) continue;
                 var element = doc.GetElement(elementId);
                 if (element is null) continue;
 
+                var typeId = element.GetTypeId();
+
+                // Reuse GLB for same type
+                if (typeId != ElementId.InvalidElementId && typeToMeshPath.TryGetValue(typeId, out var cached))
+                {
+                    entry.Row["mesh_file"] = cached ?? "";
+                    continue;
+                }
+
                 try
                 {
                     var meshPath = GlbExporter.ExportElement(element, outputDir, entry.ShortId);
                     entry.Row["mesh_file"] = meshPath ?? "";
+                    if (typeId != ElementId.InvalidElementId)
+                        typeToMeshPath[typeId] = meshPath;
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // Skip elements whose geometry can't be exported
+                    if (typeId != ElementId.InvalidElementId)
+                        typeToMeshPath[typeId] = null;
+                    System.Diagnostics.Debug.WriteLine($"GLB fallback failed for {entry.ShortId}: {ex}");
                 }
             }
         });

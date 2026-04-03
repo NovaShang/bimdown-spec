@@ -4,7 +4,7 @@ import { discoverLayout, listFiles } from '../utils/fs.js';
 import { ID_PREFIXES, SVG_FILE_NAMES, GLOBAL_ONLY_TABLES } from '../schema/registry.js';
 
 // Tables where SVG is optional (opening: wall-mode has no SVG, slab-mode does)
-const OPTIONAL_SVG_TABLES = new Set(['opening']);
+const OPTIONAL_SVG_TABLES = new Set(['opening', 'space']);
 
 const KNOWN_CSV_NAMES = new Set(Object.keys(ID_PREFIXES).map((t) => `${t}.csv`));
 const KNOWN_SVG_NAMES = new Set(Object.values(SVG_FILE_NAMES).map((s) => `${s}.svg`));
