@@ -15,11 +15,11 @@ public class HostedElementExtractor : IFieldExtractor
         {
             fields["host_id"] = host.UniqueId;
 
-            // Project the hosted element's location onto the host's curve to get the normalized parameter
-            if (element.Location is LocationPoint lp && host.Location is LocationCurve hostCurve)
+            var point = GetPoint(element);
+            var curve = GetHostCurve(host);
+            if (point is not null && curve is not null)
             {
-                var curve = hostCurve.Curve;
-                var result = curve.Project(lp.Point);
+                var result = curve.Project(point);
                 if (result is not null)
                 {
                     var normalized = curve.ComputeNormalizedParameter(result.Parameter);
@@ -30,5 +30,34 @@ public class HostedElementExtractor : IFieldExtractor
         }
 
         return fields;
+    }
+
+    static XYZ? GetPoint(Element element)
+    {
+        if (element.Location is LocationPoint lp)
+            return lp.Point;
+
+        // Fallback: bounding box center
+        var bb = element.get_BoundingBox(null);
+        if (bb is not null)
+            return (bb.Min + bb.Max) / 2;
+
+        return null;
+    }
+
+    static Curve? GetHostCurve(Element host)
+    {
+        if (host.Location is LocationCurve lc)
+            return lc.Curve;
+
+        // Curtain wall panel: walk up to the parent wall
+        if (host is Autodesk.Revit.DB.Panel panel)
+        {
+            var wall = panel.Document.GetElement(panel.FindHostPanel()) as Wall;
+            if (wall?.Location is LocationCurve wallCurve)
+                return wallCurve.Curve;
+        }
+
+        return null;
     }
 }

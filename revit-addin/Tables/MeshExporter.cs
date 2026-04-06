@@ -7,6 +7,8 @@ class MeshExporter : ITableExporter
     static readonly BuiltInCategory[] MeshCategories =
     [
         BuiltInCategory.OST_GenericModel,
+        BuiltInCategory.OST_Furniture,
+        BuiltInCategory.OST_FurnitureSystems,
         BuiltInCategory.OST_Topography,
         BuiltInCategory.OST_Planting,
         BuiltInCategory.OST_Site,
