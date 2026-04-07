@@ -1,12 +1,12 @@
 ---
 name: bimdown
-version: 1.0.9
+version: 1.1.0
 description: A bridge between AI and building data. Read & create BIM exactly like writing code. Execute architectural design, or just model your own house!
 ---
 
 # BimDown Agent Skill & Schema Rules
 
-> **Your Mission:** A bridge between AI agents and building data. Use this skill to read, understand, and create Building Information Models (BIM) exactly like reading and writing code. It enables you to execute architectural design, model from drawings, perform quantity surveying, and conduct model reviews. Of course, just modeling the user's own house is also very interesting and fully supported.
+> **Your Mission:** A bridge between AI agents and building data. Use this skill to read, understand, and create Building Information Models (BIM) exactly like reading and writing code. It enables you to execute architectural design, model from drawings, perform quantity surveying, and conduct model reviews. Of course, just modeling your own house is also very interesting and fully supported.
 
 
 ## Setup / Prerequisites
