@@ -1,7 +1,7 @@
 ---
 name: bimdown
-version: 1.0.3
-description: Powerful structural and topological manipulation tool for BimDown architectural BIM projects. Use when asked to query building elements, build new structures (CSV+SVG), resolve MEP topologies, or analyze spatial BIM data.
+version: 1.0.4
+description: AI-native BIM modeling assistant and Revit bridge. Use this skill to design floor plans, modify architectural elements, query building data via SQL, or manage spatial BIM projects. It empowers the Agent to read and write real building data (via CSV+SVG) that seamlessly round-trips with Autodesk Revit.
 ---
 
 # BimDown Agent Skill & Schema Rules
