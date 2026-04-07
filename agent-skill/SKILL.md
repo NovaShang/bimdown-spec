@@ -1,13 +1,15 @@
 ---
 name: bimdown
-version: 1.0.2
+version: 1.0.3
 description: Powerful structural and topological manipulation tool for BimDown architectural BIM projects. Use when asked to query building elements, build new structures (CSV+SVG), resolve MEP topologies, or analyze spatial BIM data.
 ---
 
 # BimDown Agent Skill & Schema Rules
 
 ## Setup / Prerequisites
-Before executing any `bimdown` commands, ensure the CLI is installed globally:
+Before executing any `bimdown` commands, ensure the CLI is installed globally.
+> **SECURITY RULE**: You **MUST explicitly ask the user for permission** before running `npm install` autonomously.
+
 ```bash
 npm install -g bimdown-cli
 ```
@@ -65,7 +67,7 @@ project/
 4. **Render and visually verify**: Run `bimdown render <dir> -o render.png` and **view the PNG image** to confirm the layout is correct. Check that walls connect properly, rooms are enclosed, and doors/windows are in the right positions. **Save render outputs and any other non-BimDown files OUTSIDE the project directory** — the project directory must only contain BimDown CSV/SVG files, otherwise `build` will reject them.
 5. **Build**: Run `bimdown build <dir>` to validate schema, check geometry, and compute space boundaries (generates `space.svg` from seed points).
 6. **Iterate**: If the render or build shows problems, fix the SVG geometry and re-render until the layout looks right.
-7. **Publish**: Run `bimdown publish <dir>` to upload the project and get a shareable preview URL for the user to view the 3D model in their browser.
+7. **Publish**: Run `bimdown publish <dir>` to upload the project and get a shareable preview URL for the user to view the 3D model in their browser. **SECURITY WARNING**: This uploads the user's local project data to the remote BimClaw web service. You **MUST explicitly ask for the user's consent** before executing this command to prevent unauthorized data leaks.
 
 ## Reference SOPs
 
@@ -85,7 +87,7 @@ These are step-by-step standard operating procedures. Read the relevant one **be
 4. **`bimdown schema [table]`**: Prints the full schema for any element type. Use this to look up fields before creating elements.
 5. **`bimdown diff <dirA> <dirB>`**: Emits a `+`, `-`, `~` structural difference between project snapshots.
 6. **`bimdown init <dir>`**: Creates a new empty BimDown project with the correct directory structure.
-7. **`bimdown publish <dir> [--expires 7d]`**: Publishes the project to BimClaw and returns a shareable preview URL. Use this to let users view the model in a 3D editor. **Always publish after completing a model so users can preview it.**
+7. **`bimdown publish <dir> [--expires 7d]`**: Publishes the project to BimClaw and returns a shareable preview URL. Use this to let users view the model in a 3D editor. **SECURITY WARNING**: Uploads project data to an external server. You must ask for explicit user confirmation before running this command.
 8. **`bimdown info <dir>`**: Prints project summary (levels, element counts).
 9. **`bimdown resolve-topology <dir>`**: Auto-detects coincident endpoints for MEP curves, generates `mep_nodes`, and fills connectivity fields.
 10. **`bimdown merge <dirs...> -o <output>`**: Merges multiple project directories into one, resolving ID conflicts.
