@@ -45,8 +45,8 @@ export function validateStructure(dir: string): string[] {
 
   // Level dirs
   for (const ld of layout.levelDirs) {
-    if (!/^lv-\d+$/.test(ld.name)) {
-      issues.push(`${ld.name}/  directory name does not match lv-{n} pattern`);
+    if (!/^lv-.+$/.test(ld.name)) {
+      issues.push(`${ld.name}/  directory name does not match lv-{id} pattern`);
       continue;
     }
 
@@ -94,7 +94,7 @@ export function validateStructure(dir: string): string[] {
   // Reject any top-level entries that are not global/ or lv-{n}/ or project_metadata.json
   const topEntries = readdirSync(dir);
   for (const f of topEntries) {
-    if (f === 'global' || /^lv-\d+$/.test(f)) continue;
+    if (f === 'global' || /^lv-.+$/.test(f)) continue;
     if (f === 'project_metadata.json') continue;
     if (f.startsWith('.')) continue; // allow hidden dirs like .pi
     issues.push(`${f}  unexpected entry in project root — only global/ and lv-{n}/ directories are allowed`);

@@ -5,8 +5,6 @@ description: Powerful structural and topological manipulation tool for BimDown a
 
 # BimDown Agent Skill & Schema Rules
 
-> **Version unknown** (published 2026-04-03). If this date is more than 1 week ago, run `npm update -g bimdown-cli` to update, then re-download this SKILL.md from https://raw.githubusercontent.com/NovaShang/BimDown/main/agent-skill/SKILL.md
-
 You are an AI Coder operating within a BimDown project environment.
 BimDown is an open-source, AI-native building data format using CSV for semantics and SVG for geometry.
 
@@ -57,10 +55,19 @@ project/
 1. **Plan spatial layout first**: Before writing any files, reason through the spatial relationships — wall positions, room adjacencies, door/window placements. Sketch coordinates mentally or on paper.
 2. **Write SVG geometry first**: Create the `.svg` files (walls, slabs, columns) with correct coordinates. Geometry determines everything else.
 3. **Write CSV attributes second**: Create the `.csv` files with element properties (material, thickness, etc.). Remember: do NOT include computed fields like `level_id`, `length`, `area`.
-4. **Render and visually verify**: Run `bimdown render <dir> -o render.png` and **view the PNG image** to confirm the layout is correct. Check that walls connect properly, rooms are enclosed, and doors/windows are in the right positions.
+4. **Render and visually verify**: Run `bimdown render <dir> -o render.png` and **view the PNG image** to confirm the layout is correct. Check that walls connect properly, rooms are enclosed, and doors/windows are in the right positions. **Save render outputs and any other non-BimDown files OUTSIDE the project directory** — the project directory must only contain BimDown CSV/SVG files, otherwise `build` will reject them.
 5. **Build**: Run `bimdown build <dir>` to validate schema, check geometry, and compute space boundaries (generates `space.svg` from seed points).
 6. **Iterate**: If the render or build shows problems, fix the SVG geometry and re-render until the layout looks right.
 7. **Publish**: Run `bimdown publish <dir>` to upload the project and get a shareable preview URL for the user to view the 3D model in their browser.
+
+## Reference SOPs
+
+Before starting any building design or modeling task, **always read the relevant reference SOP**:
+
+- **Designing a building from scratch** (from a user brief or requirements): Read [`references/building-design.md`](https://raw.githubusercontent.com/NovaShang/BimDown/main/agent-skill/references/building-design.md) for the full design-to-BIM workflow — from massing through MEP.
+- **Modeling from existing plans** (floor plan images, sketches, or known dimensions): Read [`references/bim-modeling.md`](https://raw.githubusercontent.com/NovaShang/BimDown/main/agent-skill/references/bim-modeling.md) for element creation order, dependencies, and best practices.
+
+These are step-by-step standard operating procedures. Read the relevant one **before writing any files**.
 
 ## CLI Tools & Best Practices
 
@@ -104,6 +111,7 @@ project/
 | Door (single) | width × height | 0.9 × 2.1 |
 | Door (double) | width × height | 1.8 × 2.1 |
 | Window | width × height | 1.2–1.8 × 1.5 |
+| Window | base_offset (sill height) | 0.9 (standard), 0.0 (floor-to-ceiling) |
 | Column | size_x × size_y | 0.3–0.6 × 0.3–0.6 |
 | Slab | thickness | 0.15 – 0.25 |
 | Level spacing | elevation diff | 3.0 – 4.0 |
