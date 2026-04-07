@@ -1,6 +1,6 @@
 ---
 name: bimdown
-version: 1.0.1
+version: 1.0.2
 description: Powerful structural and topological manipulation tool for BimDown architectural BIM projects. Use when asked to query building elements, build new structures (CSV+SVG), resolve MEP topologies, or analyze spatial BIM data.
 ---
 
