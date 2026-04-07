@@ -1,7 +1,7 @@
 ---
 name: bimdown
-version: 1.0.5
-description: AI Architect and Building Design Assistant. Use this skill to design floor plans, create 3D building structures, manage space layouts, or query architectural data. It empowers the Agent to act as a virtual architect, generating robust, professional building models directly from natural language descriptions.
+version: 1.0.8
+description: A bridge between AI agents and building data. Use this skill to read, understand, and create Building Information Models (BIM) exactly like reading and writing code. It enables you to execute architectural design, model from drawings, perform quantity surveying, and conduct model reviews. Of course, just modeling your own house is also very interesting and fully supported.
 ---
 
 # BimDown Agent Skill & Schema Rules
@@ -67,7 +67,7 @@ project/
 4. **Render and visually verify**: Run `bimdown render <dir> -o render.png` and **view the PNG image** to confirm the layout is correct. Check that walls connect properly, rooms are enclosed, and doors/windows are in the right positions. **Save render outputs and any other non-BimDown files OUTSIDE the project directory** — the project directory must only contain BimDown CSV/SVG files, otherwise `build` will reject them.
 5. **Build**: Run `bimdown build <dir>` to validate schema, check geometry, and compute space boundaries (generates `space.svg` from seed points).
 6. **Iterate**: If the render or build shows problems, fix the SVG geometry and re-render until the layout looks right.
-7. **Publish**: Run `bimdown publish <dir>` to upload the project and get a shareable preview URL for the user to view the 3D model in their browser. **SECURITY WARNING**: This uploads the user's local project data to the remote BimClaw web service. You **MUST explicitly ask for the user's consent** before executing this command to prevent unauthorized data leaks.
+7. **Publish**: Run `bimdown publish <dir>` to upload the project and get a shareable preview URL for the user to view the 3D model in their browser. **SECURITY WARNING**: This uploads the user's local project data to the remote BimClaw web service. You **MUST explicitly ask for the user's consent before the FIRST time you publish any given project** to prevent unauthorized data leaks. (Once approved for a project, you may republish it freely.)
 
 ## Reference SOPs
 
@@ -87,7 +87,7 @@ These are step-by-step standard operating procedures. Read the relevant one **be
 4. **`bimdown schema [table]`**: Prints the full schema for any element type. Use this to look up fields before creating elements.
 5. **`bimdown diff <dirA> <dirB>`**: Emits a `+`, `-`, `~` structural difference between project snapshots.
 6. **`bimdown init <dir>`**: Creates a new empty BimDown project with the correct directory structure.
-7. **`bimdown publish <dir> [--expires 7d]`**: Publishes the project to BimClaw and returns a shareable preview URL. Use this to let users view the model in a 3D editor. **SECURITY WARNING**: Uploads project data to an external server. You must ask for explicit user confirmation before running this command.
+7. **`bimdown publish <dir> [--expires 7d]`**: Publishes the project to BimClaw and returns a shareable preview URL. Use this to let users view the model in a 3D editor. **SECURITY WARNING**: Uploads project data to an external server. You must ask for explicit user confirmation before running this command for the FIRST time on each project.
 8. **`bimdown info <dir>`**: Prints project summary (levels, element counts).
 9. **`bimdown resolve-topology <dir>`**: Auto-detects coincident endpoints for MEP curves, generates `mep_nodes`, and fills connectivity fields.
 10. **`bimdown merge <dirs...> -o <output>`**: Merges multiple project directories into one, resolving ID conflicts.
@@ -532,3 +532,7 @@ fields:
 virtual_fields: [level_id, created_at, updated_at, volume, bbox_min_x, bbox_min_y, bbox_min_z, bbox_max_x, bbox_max_y, bbox_max_z]
 ```
 
+## Additional Resources
+
+If you need more detailed information about the BimDown format, or if you need the conversion tool to round-trip data between Autodesk Revit and BimDown, please refer to the official GitHub repository:
+**[https://github.com/NovaShang/BimDown](https://github.com/NovaShang/BimDown)**
