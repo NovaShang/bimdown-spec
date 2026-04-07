@@ -4,16 +4,25 @@ import { validate } from '../validate/index.js';
 import { discoverLayout } from '../utils/fs.js';
 import { computeSpaceBoundaries } from './space-boundary.js';
 import { validateGeometry } from './geometry-warnings.js';
+import { resolveHostedCoords } from './resolve-hosted-coords.js';
+import { snapEndpoints } from './snap-endpoints.js';
 
 export interface BuildResult {
   issues: string[];
   warnings: string[];
   artifacts: string[];
+  snappedEndpoints: number;
 }
 
 export function build(dir: string): BuildResult {
+  // 0a. Snap wall endpoints within 5cm tolerance (before everything else)
+  const snapped = snapEndpoints(dir);
+
+  // 0b. Resolve host_x/host_y → host_id + position (before validation)
+  const resolveIssues = resolveHostedCoords(dir);
+
   // 1. Run all existing validation
-  const issues = validate(dir);
+  const issues = [...resolveIssues, ...validate(dir)];
 
   // 2. Geometry warnings (connectivity, hosted bounds, overlap)
   const warnings = validateGeometry(dir);
@@ -33,5 +42,5 @@ export function build(dir: string): BuildResult {
     }
   }
 
-  return { issues, warnings, artifacts };
+  return { issues, warnings, artifacts, snappedEndpoints: snapped };
 }

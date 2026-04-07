@@ -93,7 +93,7 @@ Exterior first (0.2–0.3m, concrete/brick), then interior partitions (0.1–0.1
 
 **Windows**: standard 1.2–1.8×1.5m `base_offset=0.9`, floor-to-ceiling 1.5–3.0×2.4m `base_offset=0.0`, high strip 1.2–2.4×0.6m `base_offset=1.8`. **Always set `base_offset`** (sill height) — omitting it puts windows at floor level.
 
-`position` = meters from wall start to opening center. Validate: `position ± width/2` within wall length, no overlaps.
+**Recommended**: use `host_x, host_y` (2D coordinate of the opening center) instead of `position` — `bimdown build` auto-finds the wall and computes position. Validate: `position ± width/2` within wall length, no overlaps.
 
 **Connectivity check**: Place doors according to the connectivity graph from Phase 4. Every `──` connection in the graph = one door on the wall between those spaces. After placing all doors, verify every room traces back to a stair/elevator.
 

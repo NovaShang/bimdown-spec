@@ -68,7 +68,17 @@ function validateLineConnectivity(levelDir: { name: string; path: string }): str
     table: string;
   }
 
+  interface Segment {
+    start_x: number;
+    start_y: number;
+    end_x: number;
+    end_y: number;
+    elementId: string;
+    table: string;
+  }
+
   const endpoints: Endpoint[] = [];
+  const segments: Segment[] = [];
 
   for (const table of BOUNDARY_TABLES) {
     const svgPath = join(levelDir.path, `${table}.svg`);
@@ -80,13 +90,15 @@ function validateLineConnectivity(levelDir: { name: string; path: string }): str
         const geo = extractLineGeometry(el);
         endpoints.push({ x: geo.start_x, y: geo.start_y, side: 'start', elementId: el.id, table });
         endpoints.push({ x: geo.end_x, y: geo.end_y, side: 'end', elementId: el.id, table });
+        segments.push({ start_x: geo.start_x, start_y: geo.start_y, end_x: geo.end_x, end_y: geo.end_y, elementId: el.id, table });
       }
     } catch { /* skip */ }
   }
 
-  // For each endpoint, check if any OTHER element's endpoint is within tolerance
+  // For each endpoint, check if it connects to another element — either at an endpoint or on a segment (T-junction)
   for (const ep of endpoints) {
-    const hasNeighbor = endpoints.some(
+    // Check endpoint-to-endpoint connection
+    const hasEndpointNeighbor = endpoints.some(
       (other) =>
         other !== ep &&
         !(other.elementId === ep.elementId && other.table === ep.table) &&
@@ -94,35 +106,62 @@ function validateLineConnectivity(levelDir: { name: string; path: string }): str
         Math.abs(other.y - ep.y) < TOLERANCE,
     );
 
-    if (!hasNeighbor) {
-      // Find nearest other endpoint for context
-      let nearestDist = Infinity;
-      let nearestId = '';
-      let nearestSide = '';
-      for (const other of endpoints) {
-        if (other === ep || (other.elementId === ep.elementId && other.table === ep.table)) continue;
-        const dx = other.x - ep.x;
-        const dy = other.y - ep.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < nearestDist) {
-          nearestDist = dist;
-          nearestId = other.elementId;
-          nearestSide = other.side;
-        }
+    if (hasEndpointNeighbor) continue;
+
+    // Check T-junction: endpoint falls on another segment's line
+    const hasTJunction = segments.some((seg) => {
+      if (seg.elementId === ep.elementId && seg.table === ep.table) return false;
+      return pointOnSegment(ep.x, ep.y, seg.start_x, seg.start_y, seg.end_x, seg.end_y, TOLERANCE);
+    });
+
+    if (hasTJunction) continue;
+
+    // No connection found — emit warning
+    let nearestDist = Infinity;
+    let nearestId = '';
+    let nearestSide = '';
+    for (const other of endpoints) {
+      if (other === ep || (other.elementId === ep.elementId && other.table === ep.table)) continue;
+      const dx = other.x - ep.x;
+      const dy = other.y - ep.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < nearestDist) {
+        nearestDist = dist;
+        nearestId = other.elementId;
+        nearestSide = other.side;
       }
-
-      const nearestInfo =
-        nearestDist < Infinity
-          ? ` (nearest: ${nearestId} ${nearestSide}, distance ${nearestDist.toFixed(3)}m)`
-          : '';
-
-      warnings.push(
-        `[warn] ${levelDir.name}/${ep.table}.svg  ${ep.elementId} ${ep.side} (${ep.x.toFixed(3)}, ${ep.y.toFixed(3)}) has no connected line element${nearestInfo}`,
-      );
     }
+
+    const nearestInfo =
+      nearestDist < Infinity
+        ? ` (nearest: ${nearestId} ${nearestSide}, distance ${nearestDist.toFixed(3)}m)`
+        : '';
+
+    warnings.push(
+      `[warn] ${levelDir.name}/${ep.table}.svg  ${ep.elementId} ${ep.side} (${ep.x.toFixed(3)}, ${ep.y.toFixed(3)}) has no connected line element${nearestInfo}`,
+    );
   }
 
   return warnings;
+}
+
+/** Check if point (px, py) lies on the line segment from (ax, ay) to (bx, by) within tolerance */
+function pointOnSegment(px: number, py: number, ax: number, ay: number, bx: number, by: number, tol: number): boolean {
+  const dx = bx - ax;
+  const dy = by - ay;
+  const lenSq = dx * dx + dy * dy;
+  if (lenSq < tol * tol) return false; // degenerate segment
+
+  // Project point onto line, get parameter t
+  const t = ((px - ax) * dx + (py - ay) * dy) / lenSq;
+  if (t < -tol || t > 1 + tol) return false; // outside segment
+
+  // Distance from point to closest point on segment
+  const clampedT = Math.max(0, Math.min(1, t));
+  const closestX = ax + clampedT * dx;
+  const closestY = ay + clampedT * dy;
+  const distSq = (px - closestX) * (px - closestX) + (py - closestY) * (py - closestY);
+  return distSq < tol * tol;
 }
 
 // ─── B. Hosted bounds ───────────────────────────────────

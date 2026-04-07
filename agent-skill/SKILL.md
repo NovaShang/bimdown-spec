@@ -70,7 +70,7 @@ project/
 4. **Render and visually verify**: Run `bimdown render <dir> -o render.png` and **view the PNG image** to confirm the layout is correct. Check that walls connect properly, rooms are enclosed, and doors/windows are in the right positions. **Save render outputs and any other non-BimDown files OUTSIDE the project directory** — the project directory must only contain BimDown CSV/SVG files, otherwise `build` will reject them.
 5. **Build**: Run `bimdown build <dir>` to validate schema, check geometry, and compute space boundaries (generates `space.svg` from seed points).
 6. **Iterate**: If the render or build shows problems, fix the SVG geometry and re-render until the layout looks right.
-7. **Publish**: Run `bimdown publish <dir>` to upload the project and get a shareable preview URL for the user to view the 3D model in their browser. **SECURITY WARNING**: This uploads the user's local project data to the remote BimClaw web service. You **MUST explicitly ask for the user's consent before the FIRST time you publish any given project** to prevent unauthorized data leaks. (Once approved for a project, you may republish it freely.)
+7. **Publish**: Run `bimdown publish <dir>` to upload and get a shareable 3D preview URL. Ask user for consent before the first publish of each project.
 
 ## Reference SOPs
 
@@ -95,6 +95,7 @@ These are step-by-step standard operating procedures. Read the relevant one **be
 9. **`bimdown resolve-topology <dir>`**: Auto-detects coincident endpoints for MEP curves, generates `mep_nodes`, and fills connectivity fields.
 10. **`bimdown merge <dirs...> -o <output>`**: Merges multiple project directories into one, resolving ID conflicts.
 11. **`bimdown sync <dir>`**: Hydrates into DuckDB and dehydrates back out to CSV/SVG, applying computed defaults.
+12. **Downloading a shared project**: If the user provides a share link like `https://bim-claw.com/s/<token>`, append `/download` to get the zip: `curl -L https://bim-claw.com/s/<token>/download -o project.zip && unzip project.zip -d project/`
 
 ## Critical File & Geometry Rules
 
@@ -135,7 +136,19 @@ Rooms are enclosed by **walls, curtain walls, columns, and room separators**. Fo
 - The CLI `build` command warns about unconnected endpoints and computes space boundaries from closed loops
 
 ### Door/Window Placement Rules
-- `position` = distance in meters from wall **start point** (the M coordinate in SVG path) to the opening **center**
+
+**Recommended: use `host_x, host_y`** instead of `position`. Just write the 2D coordinate of the opening center — `bimdown build` will auto-resolve the nearest wall and compute `position` for you.
+
+```csv
+id,host_x,host_y,width,height,operation,material
+d-1,5.0,3.0,0.9,2.1,single,wood
+```
+
+After `bimdown build`, the CSV is rewritten with `host_id` and `position` replacing `host_x/host_y`. You can also provide `host_id` alongside `host_x/host_y` to force a specific wall.
+
+**Alternative: manual `position`** = distance in meters from wall **start point** (the M coordinate in SVG path) to the opening **center**.
+
+**Validation rules** (apply to both methods):
 - Must satisfy: `position - width/2 >= 0` AND `position + width/2 <= wall_length`
 - Multiple openings on the same wall must not overlap
 - The CLI `build` command warns about out-of-bounds and overlapping placements
@@ -150,205 +163,22 @@ Always use this structure for SVG files:
 </svg>
 ```
 
-## Base Schema Definitions
+## Base Schema Reference
 
-These abstract schemas provide common fields for concrete tables below.
+All elements inherit from `element`:
+- **Write to CSV**: `id` (required), `number`, `base_offset` (default 0), `mesh_file`
+- **Query-only** (computed, never write): `level_id`, `created_at`, `updated_at`, `volume`, `bbox_min_x`, `bbox_min_y`, `bbox_min_z`, `bbox_max_x`, `bbox_max_y`, `bbox_max_z`
 
-### Base: `element`
-```yaml
-name: element
-abstract: true
+**Geometry bases** — these fields are query-only (derived from SVG, never write to CSV):
+- `line_element` (wall, beam, etc.): `start_x`, `start_y`, `end_x`, `end_y`, `length`
+- `point_element` (column, equipment, etc.): `x`, `y`, `rotation`
+- `polygon_element` (slab, roof, etc.): `points`, `area`, `perimeter`
 
-fields:
-  - name: id
-    type: string
-    required: true
+**Hosted elements** (`hosted_element`): Use `host_x`/`host_y` (recommended) or `host_id` + `position`. See Door/Window Placement Rules above.
 
-  - name: number
-    type: string
+**Vertical span** (`vertical_span`): Write `top_level_id`, `top_offset` — see Vertical Positioning rules above. Query-only: `height`.
 
-  - name: level_id
-    type: reference
-    reference: level
-    computed: true
-
-  - name: created_at
-    type: datetime
-    computed: true
-
-  - name: updated_at
-    type: datetime
-    computed: true
-
-  - name: base_offset
-    type: float
-    default: 0
-
-  - name: mesh_file
-    type: string
-    description: Optional GLB mesh path for precise 3D visualization
-
-  - name: volume
-    type: float
-    computed: true
-
-  - name: bbox_min_x
-    type: float
-    computed: true
-
-  - name: bbox_min_y
-    type: float
-    computed: true
-
-  - name: bbox_min_z
-    type: float
-    computed: true
-
-  - name: bbox_max_x
-    type: float
-    computed: true
-
-  - name: bbox_max_y
-    type: float
-    computed: true
-
-  - name: bbox_max_z
-    type: float
-    computed: true
-```
-
-### Base: `hosted_element`
-```yaml
-name: hosted_element
-bases:
-  - element
-abstract: true
-
-fields:
-  - name: host_id
-    type: reference
-    reference: element
-    required: true
-
-  - name: position
-    type: float
-    required: true
-    description: Distance in meters from the host element's start point to the center of this opening
-```
-
-### Base: `line_element`
-```yaml
-name: line_element
-bases:
-  - element
-abstract: true
-
-fields:
-  - name: start_x
-    type: float
-    computed: true
-
-  - name: start_y
-    type: float
-    computed: true
-
-  - name: end_x
-    type: float
-    computed: true
-
-  - name: end_y
-    type: float
-    computed: true
-
-  - name: length
-    type: float
-    computed: true
-```
-
-### Base: `materialized`
-```yaml
-name: materialized
-abstract: true
-
-fields:
-  - name: material
-    type: enum
-    values:
-      - concrete
-      - steel
-      - wood
-      - clt
-      - glass
-      - aluminum
-      - brick
-      - stone
-      - gypsum
-      - insulation
-      - copper
-      - pvc
-      - ceramic
-      - fiber_cement
-      - composite
-```
-
-### Base: `point_element`
-```yaml
-name: point_element
-bases:
-  - element
-abstract: true
-
-fields:
-  - name: x
-    type: float
-    computed: true
-
-  - name: y
-    type: float
-    computed: true
-
-  - name: rotation
-    type: float
-    computed: true
-```
-
-### Base: `polygon_element`
-```yaml
-name: polygon_element
-bases:
-  - element
-abstract: true
-
-fields:
-  - name: points
-    type: string
-    computed: true
-    
-  - name: area
-    type: float
-    computed: true
-```
-
-### Base: `vertical_span`
-```yaml
-name: vertical_span
-abstract: true
-
-fields:
-  - name: top_level_id
-    type: reference
-    reference: level
-    description: Top constraint level. Empty = next level above current level.
-
-  - name: top_offset
-    type: float
-    default: 0
-    description: Offset from top level. Default 0.
-
-  - name: height
-    type: float
-    computed: true
-```
+**Material enum** (`materialized`): concrete, steel, wood, clt, glass, aluminum, brick, stone, gypsum, insulation, copper, pvc, ceramic, fiber_cement, composite
 
 ## Core Schema Topologies (Concrete Tables)
 
@@ -360,12 +190,10 @@ Below is a curated whitelist of the **most commonly used** core architectural el
 > If the user asks you to modify or generate elements not listed below, **RUN** `bimdown schema <table_name>` to fetch their requirements!
 
 ### Table: `door` (Prefix: `d`)
-- **Geometry**: CSV only
-- **position**: Distance in meters from the wall's start point to the center of the door. Calculate from the wall's SVG geometry coordinates.
+- **Geometry**: CSV only. Use `host_x, host_y` or `host_id` + `position` to place on a wall.
 ```yaml
 id_prefix: d
 name: door
-description: "Doors NEVER exist independently. When creating or modifying a door, you MUST ensure it is hosted on a valid wall segment. In scripts, ensure coordinates intersect the wall's line."
 bases:
   - hosted_element
   - materialized
@@ -400,7 +228,6 @@ fields:
       - left
       - right
 
-virtual_fields: [level_id, created_at, updated_at, volume, bbox_min_x, bbox_min_y, bbox_min_z, bbox_max_x, bbox_max_y, bbox_max_z]
 ```
 
 ### Table: `grid` (Prefix: `gr`)
@@ -490,7 +317,6 @@ fields:
     computed: true
     description: Space area in square meters (computed from boundary polygon)
 
-virtual_fields: [level_id, created_at, updated_at, volume, bbox_min_x, bbox_min_y, bbox_min_z, bbox_max_x, bbox_max_y, bbox_max_z, boundary_points, area]
 ```
 
 ### Table: `wall` (Prefix: `w`)
@@ -510,12 +336,10 @@ fields:
     required: true
     description: Wall thickness in meters. SVG stroke-width should match but CSV is source of truth.
 
-virtual_fields: [level_id, created_at, updated_at, volume, bbox_min_x, bbox_min_y, bbox_min_z, bbox_max_x, bbox_max_y, bbox_max_z, start_x, start_y, end_x, end_y, length, height]
 ```
 
 ### Table: `window` (Prefix: `wn`)
-- **Geometry**: CSV only
-- **position**: Distance in meters from the wall's start point to the center of the window. Calculate from the wall's SVG geometry coordinates.
+- **Geometry**: CSV only. Use `host_x, host_y` or `host_id` + `position`. Always set `base_offset` (sill height, typically 0.9m).
 ```yaml
 id_prefix: wn
 name: window
@@ -532,7 +356,6 @@ fields:
   - name: height
     type: float
 
-virtual_fields: [level_id, created_at, updated_at, volume, bbox_min_x, bbox_min_y, bbox_min_z, bbox_max_x, bbox_max_y, bbox_max_z]
 ```
 
 ## Additional Resources

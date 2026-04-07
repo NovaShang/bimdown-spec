@@ -49,11 +49,11 @@ Most critical element. One wall = one straight line. Never split for doors/windo
 **Pitfalls**: forgetting `<g transform="scale(1,-1)">`, endpoints not aligned, splitting walls at doors.
 
 ### door (`lv-N/door.csv` — CSV only)
-`position` = meters from wall **start point** (M coordinate in SVG) to opening **center**. Validate: `position ± width/2` within wall length. No overlaps on same wall.
+**Recommended**: use `host_x, host_y` (2D coordinate of door center) — `bimdown build` auto-resolves to nearest wall + position. Alternative: manual `host_id` + `position` (meters from wall start to center). Validate: `position ± width/2` within wall length. No overlaps on same wall.
 
 **Before placing doors, write a room connectivity graph** (e.g., `Stair→Corridor→Office`, `Corridor→Meeting Room`). Each connection = one door. Verify every room traces back to a stair/elevator.
 
-**Pitfalls**: missing connections (room inaccessible), position to center not edge, wrong host_id.
+**Pitfalls**: missing connections (room inaccessible), host_x/host_y too far from any wall (>5cm).
 
 ### window (`lv-N/window.csv` — CSV only)
 Same rules as door. **Always set `base_offset`** = sill height (standard 0.9m). Omitting it puts windows at floor level.

@@ -36,6 +36,10 @@ function runBuild(dir: string) {
     console.log(`\n${result.warnings.length} warning(s).`);
   }
 
+  if (result.snappedEndpoints > 0) {
+    console.log(`Snapped ${result.snappedEndpoints} endpoint(s) (within 5cm tolerance).`);
+  }
+
   if (result.artifacts.length > 0) {
     console.log(`\nGenerated: ${result.artifacts.join(', ')}`);
   }

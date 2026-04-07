@@ -65,8 +65,11 @@ export function computeSpaceBoundaries(
     return { warnings, svgWritten: false };
   }
 
-  // 2-5. Build half-edge structure
-  const { vertices, halfEdges } = buildHalfEdgeStructure(segments);
+  // 2. Split segments at T-junctions so half-edge topology is correct
+  const splitSegments = splitAtTJunctions(segments);
+
+  // 3-5. Build half-edge structure
+  const { vertices, halfEdges } = buildHalfEdgeStructure(splitSegments);
 
   // Report dangling endpoints (degree 1 vertices)
   for (const v of vertices) {
@@ -145,6 +148,91 @@ function collectBoundarySegments(levelPath: string): Segment[] {
   }
 
   return segments;
+}
+
+// ─── T-junction splitting ───────────────────────────────
+
+/**
+ * Pre-process segments to split at T-junctions.
+ * When an endpoint of one segment falls on the interior of another segment,
+ * split the longer segment at that point so the half-edge structure is correct.
+ */
+function splitAtTJunctions(segments: Segment[]): Segment[] {
+  // Collect all unique endpoints
+  const endpoints: { x: number; y: number }[] = [];
+  for (const seg of segments) {
+    endpoints.push({ x: seg.startX, y: seg.startY });
+    endpoints.push({ x: seg.endX, y: seg.endY });
+  }
+
+  // For each segment, find endpoints from OTHER segments that fall on its interior
+  let result = [...segments];
+  let changed = true;
+
+  while (changed) {
+    changed = false;
+    const nextResult: Segment[] = [];
+    const allEndpoints: { x: number; y: number }[] = [];
+    for (const seg of result) {
+      allEndpoints.push({ x: seg.startX, y: seg.startY });
+      allEndpoints.push({ x: seg.endX, y: seg.endY });
+    }
+
+    for (const seg of result) {
+      // Find all points that split this segment (excluding its own endpoints)
+      const splitPoints: { x: number; y: number; t: number }[] = [];
+      const dx = seg.endX - seg.startX;
+      const dy = seg.endY - seg.startY;
+      const lenSq = dx * dx + dy * dy;
+      if (lenSq < TOLERANCE * TOLERANCE) {
+        nextResult.push(seg);
+        continue;
+      }
+
+      for (const ep of allEndpoints) {
+        // Skip if this is one of the segment's own endpoints
+        if (Math.abs(ep.x - seg.startX) < TOLERANCE && Math.abs(ep.y - seg.startY) < TOLERANCE) continue;
+        if (Math.abs(ep.x - seg.endX) < TOLERANCE && Math.abs(ep.y - seg.endY) < TOLERANCE) continue;
+
+        // Project point onto segment
+        const t = ((ep.x - seg.startX) * dx + (ep.y - seg.startY) * dy) / lenSq;
+        if (t <= TOLERANCE || t >= 1 - TOLERANCE) continue; // not in interior
+
+        const closestX = seg.startX + t * dx;
+        const closestY = seg.startY + t * dy;
+        const distSq = (ep.x - closestX) * (ep.x - closestX) + (ep.y - closestY) * (ep.y - closestY);
+        if (distSq < TOLERANCE * TOLERANCE) {
+          splitPoints.push({ x: ep.x, y: ep.y, t });
+        }
+      }
+
+      if (splitPoints.length === 0) {
+        nextResult.push(seg);
+      } else {
+        changed = true;
+        // Sort by t parameter
+        splitPoints.sort((a, b) => a.t - b.t);
+        // Remove duplicates
+        const unique = [splitPoints[0]];
+        for (let i = 1; i < splitPoints.length; i++) {
+          if (Math.abs(splitPoints[i].t - unique[unique.length - 1].t) > TOLERANCE) {
+            unique.push(splitPoints[i]);
+          }
+        }
+        // Create sub-segments
+        let prevX = seg.startX, prevY = seg.startY;
+        for (const sp of unique) {
+          nextResult.push({ startX: prevX, startY: prevY, endX: sp.x, endY: sp.y, id: seg.id });
+          prevX = sp.x;
+          prevY = sp.y;
+        }
+        nextResult.push({ startX: prevX, startY: prevY, endX: seg.endX, endY: seg.endY, id: seg.id });
+      }
+    }
+    result = nextResult;
+  }
+
+  return result;
 }
 
 // ─── Half-edge construction ─────────────────────────────
