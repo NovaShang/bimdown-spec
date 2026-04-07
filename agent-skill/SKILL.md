@@ -1,7 +1,7 @@
 ---
 name: bimdown
-version: 1.0.4
-description: AI-native BIM modeling assistant and Revit bridge. Use this skill to design floor plans, modify architectural elements, query building data via SQL, or manage spatial BIM projects. It empowers the Agent to read and write real building data (via CSV+SVG) that seamlessly round-trips with Autodesk Revit.
+version: 1.0.5
+description: AI Architect and Building Design Assistant. Use this skill to design floor plans, create 3D building structures, manage space layouts, or query architectural data. It empowers the Agent to act as a virtual architect, generating robust, professional building models directly from natural language descriptions.
 ---
 
 # BimDown Agent Skill & Schema Rules
