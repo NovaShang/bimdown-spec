@@ -1,10 +1,16 @@
 ---
 name: bimdown
-version: 1.0.0
+version: 1.0.1
 description: Powerful structural and topological manipulation tool for BimDown architectural BIM projects. Use when asked to query building elements, build new structures (CSV+SVG), resolve MEP topologies, or analyze spatial BIM data.
 ---
 
 # BimDown Agent Skill & Schema Rules
+
+## Setup / Prerequisites
+Before executing any `bimdown` commands, ensure the CLI is installed globally:
+```bash
+npm install -g bimdown-cli
+```
 
 You are an AI Coder operating within a BimDown project environment.
 BimDown is an open-source, AI-native building data format using CSV for semantics and SVG for geometry.
