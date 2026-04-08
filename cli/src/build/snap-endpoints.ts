@@ -1,11 +1,13 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseSvgFile, extractLineGeometry } from '../utils/svg.js';
+import { readCsv } from '../utils/csv.js';
 import { discoverLayout, listFiles } from '../utils/fs.js';
 
-const SNAP_TOLERANCE = 0.05; // 5cm
+const MIN_SNAP_TOLERANCE = 0.10; // 10cm floor
 
 const BOUNDARY_TABLES = ['wall', 'structure_wall', 'curtain_wall', 'room_separator'];
+const WALL_TABLES_WITH_THICKNESS = ['wall', 'structure_wall', 'curtain_wall'];
 
 interface Point {
   x: number;
@@ -34,12 +36,14 @@ export function snapEndpoints(dir: string): number {
 
   let totalSnapped = 0;
 
-  // Process each level independently (endpoints only snap within same level)
+  // Compute snap tolerance: max(10cm, max wall thickness in project)
+  const snapTolerance = computeSnapTolerance(allDirs);
+
+  // Collect ALL endpoints across all directories (level + global)
+  // so that level endpoints can snap to global endpoints
+  const allEndpoints: EndpointRef[] = [];
   for (const d of allDirs) {
     if (!existsSync(d.path)) continue;
-
-    // Collect all endpoints in this level
-    const endpoints: EndpointRef[] = [];
     for (const table of BOUNDARY_TABLES) {
       const svgPath = join(d.path, `${table}.svg`);
       if (!existsSync(svgPath)) continue;
@@ -48,39 +52,43 @@ export function snapEndpoints(dir: string): number {
         for (const el of svg.elements) {
           if (el.tag !== 'path') continue;
           const geo = extractLineGeometry(el);
-          endpoints.push({ point: { x: geo.start_x, y: geo.start_y }, table, elementId: el.id, side: 'start', levelDir: d.name, levelPath: d.path });
-          endpoints.push({ point: { x: geo.end_x, y: geo.end_y }, table, elementId: el.id, side: 'end', levelDir: d.name, levelPath: d.path });
+          allEndpoints.push({ point: { x: geo.start_x, y: geo.start_y }, table, elementId: el.id, side: 'start', levelDir: d.name, levelPath: d.path });
+          allEndpoints.push({ point: { x: geo.end_x, y: geo.end_y }, table, elementId: el.id, side: 'end', levelDir: d.name, levelPath: d.path });
         }
       } catch { /* skip */ }
     }
+  }
 
-    if (endpoints.length === 0) continue;
+  if (allEndpoints.length === 0) return 0;
 
-    // Build clusters of nearby endpoints
-    const clusters = clusterEndpoints(endpoints);
+  // Build clusters of nearby endpoints (across all directories)
+  const clusters = clusterEndpoints(allEndpoints, snapTolerance);
 
-    // For each cluster with > 1 endpoint, snap to canonical position
-    const snapMap = new Map<string, Point>(); // "table:elementId:side" → snapped point
-    for (const cluster of clusters) {
-      if (cluster.length <= 1) continue;
+  // For each cluster with > 1 endpoint, snap to canonical position
+  const snapMap = new Map<string, Point>(); // "levelPath:table:elementId:side" → snapped point
+  for (const cluster of clusters) {
+    if (cluster.length <= 1) continue;
 
-      // Canonical = the point that already has the most connections (most common coordinate)
-      const canonical = pickCanonical(cluster);
+    // Canonical = the point that already has the most connections (most common coordinate)
+    const canonical = pickCanonical(cluster);
 
-      for (const ep of cluster) {
-        const dx = Math.abs(ep.point.x - canonical.x);
-        const dy = Math.abs(ep.point.y - canonical.y);
-        if (dx > 1e-6 || dy > 1e-6) {
-          const key = `${ep.table}:${ep.elementId}:${ep.side}`;
-          snapMap.set(key, canonical);
-          totalSnapped++;
-        }
+    for (const ep of cluster) {
+      const dx = Math.abs(ep.point.x - canonical.x);
+      const dy = Math.abs(ep.point.y - canonical.y);
+      if (dx > 1e-6 || dy > 1e-6) {
+        const key = `${ep.levelPath}:${ep.table}:${ep.elementId}:${ep.side}`;
+        snapMap.set(key, canonical);
+        totalSnapped++;
       }
     }
+  }
 
-    if (snapMap.size === 0) continue;
+  if (snapMap.size === 0) return 0;
 
-    // Apply snaps to SVG files
+  // Apply snaps to SVG files in each directory
+  for (const d of allDirs) {
+    if (!existsSync(d.path)) continue;
+
     for (const table of BOUNDARY_TABLES) {
       const svgPath = join(d.path, `${table}.svg`);
       if (!existsSync(svgPath)) continue;
@@ -95,8 +103,8 @@ export function snapEndpoints(dir: string): number {
           if (el.tag !== 'path') continue;
           const geo = extractLineGeometry(el);
 
-          const startKey = `${table}:${el.id}:start`;
-          const endKey = `${table}:${el.id}:end`;
+          const startKey = `${d.path}:${table}:${el.id}:start`;
+          const endKey = `${d.path}:${table}:${el.id}:end`;
           const newStart = snapMap.get(startKey);
           const newEnd = snapMap.get(endKey);
 
@@ -128,7 +136,27 @@ export function snapEndpoints(dir: string): number {
   return totalSnapped;
 }
 
-function clusterEndpoints(endpoints: EndpointRef[]): EndpointRef[][] {
+function computeSnapTolerance(dirs: { name: string; path: string }[]): number {
+  let maxThickness = 0;
+  for (const d of dirs) {
+    if (!existsSync(d.path)) continue;
+    for (const table of WALL_TABLES_WITH_THICKNESS) {
+      const csvPath = join(d.path, `${table}.csv`);
+      if (!existsSync(csvPath)) continue;
+      try {
+        const csv = readCsv(csvPath);
+        for (const row of csv.rows) {
+          const t = parseFloat(row.thickness ?? '0');
+          if (t > maxThickness) maxThickness = t;
+        }
+      } catch { /* skip */ }
+    }
+  }
+  const tolerance = Math.max(MIN_SNAP_TOLERANCE, maxThickness);
+  return tolerance;
+}
+
+function clusterEndpoints(endpoints: EndpointRef[], tolerance: number): EndpointRef[][] {
   const visited = new Set<number>();
   const clusters: EndpointRef[][] = [];
 
@@ -144,7 +172,7 @@ function clusterEndpoints(endpoints: EndpointRef[]): EndpointRef[][] {
       for (let j = 0; j < endpoints.length; j++) {
         if (visited.has(j)) continue;
         for (const member of cluster) {
-          if (dist(member.point, endpoints[j].point) < SNAP_TOLERANCE) {
+          if (dist(member.point, endpoints[j].point) < tolerance) {
             cluster.push(endpoints[j]);
             visited.add(j);
             expanded = true;

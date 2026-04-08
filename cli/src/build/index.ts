@@ -35,7 +35,7 @@ export function build(dir: string): BuildResult {
     const spaceCsvPath = join(levelDir.path, 'space.csv');
     if (!existsSync(spaceCsvPath)) continue;
 
-    const result = computeSpaceBoundaries(levelDir);
+    const result = computeSpaceBoundaries(levelDir, layout.globalDir);
     warnings.push(...result.warnings);
     if (result.svgWritten) {
       artifacts.push(`${levelDir.name}/space.svg`);

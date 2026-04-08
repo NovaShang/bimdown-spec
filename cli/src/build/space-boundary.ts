@@ -49,6 +49,7 @@ export interface SpaceBoundaryResult {
 
 export function computeSpaceBoundaries(
   levelDir: { name: string; path: string },
+  globalDir?: string,
 ): SpaceBoundaryResult {
   const warnings: string[] = [];
 
@@ -58,8 +59,11 @@ export function computeSpaceBoundaries(
   const spaceCsv = readCsv(spaceCsvPath);
   if (spaceCsv.rows.length === 0) return { warnings, svgWritten: false };
 
-  // 1. Collect all boundary line segments
+  // 1. Collect all boundary line segments (level-local + global)
   const segments = collectBoundarySegments(levelDir.path);
+  if (globalDir) {
+    segments.push(...collectBoundarySegments(globalDir));
+  }
   if (segments.length === 0) {
     warnings.push(`${levelDir.name}/  no boundary elements found for space boundary computation`);
     return { warnings, svgWritten: false };
