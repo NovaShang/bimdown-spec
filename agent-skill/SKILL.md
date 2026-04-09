@@ -1,6 +1,6 @@
 ---
 name: bimdown
-version: 1.1.0
+version: 1.1.2
 description: A bridge between AI and building data. Read & create BIM exactly like writing code. Execute architectural design, or just model your own house!
 ---
 
@@ -76,8 +76,8 @@ project/
 
 Before starting any building design or modeling task, **always read the relevant reference SOP**:
 
-- **Designing a building from scratch** (from a user brief or requirements): Read [`references/building-design.md`](https://raw.githubusercontent.com/NovaShang/BimDown/main/agent-skill/references/building-design.md) for the full design-to-BIM workflow — from massing through MEP.
-- **Modeling from existing plans** (floor plan images, sketches, or known dimensions): Read [`references/bim-modeling.md`](https://raw.githubusercontent.com/NovaShang/BimDown/main/agent-skill/references/bim-modeling.md) for element creation order, dependencies, and best practices.
+- **Designing a building from scratch** (from a user brief or requirements): Read [`references/building-design.md`](./references/building-design.md) for the full design-to-BIM workflow — from massing through MEP.
+- **Modeling from existing plans** (floor plan images, sketches, or known dimensions): Read [`references/bim-modeling.md`](./references/bim-modeling.md) for element creation order, dependencies, and best practices.
 
 These are step-by-step standard operating procedures. Read the relevant one **before writing any files**.
 
