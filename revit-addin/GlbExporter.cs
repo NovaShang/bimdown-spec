@@ -15,20 +15,22 @@ static class GlbExporter
 {
     /// <summary>
     /// Exports an element's geometry to a GLB file with per-face PBR materials.
-    /// Vertices are transformed to local coordinates (origin subtracted, rotation inverted)
-    /// so the GLB is centered at origin and can be placed via CSV transform.
+    /// When origin is provided, vertices are transformed to local coordinates
+    /// so the GLB can be placed via CSV x/y/z/rotation.
+    /// When origin is null, geometry stays in world coordinates (for fallback mesh).
     /// Returns the relative path (e.g., "mesh/mesh-1.glb") or null if no geometry found.
     /// </summary>
     internal static string? ExportElement(Element element, string outputDir, string shortId,
-        XYZ origin, double rotationRad)
+        XYZ? origin = null, double rotationRad = 0)
     {
         var isFamilyInstance = element is Autodesk.Revit.DB.FamilyInstance;
         var triangles = ExtractTriangles(element, useSymbolGeometry: isFamilyInstance);
         if (triangles.Count == 0) return null;
 
         // FamilyInstance: GetSymbolGeometry() already gives local coords.
-        // Non-FamilyInstance (Topography, Site): geometry is world coords, need transform.
-        if (!isFamilyInstance)
+        // Non-FamilyInstance with origin: transform to local (mesh table elements like Topography).
+        // No origin: keep world coords (fallback mesh for slabs, roofs, etc.).
+        if (!isFamilyInstance && origin is not null)
             TransformToLocal(triangles, origin, rotationRad);
 
         var doc = element.Document;

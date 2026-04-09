@@ -63,193 +63,75 @@ public static class ArchitectureTableExporters
             e =>
             {
                 var fields = new Dictionary<string, string?>();
-                var slopeVal = e.get_Parameter(BuiltInParameter.ROOF_SLOPE)?.AsDouble();
-                if (slopeVal is { } s && Math.Abs(s) > 1e-6)
-                {
-                    fields["slope"] = UnitConverter.FormatDouble(Math.Atan(s) * 180 / Math.PI);
-                    fields["roof_type"] = "gable";
-                }
-                else
-                {
-                    fields["slope"] = "0";
-                    fields["roof_type"] = "flat";
-                }
+
+                // Slope & roof type: classify FootPrintRoof by per-edge slope definitions
+                var (roofType, slopeDeg) = ClassifyRoof(e);
+                fields["roof_type"] = roofType;
+                fields["slope"] = UnitConverter.FormatDouble(slopeDeg);
+
+                // Thickness from type parameter
                 var thickness = e.get_Parameter(BuiltInParameter.ROOF_ATTR_THICKNESS_PARAM)?.AsDouble();
                 fields["thickness"] = thickness is { } t ? UnitConverter.FormatDouble(UnitConverter.Length(t)) : null;
 
-                // Override polygon: footprint sketch or slab shape boundary
-                // (PolygonElementExtractor uses top solid face which is wrong for sloped roofs)
-                var footprint = GetRoofFootprint(e) ?? GetRoofBoundaryFromSlabShape(e) ?? GetRoofOutlineFromSolid(e);
-                if (footprint is not null)
+                // Polygon override: FootPrintRoof sketch gives the true plan-view footprint.
+                // If unavailable, PolygonElementExtractor's top-face result stays (approximate).
+                try
                 {
-                    fields["points"] = GeometryUtils.SerializePolygon(footprint.Value.Points);
-                    if (footprint.Value.HasCurvedEdges)
-                        fields["_has_curved_edges"] = "true";
+                    var footprint = GetRoofFootprint(e);
+                    if (footprint is not null)
+                    {
+                        fields["points"] = GeometryUtils.SerializePolygon(footprint.Value.Points);
+                        if (footprint.Value.HasCurvedEdges)
+                            fields["_has_curved_edges"] = "true";
+                    }
                 }
+                catch { /* keep PolygonElementExtractor result */ }
+
                 return fields;
             }));
 
-    static (IList<XYZ> Points, bool HasCurvedEdges)? GetRoofBoundaryFromSlabShape(Element element)
-    {
-        if (element is not RoofBase roof) return null;
-
-        var editor = roof.GetSlabShapeEditor();
-        if (editor is null || !editor.IsEnabled) return null;
-
-        // Collect boundary edges from slab shape creases
-        var edges = new List<(XYZ Start, XYZ End)>();
-        foreach (SlabShapeCrease crease in editor.SlabShapeCreases)
-        {
-            if (crease.CreaseType == SlabShapeCreaseType.Boundary)
-            {
-                var curve = crease.Curve;
-                edges.Add((curve.GetEndPoint(0), curve.GetEndPoint(1)));
-            }
-        }
-
-        if (edges.Count < 3) return null;
-
-        // Chain boundary edges into an ordered polygon
-        var points = new List<XYZ> { edges[0].Start };
-        var current = edges[0].End;
-        var used = new HashSet<int> { 0 };
-
-        while (used.Count < edges.Count)
-        {
-            points.Add(current);
-            var found = false;
-            for (var i = 0; i < edges.Count; i++)
-            {
-                if (used.Contains(i)) continue;
-                if (edges[i].Start.DistanceTo(current) < 1e-6)
-                {
-                    current = edges[i].End;
-                    used.Add(i);
-                    found = true;
-                    break;
-                }
-                if (edges[i].End.DistanceTo(current) < 1e-6)
-                {
-                    current = edges[i].Start;
-                    used.Add(i);
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) break;
-        }
-
-        return points.Count >= 3 ? (points, false) : null;
-    }
-
     /// <summary>
-    /// Extracts roof outline from solid geometry by finding outer boundary edges
-    /// (edges not shared between two upward-facing faces).
+    /// Classifies a roof by its per-edge slope definitions.
+    /// Returns (roof_type, max slope in degrees).
     /// </summary>
-    static (IList<XYZ> Points, bool HasCurvedEdges)? GetRoofOutlineFromSolid(Element element)
+    static (string RoofType, double SlopeDeg) ClassifyRoof(Element element)
     {
-        var opt = new Options { ComputeReferences = false, DetailLevel = ViewDetailLevel.Coarse };
-        var geom = element.get_Geometry(opt);
-        if (geom is null) return null;
+        if (element is not FootPrintRoof fpRoof)
+            return ("flat", 0);
 
-        // Collect all upward-facing faces from all solids
-        var topFaces = new List<PlanarFace>();
-        foreach (var obj in geom)
+        try
         {
-            var solid = obj as Solid ?? (obj as GeometryInstance)?.GetInstanceGeometry()
-                .OfType<Solid>().FirstOrDefault(s => s.Faces.Size > 0);
-            if (solid is null) continue;
-            foreach (Face face in solid.Faces)
-            {
-                if (face is PlanarFace planar && planar.FaceNormal.Z > 0.1)
-                    topFaces.Add(planar);
-            }
-        }
+            var profiles = fpRoof.GetProfiles();
+            int total = 0, sloped = 0;
+            double maxSlopeRad = 0;
 
-        if (topFaces.Count == 0) return null;
-
-        // Collect all edges, keyed by XY-projected endpoints to find boundary vs shared
-        // An edge shared by two top faces is internal (ridge/hip); unique edges form the outline
-        var edgeCount = new Dictionary<string, List<(XYZ Start, XYZ End, bool IsCurved)>>();
-        foreach (var face in topFaces)
-        {
-            foreach (var loop in face.GetEdgesAsCurveLoops())
+            foreach (ModelCurveArray profile in profiles)
             {
-                foreach (var curve in loop)
+                foreach (ModelCurve mc in profile)
                 {
-                    var s = curve.GetEndPoint(0);
-                    var e = curve.GetEndPoint(1);
-                    // Key by sorted XY-projected endpoints to match edges regardless of direction
-                    var key = MakeEdgeKey(s, e);
-                    if (!edgeCount.TryGetValue(key, out var list))
+                    total++;
+                    if (fpRoof.get_DefinesSlope(mc))
                     {
-                        list = [];
-                        edgeCount[key] = list;
+                        sloped++;
+                        var angle = fpRoof.get_SlopeAngle(mc);
+                        if (angle > maxSlopeRad) maxSlopeRad = angle;
                     }
-                    list.Add((s, e, curve is not Line));
                 }
             }
-        }
 
-        // Boundary edges appear exactly once among top faces
-        var boundaryEdges = new List<(XYZ Start, XYZ End, bool IsCurved)>();
-        foreach (var (_, list) in edgeCount)
+            var slopeDeg = maxSlopeRad * 180.0 / Math.PI;
+            string type;
+            if (sloped == 0) type = "flat";
+            else if (sloped == total) type = "hip";
+            else if (sloped == 1) type = "shed";
+            else type = "gable";
+
+            return (type, slopeDeg);
+        }
+        catch
         {
-            if (list.Count == 1)
-                boundaryEdges.Add(list[0]);
+            return ("flat", 0);
         }
-
-        if (boundaryEdges.Count < 3) return null;
-
-        // Project to XY and chain into polygon
-        var edges = boundaryEdges.Select(e =>
-            (Start: new XYZ(e.Start.X, e.Start.Y, 0),
-             End: new XYZ(e.End.X, e.End.Y, 0),
-             e.IsCurved)).ToList();
-
-        var points = new List<XYZ> { edges[0].Start };
-        var current = edges[0].End;
-        var hasCurvedEdges = edges[0].IsCurved;
-        var used = new HashSet<int> { 0 };
-
-        while (used.Count < edges.Count)
-        {
-            points.Add(current);
-            var found = false;
-            for (var i = 0; i < edges.Count; i++)
-            {
-                if (used.Contains(i)) continue;
-                if (edges[i].Start.DistanceTo(current) < 1e-6)
-                {
-                    current = edges[i].End;
-                    if (edges[i].IsCurved) hasCurvedEdges = true;
-                    used.Add(i);
-                    found = true;
-                    break;
-                }
-                if (edges[i].End.DistanceTo(current) < 1e-6)
-                {
-                    current = edges[i].Start;
-                    if (edges[i].IsCurved) hasCurvedEdges = true;
-                    used.Add(i);
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) break;
-        }
-
-        return points.Count >= 3 ? (points, hasCurvedEdges) : null;
-    }
-
-    static string MakeEdgeKey(XYZ a, XYZ b)
-    {
-        // Round to avoid floating-point noise, sort so edge direction doesn't matter
-        var ax = Math.Round(a.X, 4); var ay = Math.Round(a.Y, 4);
-        var bx = Math.Round(b.X, 4); var by = Math.Round(b.Y, 4);
-        var s1 = $"{ax},{ay}";
-        var s2 = $"{bx},{by}";
-        return string.Compare(s1, s2, StringComparison.Ordinal) < 0 ? $"{s1}|{s2}" : $"{s2}|{s1}";
     }
 
     static (IList<XYZ> Points, bool HasCurvedEdges)? GetRoofFootprint(Element element)
@@ -272,7 +154,9 @@ public static class ArchitectureTableExporters
 
         if (edges.Count < 3) return null;
 
-        // Chain edges into an ordered polygon by endpoint matching
+        // Chain edges by endpoint matching. Tolerance 1e-3 ft (~0.3mm) handles
+        // floating-point drift in sketch profiles without matching unrelated edges.
+        const double tolerance = 1e-3;
         var points = new List<XYZ> { edges[0].Start };
         var current = edges[0].End;
         var hasCurvedEdges = edges[0].IsCurved;
@@ -285,7 +169,7 @@ public static class ArchitectureTableExporters
             for (var i = 0; i < edges.Count; i++)
             {
                 if (used.Contains(i)) continue;
-                if (edges[i].Start.DistanceTo(current) < 1e-6)
+                if (edges[i].Start.DistanceTo(current) < tolerance)
                 {
                     current = edges[i].End;
                     if (edges[i].IsCurved) hasCurvedEdges = true;
@@ -293,7 +177,7 @@ public static class ArchitectureTableExporters
                     found = true;
                     break;
                 }
-                if (edges[i].End.DistanceTo(current) < 1e-6)
+                if (edges[i].End.DistanceTo(current) < tolerance)
                 {
                     current = edges[i].Start;
                     if (edges[i].IsCurved) hasCurvedEdges = true;
