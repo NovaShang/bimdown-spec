@@ -2,6 +2,11 @@ name: vertical_span
 abstract: true
 
 fields:
+  - name: base_level_id
+    type: reference
+    reference: level
+    description: Base level. Optional — usually derived from the containing directory, but required for multi-story elements stored in global/.
+
   - name: top_level_id
     type: reference
     reference: level

@@ -4,12 +4,16 @@ namespace BimDown.RevitAddin.Extractors;
 
 public class VerticalSpanExtractor : IFieldExtractor
 {
-    public IReadOnlyList<string> FieldNames { get; } = ["top_level_id", "top_offset", "height"];
+    public IReadOnlyList<string> FieldNames { get; } = ["base_level_id", "top_level_id", "top_offset", "height"];
     public IReadOnlyList<string> ComputedFieldNames { get; } = ["height"];
 
     public Dictionary<string, string?> Extract(Element element)
     {
         var fields = new Dictionary<string, string?>();
+
+        // Base level — explicit so multi-story elements in global/ still know their bottom
+        if (element.LevelId is { } baseLevelId && baseLevelId != ElementId.InvalidElementId)
+            fields["base_level_id"] = element.Document.GetElement(baseLevelId)?.UniqueId;
 
         // Top level
         var topLevelId = element.get_Parameter(BuiltInParameter.WALL_HEIGHT_TYPE)?.AsElementId()

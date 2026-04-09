@@ -210,11 +210,24 @@ public class ImportCommand : IExternalCommand
                 var tableName = Path.GetFileNameWithoutExtension(csvFile);
                 var (_, rows) = CsvReader.Read(csvFile);
 
-                // For non-global level directories, inject level_id from directory name
+                // For non-global level directories, inject level_id from directory name.
+                // For global/, fall back to base_level_id (populated by VerticalSpanExtractor)
+                // so multi-story elements can still resolve their base level.
                 if (!isGlobal)
                 {
                     foreach (var row in rows)
                         row["level_id"] = dirName;
+                }
+                else
+                {
+                    foreach (var row in rows)
+                    {
+                        if (row.GetValueOrDefault("level_id") is null &&
+                            row.GetValueOrDefault("base_level_id") is { } baseLevelId)
+                        {
+                            row["level_id"] = baseLevelId;
+                        }
+                    }
                 }
 
                 if (!result.TryGetValue(tableName, out var existing))
