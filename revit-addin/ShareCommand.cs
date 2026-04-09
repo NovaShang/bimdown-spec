@@ -101,7 +101,7 @@ public class ShareCommand : IExternalCommand
 
     static ExportSettings CreateShareSettings() => new()
     {
-        OutputDir = "",
+        OutputFile = "",
         ExportMesh = UserSettings.GetBool("ExportMesh", true),
         WriteIdsToModel = false,
         Confirmed = true,

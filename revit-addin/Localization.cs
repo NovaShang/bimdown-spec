@@ -22,8 +22,9 @@ static class L
 
     // ── Export Dialog ──
     public static string ExportSettingsTitle => S("BimDown Export Settings", "BimDown 导出设置");
-    public static string SelectOutputFolder => S("Output Folder", "输出目录");
+    public static string SelectOutputFolder => S("Output File", "输出文件");
     public static string Browse => S("Browse...", "浏览...");
+    public static string BimDownFileFilter => S("BimDown Package (*.zip)|*.zip", "BimDown 包 (*.zip)|*.zip");
     public static string CategorySelection => S("Categories to Export", "选择导出类别");
     public static string GroupArchitecture => S("Architecture", "建筑");
     public static string GroupStructure => S("Structure", "结构");
@@ -37,7 +38,7 @@ static class L
     public static string DeselectAll => S("Deselect All", "全不选");
 
     // ── Import Dialog ──
-    public static string SelectImportFolder => S("Select folder containing BimDown files for import", "选择包含 BimDown 文件的导入目录");
+    public static string SelectImportFolder => S("Select BimDown package file for import", "选择要导入的 BimDown 包文件");
 
     // ── Progress ──
     public static string ProgressExportTitle => S("BimDown Export", "BimDown 导出中");

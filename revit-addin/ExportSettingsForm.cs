@@ -4,7 +4,7 @@ record ExportCategory(string TableName, string DisplayName, string Group);
 
 sealed class ExportSettings
 {
-    public string OutputDir { get; set; } = "";
+    public string OutputFile { get; set; } = "";
     public HashSet<string> EnabledTables { get; set; } = [];
     public bool ExportMesh { get; set; } = true;
     public bool WriteIdsToModel { get; set; } = true;
@@ -93,13 +93,15 @@ sealed class ExportSettingsForm : BaseForm
         };
         browseBtn.Click += (_, _) =>
         {
-            using var dlg = new FolderBrowserDialog
+            using var dlg = new SaveFileDialog
             {
-                ShowNewFolderButton = true,
-                SelectedPath = _pathBox.Text,
+                Filter = L.BimDownFileFilter,
+                DefaultExt = ".zip",
+                FileName = Path.GetFileName(_pathBox.Text),
+                InitialDirectory = Path.GetDirectoryName(_pathBox.Text) ?? "",
             };
             if (dlg.ShowDialog() == DialogResult.OK)
-                _pathBox.Text = dlg.SelectedPath;
+                _pathBox.Text = dlg.FileName;
         };
         y += 38;
 
@@ -236,12 +238,12 @@ sealed class ExportSettingsForm : BaseForm
     {
         if (string.IsNullOrWhiteSpace(_pathBox.Text))
         {
-            MessageBox.Show(L.S("Please select an output folder.", "请选择输出目录。"),
+            MessageBox.Show(L.S("Please select an output file.", "请选择输出文件。"),
                 L.ExportSettingsTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             return;
         }
 
-        Result.OutputDir = _pathBox.Text;
+        Result.OutputFile = _pathBox.Text;
         Result.ExportMesh = _meshCheck.Checked;
         Result.WriteIdsToModel = _writeIdsCheck.Checked;
 
@@ -259,7 +261,7 @@ sealed class ExportSettingsForm : BaseForm
         }
 
         // Save to user settings
-        UserSettings.LastExportPath = Result.OutputDir;
+        UserSettings.LastExportPath = Result.OutputFile;
         UserSettings.SetList("EnabledTables", [.. Result.EnabledTables]);
         UserSettings.SetBool("ExportMesh", Result.ExportMesh);
         UserSettings.SetBool("WriteIdsToModel", Result.WriteIdsToModel);

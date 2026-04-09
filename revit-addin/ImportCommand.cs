@@ -1,4 +1,5 @@
 using System.IO;
+using System.IO.Compression;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
@@ -14,15 +15,33 @@ public class ImportCommand : IExternalCommand
     {
         var doc = commandData.Application.ActiveUIDocument.Document;
 
-        using var dialog = new FolderBrowserDialog
+        using var dialog = new OpenFileDialog
         {
-            Description = "Select folder containing CSV files for import",
+            Title = L.SelectImportFolder,
+            Filter = L.BimDownFileFilter,
+            DefaultExt = ".zip",
+            InitialDirectory = Path.GetDirectoryName(UserSettings.LastImportPath ?? "") ?? "",
         };
 
         if (dialog.ShowDialog() != DialogResult.OK)
             return Result.Cancelled;
 
-        var inputDir = dialog.SelectedPath;
+        UserSettings.LastImportPath = dialog.FileName;
+
+        var tempDir = Path.Combine(Path.GetTempPath(), $"bimdown-import-{Guid.NewGuid():N}");
+        try
+        {
+            ZipFile.ExtractToDirectory(dialog.FileName, tempDir);
+            return RunImport(doc, tempDir);
+        }
+        finally
+        {
+            try { Directory.Delete(tempDir, true); } catch { }
+        }
+    }
+
+    static Result RunImport(Document doc, string inputDir)
+    {
         var idMap = new IdMap();
         var allErrors = new List<string>();
 
