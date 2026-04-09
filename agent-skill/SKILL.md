@@ -1,7 +1,26 @@
 ---
 name: bimdown
-version: 1.1.2
+version: 1.4.1
 description: A bridge between AI and building data. Read & create BIM exactly like writing code. Execute architectural design, or just model your own house!
+metadata:
+  {
+    "openclaw": {
+      "emoji": "🏛️",
+      "requires": {
+        "bins": ["bimdown"],
+        "install": { "npm": "bimdown-cli" }
+      },
+      "optionalEnv": ["BIMCLAW_API"],
+      "network": {
+        "publish": {
+          "endpoint": "https://bim-claw.com/api/shares/publish",
+          "method": "POST",
+          "description": "Optional sharing step. Uploads project CSV/SVG/GLB files as a zip to BimClaw and returns a public share URL. Anonymous (no account or token required). The agent MUST ask the user for explicit permission before the first publish of any given project.",
+          "override": "Set BIMCLAW_API to point at a different backend (self-hosted)."
+        }
+      }
+    }
+  }
 ---
 
 # BimDown Agent Skill & Schema Rules
@@ -10,12 +29,17 @@ description: A bridge between AI and building data. Read & create BIM exactly li
 
 
 ## Setup / Prerequisites
-Before executing any `bimdown` commands, ensure the CLI is installed globally.
-> **SECURITY RULE**: You **MUST explicitly ask the user for permission** before running `npm install` autonomously.
+
+This skill **REQUIRES** the `bimdown` binary (provided by the `bimdown-cli` npm package). All workflow steps below invoke it directly — without it, the skill cannot function.
+
+1. **Check first**: Run `which bimdown` (or `bimdown --version`). If it exists, skip the install step.
+2. **If missing**: Install via npm — but you **MUST explicitly ask the user for permission** before running `npm install -g` autonomously. This writes to global npm paths and executes arbitrary package scripts, so it is a privileged action.
 
 ```bash
 npm install -g bimdown-cli
 ```
+
+The CLI is fully offline except for the optional `bimdown publish` step (see the Publishing section below for details on what that uploads and where).
 
 You are an AI Coder operating within a BimDown project environment.
 BimDown is an open-source, AI-native building data format using CSV for semantics and SVG for geometry.
@@ -70,7 +94,7 @@ project/
 4. **Render and visually verify**: Run `bimdown render <dir> -o render.png` and **view the PNG image** to confirm the layout is correct. Check that walls connect properly, rooms are enclosed, and doors/windows are in the right positions. **Save render outputs and any other non-BimDown files OUTSIDE the project directory** — the project directory must only contain BimDown CSV/SVG files, otherwise `build` will reject them.
 5. **Build**: Run `bimdown build <dir>` to validate schema, check geometry, and compute space boundaries (generates `space.svg` from seed points).
 6. **Iterate**: If the render or build shows problems, fix the SVG geometry and re-render until the layout looks right.
-7. **Publish**: Run `bimdown publish <dir>` to upload and get a shareable 3D preview URL. Ask user for consent before the first publish of each project.
+7. **Publish** (optional, network step): Run `bimdown publish <dir>` to upload the project to BimClaw and get a shareable 3D preview URL. See the **Publishing & Data Upload** section below for what is uploaded, where, and the consent requirement.
 
 ## Reference SOPs
 
@@ -101,12 +125,22 @@ Do not guess the workflow from memory. Do not start writing CSV/SVG before the r
 4. **`bimdown schema [table]`**: Prints the full schema for any element type. Use this to look up fields before creating elements.
 5. **`bimdown diff <dirA> <dirB>`**: Emits a `+`, `-`, `~` structural difference between project snapshots.
 6. **`bimdown init <dir>`**: Creates a new empty BimDown project with the correct directory structure.
-7. **`bimdown publish <dir> [--expires 7d]`**: Publishes the project to BimClaw and returns a shareable preview URL. Use this to let users view the model in a 3D editor. **SECURITY WARNING**: Uploads project data to an external server. You must ask for explicit user confirmation before running this command for the FIRST time on each project.
+7. **`bimdown publish <dir> [--expires 7d] [--api <url>]`**: Publishes the project to BimClaw (default endpoint `https://bim-claw.com/api/shares/publish`) and returns a shareable 3D preview URL. Anonymous — no account or token is required. See the **Publishing & Data Upload** section below for the full security contract before running this.
 8. **`bimdown info <dir>`**: Prints project summary (levels, element counts).
 9. **`bimdown resolve-topology <dir>`**: Auto-detects coincident endpoints for MEP curves, generates `mep_nodes`, and fills connectivity fields.
 10. **`bimdown merge <dirs...> -o <output>`**: Merges multiple project directories into one, resolving ID conflicts.
 11. **`bimdown sync <dir>`**: Hydrates into DuckDB and dehydrates back out to CSV/SVG, applying computed defaults.
 12. **Downloading a shared project**: If the user provides a share link like `https://bim-claw.com/s/<token>`, append `/download` to get the zip: `curl -L https://bim-claw.com/s/<token>/download -o project.zip && unzip project.zip -d project/`
+
+## Publishing & Data Upload
+
+`bimdown publish` is the **only** network-using command in this skill. Everything else runs fully offline on local files. Before running it, be explicit with the user about the following:
+
+- **Destination**: `https://bim-claw.com/api/shares/publish` by default. Override with `--api <url>` or the `BIMCLAW_API` environment variable to point at a self-hosted backend.
+- **What is uploaded**: the entire project directory, zipped — every CSV, every SVG, any `mesh/*.glb` files, and `project_metadata.json`. Filenames, geometry, room names, and any materials/notes you put in CSV columns all leave the device.
+- **Authentication**: **none**. The upload is anonymous; no account, API key, or token is used or stored. The server returns a random share token (e.g. `https://bim-claw.com/s/abc123`). Anyone with that link can view and download the project until it expires (default 7 days, configurable via `--expires`).
+- **Consent requirement** (HARD RULE): Before the **first** publish of any given project in a session, **you MUST ask the user for explicit permission** and wait for their confirmation. Do not publish autonomously. Once confirmed for that project, further re-publishes within the same conversation are fine.
+- **Sensitivity check**: If the project contains anything the user might consider confidential — client names, specific addresses, unpublished designs, stamped construction docs — call this out in the consent question so the user can make an informed decision.
 
 ## Critical File & Geometry Rules
 
