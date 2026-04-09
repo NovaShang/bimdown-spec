@@ -104,7 +104,8 @@ class MeshExporter : ITableExporter
 
             try
             {
-                var meshPath = GlbExporter.ExportElement(element, outputDir, shortId);
+                var (origin, rotationRad) = GetPlacement(element);
+                var meshPath = GlbExporter.ExportElement(element, outputDir, shortId, origin, rotationRad);
                 row["mesh_file"] = meshPath ?? "";
                 if (typeId != ElementId.InvalidElementId)
                     typeToMeshPath[typeId] = meshPath;
@@ -127,6 +128,22 @@ class MeshExporter : ITableExporter
         return errors;
     }
 
+    /// <summary>
+    /// Gets the placement origin (Revit XYZ in feet) and rotation (radians) for an element.
+    /// Used by both CSV row export and GLB local-coordinate transform.
+    /// </summary>
+    internal static (XYZ Origin, double RotationRad) GetPlacement(Element element)
+    {
+        if (element.Location is LocationPoint lp)
+            return (lp.Point, lp.Rotation);
+
+        if (element.Location is LocationCurve lc)
+            return (lc.Curve.Evaluate(0.5, true), 0);
+
+        var bb = element.get_BoundingBox(null);
+        return bb is not null ? ((bb.Min + bb.Max) / 2, 0) : (XYZ.Zero, 0);
+    }
+
     static Dictionary<string, string?>? ExtractRow(Element element)
     {
         var row = new Dictionary<string, string?>
@@ -143,39 +160,11 @@ class MeshExporter : ITableExporter
             row["level_id"] = element.Document.GetElement(levelId)?.UniqueId;
 
         // Position from Location or BoundingBox center
-        if (element.Location is LocationPoint lp)
-        {
-            row["x"] = UnitConverter.FormatDouble(UnitConverter.Length(lp.Point.X));
-            row["y"] = UnitConverter.FormatDouble(UnitConverter.Length(lp.Point.Y));
-            row["z"] = UnitConverter.FormatDouble(UnitConverter.Length(lp.Point.Z));
-            row["rotation"] = UnitConverter.FormatDouble(lp.Rotation * 180 / Math.PI);
-        }
-        else if (element.Location is LocationCurve lc)
-        {
-            var mid = lc.Curve.Evaluate(0.5, true);
-            row["x"] = UnitConverter.FormatDouble(UnitConverter.Length(mid.X));
-            row["y"] = UnitConverter.FormatDouble(UnitConverter.Length(mid.Y));
-            row["z"] = UnitConverter.FormatDouble(UnitConverter.Length(mid.Z));
-            row["rotation"] = "0";
-        }
-        else
-        {
-            var bb = element.get_BoundingBox(null);
-            if (bb is not null)
-            {
-                var center = (bb.Min + bb.Max) / 2;
-                row["x"] = UnitConverter.FormatDouble(UnitConverter.Length(center.X));
-                row["y"] = UnitConverter.FormatDouble(UnitConverter.Length(center.Y));
-                row["z"] = UnitConverter.FormatDouble(UnitConverter.Length(center.Z));
-            }
-            else
-            {
-                row["x"] = "0";
-                row["y"] = "0";
-                row["z"] = "0";
-            }
-            row["rotation"] = "0";
-        }
+        var (origin, rotationRad) = GetPlacement(element);
+        row["x"] = UnitConverter.FormatDouble(UnitConverter.Length(origin.X));
+        row["y"] = UnitConverter.FormatDouble(UnitConverter.Length(origin.Y));
+        row["z"] = UnitConverter.FormatDouble(UnitConverter.Length(origin.Z));
+        row["rotation"] = UnitConverter.FormatDouble(rotationRad * 180 / Math.PI);
 
         return row;
     }

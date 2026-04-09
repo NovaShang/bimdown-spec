@@ -15,12 +15,21 @@ static class GlbExporter
 {
     /// <summary>
     /// Exports an element's geometry to a GLB file with per-face PBR materials.
+    /// Vertices are transformed to local coordinates (origin subtracted, rotation inverted)
+    /// so the GLB is centered at origin and can be placed via CSV transform.
     /// Returns the relative path (e.g., "mesh/mesh-1.glb") or null if no geometry found.
     /// </summary>
-    internal static string? ExportElement(Element element, string outputDir, string shortId)
+    internal static string? ExportElement(Element element, string outputDir, string shortId,
+        XYZ origin, double rotationRad)
     {
-        var triangles = ExtractTriangles(element);
+        var isFamilyInstance = element is Autodesk.Revit.DB.FamilyInstance;
+        var triangles = ExtractTriangles(element, useSymbolGeometry: isFamilyInstance);
         if (triangles.Count == 0) return null;
+
+        // FamilyInstance: GetSymbolGeometry() already gives local coords.
+        // Non-FamilyInstance (Topography, Site): geometry is world coords, need transform.
+        if (!isFamilyInstance)
+            TransformToLocal(triangles, origin, rotationRad);
 
         var doc = element.Document;
         var materialCache = new Dictionary<ElementId, MaterialBuilder>();
@@ -166,8 +175,30 @@ static class GlbExporter
             .WithBaseColor(new Vec4(0.7f, 0.7f, 0.7f, 1f))
             .WithMetallicRoughness(0f, 0.8f);
 
+    static void TransformToLocal(
+        List<(Vec3 A, Vec3 B, Vec3 C, ElementId MaterialId)> triangles,
+        XYZ origin, double rotationRad)
+    {
+        var glbOrigin = ToVec3(origin);
+        var cos = (float)Math.Cos(-rotationRad);
+        var sin = (float)Math.Sin(-rotationRad);
+
+        for (var i = 0; i < triangles.Count; i++)
+        {
+            var (a, b, c, matId) = triangles[i];
+            triangles[i] = (
+                RotateY(a - glbOrigin, cos, sin),
+                RotateY(b - glbOrigin, cos, sin),
+                RotateY(c - glbOrigin, cos, sin),
+                matId);
+        }
+    }
+
+    static Vec3 RotateY(Vec3 v, float cos, float sin) =>
+        new(v.X * cos + v.Z * sin, v.Y, -v.X * sin + v.Z * cos);
+
     static List<(Vec3 A, Vec3 B, Vec3 C, ElementId MaterialId)>
-        ExtractTriangles(Element element)
+        ExtractTriangles(Element element, bool useSymbolGeometry)
     {
         var result = new List<(Vec3, Vec3, Vec3, ElementId)>();
 
@@ -180,12 +211,12 @@ static class GlbExporter
         var geomElement = element.get_Geometry(options);
         if (geomElement is null) return result;
 
-        CollectTriangles(geomElement, result);
+        CollectTriangles(geomElement, result, useSymbolGeometry);
         return result;
     }
 
     static void CollectTriangles(GeometryElement geomElement,
-        List<(Vec3, Vec3, Vec3, ElementId)> result)
+        List<(Vec3, Vec3, Vec3, ElementId)> result, bool useSymbolGeometry)
     {
         foreach (var geomObj in geomElement)
         {
@@ -209,7 +240,12 @@ static class GlbExporter
                     }
                     break;
                 case GeometryInstance instance:
-                    CollectTriangles(instance.GetInstanceGeometry(), result);
+                    // Symbol geometry = family local coords (shared across instances).
+                    // Instance geometry = world coords (unique per placement).
+                    var geom = useSymbolGeometry
+                        ? instance.GetSymbolGeometry()
+                        : instance.GetInstanceGeometry();
+                    CollectTriangles(geom, result, useSymbolGeometry);
                     break;
             }
         }

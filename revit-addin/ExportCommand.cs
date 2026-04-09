@@ -1,4 +1,5 @@
 using System.IO;
+using System.IO.Compression;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
@@ -21,13 +22,29 @@ public class ExportCommand : IExternalCommand
             return Result.Cancelled;
 
         var settings = settingsForm.Result;
-        var (tableCount, errors) = RunExport(doc, settings, settings.OutputDir);
+        var tempDir = Path.Combine(Path.GetTempPath(), $"bimdown-export-{Guid.NewGuid():N}");
 
-        var msg = $"Exported {tableCount} tables to:\n{settings.OutputDir}";
-        if (errors.Count > 0)
-            msg += $"\n\nWarnings ({errors.Count}):\n" + string.Join("\n", errors);
+        try
+        {
+            Directory.CreateDirectory(tempDir);
+            var (tableCount, errors) = RunExport(doc, settings, tempDir);
 
-        Autodesk.Revit.UI.TaskDialog.Show("BimDown Export", msg);
+            // Pack to .bimdown zip
+            if (File.Exists(settings.OutputFile))
+                File.Delete(settings.OutputFile);
+            ZipFile.CreateFromDirectory(tempDir, settings.OutputFile);
+
+            var msg = $"Exported {tableCount} tables to:\n{settings.OutputFile}";
+            if (errors.Count > 0)
+                msg += $"\n\nWarnings ({errors.Count}):\n" + string.Join("\n", errors);
+
+            Autodesk.Revit.UI.TaskDialog.Show("BimDown Export", msg);
+        }
+        finally
+        {
+            try { Directory.Delete(tempDir, true); } catch { }
+        }
+
         return Result.Succeeded;
     }
 
@@ -339,7 +356,8 @@ public class ExportCommand : IExternalCommand
 
                 try
                 {
-                    var meshPath = GlbExporter.ExportElement(element, outputDir, entry.ShortId);
+                    var (origin, rotationRad) = Tables.MeshExporter.GetPlacement(element);
+                    var meshPath = GlbExporter.ExportElement(element, outputDir, entry.ShortId, origin, rotationRad);
                     entry.Row["mesh_file"] = meshPath ?? "";
                     if (typeId != ElementId.InvalidElementId)
                         typeToMeshPath[typeId] = meshPath;
