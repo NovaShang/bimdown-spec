@@ -216,7 +216,11 @@ function renderHostedElements(
     const x2 = cx + ux * halfW;
     const y2 = cy + uy * halfW;
 
-    const sw = tableName === 'door' ? '0.08' : '0.06';
+    // Doors/windows are rendered on top of their host wall and must "pop" visually
+    // even when the wall itself is 0.2–0.3m thick. Use bold strokes:
+    //   door   → 0.22m red   (#e63946)
+    //   window → 0.18m teal  (#2a9d8f)
+    const sw = tableName === 'door' ? '0.22' : '0.18';
     const markup = `    <line id="${row.id}" x1="${x1.toFixed(3)}" y1="${y1.toFixed(3)}" x2="${x2.toFixed(3)}" y2="${y2.toFixed(3)}" stroke="${color.stroke}" stroke-width="${sw}" />`;
 
     results.push({
@@ -323,27 +327,41 @@ export function renderLevel(projectDir: string, levelId: string): string {
   const csvOnlyElements: CsvOnlyElement[] = [];
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
 
-  // Collect wall elements for hosted element position computation
+  // Collect wall elements for hosted element (door/window) position lookup.
+  // Hosted elements may reference walls that live in global/ (multi-story or
+  // curtain walls), so we index walls from BOTH the current level AND global/.
   const wallElements = new Map<string, SvgElement>();
+
+  // Render sources: global/ first (drawn underneath), then the current level.
+  // Global elements (multi-story walls, stairs, cross-floor MEP) are visible on
+  // every level — without this, doors/windows hosted on global walls would fail
+  // to render and the exterior envelope would disappear.
+  const renderSources: { path: string }[] = [
+    { path: layout.globalDir },
+    { path: levelDir.path },
+  ];
 
   for (const tableName of RENDER_ORDER) {
     if (CSV_ONLY_TABLES.has(tableName)) continue;
 
     const svgName = SVG_FILE_NAMES[tableName];
     if (!svgName) continue;
-    const svgPath = join(levelDir.path, svgName + '.svg');
-    if (!existsSync(svgPath)) continue;
 
-    const svg = parseSvgFile(svgPath);
-    for (const el of svg.elements) {
-      allElements.push({ tableName, el });
-      if (tableName === 'wall') wallElements.set(el.id, el);
-      const b = elementBounds(el);
-      if (b) {
-        minX = Math.min(minX, b.minX);
-        minY = Math.min(minY, b.minY);
-        maxX = Math.max(maxX, b.maxX);
-        maxY = Math.max(maxY, b.maxY);
+    for (const src of renderSources) {
+      const svgPath = join(src.path, svgName + '.svg');
+      if (!existsSync(svgPath)) continue;
+
+      const svg = parseSvgFile(svgPath);
+      for (const el of svg.elements) {
+        allElements.push({ tableName, el });
+        if (tableName === 'wall') wallElements.set(el.id, el);
+        const b = elementBounds(el);
+        if (b) {
+          minX = Math.min(minX, b.minX);
+          minY = Math.min(minY, b.minY);
+          maxX = Math.max(maxX, b.maxX);
+          maxY = Math.max(maxY, b.maxY);
+        }
       }
     }
   }

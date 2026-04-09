@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { join } from 'node:path';
 import { readCsv } from './csv.js';
 
-const sampleDir = join(import.meta.dirname, '..', '..', '..', 'sample_data', 'snowdon');
+const sampleDir = join(import.meta.dirname, '..', '..', '..', 'sample_data', 'rac_advanced');
 
 describe('CSV reader', () => {
   it('reads level.csv with BOM', () => {
@@ -26,8 +26,9 @@ describe('CSV reader', () => {
     expect(data.headers).toContain('host_id');
     expect(data.headers).toContain('position');
     expect(data.rows.length).toBeGreaterThan(0);
+    // position = distance in meters from host wall start (non-negative float)
     const pos = parseFloat(data.rows[0].position);
+    expect(Number.isFinite(pos)).toBe(true);
     expect(pos).toBeGreaterThanOrEqual(0);
-    expect(pos).toBeLessThanOrEqual(1);
   });
 });

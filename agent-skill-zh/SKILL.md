@@ -71,20 +71,31 @@ project/
 6. **迭代 (Iterate)**: 如果渲染或构建过程提示有问题，修复 SVG 几何图并重新渲染，直到布局看起来正确为止。
 7. **发布 (Publish)**: 运行 `bimdown publish <dir>` 上传项目并获取可分享的 3D 预览 URL。在每个项目首次发布前，请先请求用户同意。
 
-## 工作流标准参考(SOPs)
+## 参考 SOP (Reference SOPs)
 
-在开始任何建筑设计或建模任务前，**请务必阅读相关的参考SOP文档**:
+**停 — 在动笔写任何一个文件之前,你必须先读完下面对应的参考 SOP。** 这些不是可选的背景资料,而是该类任务权威的分步操作流程。
 
-- **从头设计一座建筑 (Designing a building from scratch)** (根据用户说明或要求): 请阅读 [`references/building-design.md`](./references/building-design.md) 获取从体块到机电 (MEP)的完整 BIM 设计工作流。
-- **根据现有图纸建模 (Modeling from existing plans)** (平面图图像、草图或已知尺寸): 请阅读 [`references/bim-modeling.md`](./references/bim-modeling.md) 获取元素创建顺序、依赖关系以及最佳实践。
+- **如果你需要"设计建筑" (DESIGN)**(任何从需求、简报、任务书、或"帮我设计一个 ..."出发的请求):**务必阅读** [`references/building-design.md`](./references/building-design.md) —— 从体量到 MEP 的完整设计-到-BIM 工作流。
+- **如果你需要"照图建模" (MODEL)**(基于已有的平面图图像、草图、已知尺寸,或复现某栋现有建筑):**务必阅读** [`references/bim-modeling.md`](./references/bim-modeling.md) —— 元素创建顺序、依赖关系和最佳实践。
 
-这些是详细的标准操作程序。在**写入任何文件前**请阅读相关文档。
+不要凭记忆猜工作流。在完整读完对应 SOP 之前,不要开始写 CSV / SVG。
 
 ## 命令行工具与最佳实践 (CLI Tools & Best Practices)
 
 1. **`bimdown query <dir> <sql> --json`**: 在所有表格中运行 DuckDB SQL 查询，包括 SVG 衍生的虚拟列。
    - **示例**: `bimdown query ./proj "SELECT id, length FROM wall WHERE length > 5.0" --json`
 2. **`bimdown render <dir> [-l level] [-o output.png] [-w width]`**: 将某个楼层渲染为 PNG 蓝图图像（默认宽度2048px）。输出文件后缀 `.svg` 即可导出SVG。**在修改几何图形后始终要运行渲染，并查看PNG图像来视觉确认结果。**
+   - **颜色图例**(你要记住这套配色,这样才能看懂自己的渲染图):
+     - **墙**:深藏青 `#1a1a2e`(结构墙是板岩色 `#4a4e69`)
+     - **柱**:深色实心填充(结构柱略浅)
+     - **楼板 (slab)**:浅灰半透明
+     - **空间 / 房间**:蓝色半透明,带房间名字标签
+     - **楼梯**:橙色
+     - **梁**:紫色
+     - **门 (door)**:**加粗红色 `#e63946`** 线条,横切宿主墙 —— 非常显眼
+     - **窗 (window)**:**加粗青绿 `#2a9d8f`** 线条,横切宿主墙 —— 非常显眼
+     - **MEP** —— 风管: 青色 cyan,水管: 浅蓝,桥架: 绿色,穿线管: teal,设备: 红色填充,末端: 橙色填充
+   - 如果渲染图上少了某个门或窗,通常是它的 `host_id` 或 `position` 写错了 —— 先查 CSV,而不是怀疑渲染器。
 3. **`bimdown build <dir>`**: 验证项目数据，检查几何学连通性（墙体连接度、宿主元素边界），并计算空间边界（生成 `space.svg`）。**每次修改 CSV 或 SVG 后务必运行此命令！** 命令别名为 `bimdown validate`。
 4. **`bimdown schema [table]`**: 打印任何元素类型的完整属性结构。在创建元素之前用它来查询字段。
 5. **`bimdown diff <dirA> <dirB>`**: 比较项目快照，输出 `+`、`-`、`~` 的结构差异。

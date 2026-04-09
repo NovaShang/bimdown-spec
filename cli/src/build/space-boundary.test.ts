@@ -108,6 +108,41 @@ describe('computeSpaceBoundaries', () => {
     expect(svg).toContain('id="sp-2"');
   });
 
+  it('splits crossed walls into four rooms (+-shaped divider)', () => {
+    // 10x10 outer shell + two crossing interior walls meeting at (5,5).
+    // Neither crossing wall's endpoint touches the other's — the split must
+    // happen by proper line-line intersection, not by T-junction endpoint snap.
+    const levelDir = setupLevel(
+      [
+        // Outer rectangle
+        { id: 'w-1', x1: 0,  y1: 0,  x2: 10, y2: 0 },
+        { id: 'w-2', x1: 10, y1: 0,  x2: 10, y2: 10 },
+        { id: 'w-3', x1: 10, y1: 10, x2: 0,  y2: 10 },
+        { id: 'w-4', x1: 0,  y1: 10, x2: 0,  y2: 0 },
+        // Two crossing interior walls (horizontal + vertical through the middle)
+        { id: 'w-h', x1: 0,  y1: 5,  x2: 10, y2: 5 },
+        { id: 'w-v', x1: 5,  y1: 0,  x2: 5,  y2: 10 },
+      ],
+      [
+        { id: 'sp-1', x: 2.5, y: 2.5, name: 'BL' },
+        { id: 'sp-2', x: 7.5, y: 2.5, name: 'BR' },
+        { id: 'sp-3', x: 2.5, y: 7.5, name: 'TL' },
+        { id: 'sp-4', x: 7.5, y: 7.5, name: 'TR' },
+      ],
+    );
+
+    const result = computeSpaceBoundaries(levelDir);
+    expect(result.svgWritten).toBe(true);
+    expect(result.warnings.filter((w) => w.includes('no enclosing'))).toHaveLength(0);
+
+    const svg = readFileSync(join(levelDir.path, 'space.svg'), 'utf-8');
+    // All four quadrant rooms must resolve to their own polygon
+    expect(svg).toContain('id="sp-1"');
+    expect(svg).toContain('id="sp-2"');
+    expect(svg).toContain('id="sp-3"');
+    expect(svg).toContain('id="sp-4"');
+  });
+
   it('warns when seed point has no enclosing boundary', () => {
     // Seed point outside the room
     const levelDir = setupLevel(

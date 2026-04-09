@@ -69,8 +69,10 @@ export function computeSpaceBoundaries(
     return { warnings, svgWritten: false };
   }
 
-  // 2. Split segments at T-junctions so half-edge topology is correct
-  const splitSegments = splitAtTJunctions(segments);
+  // 2. Split segments at T-junctions AND proper crossings so the half-edge
+  // topology is correct (two walls that cross each other must become four
+  // half-length segments meeting at the intersection point).
+  const splitSegments = splitAtIntersections(segments);
 
   // 3-5. Build half-edge structure
   const { vertices, halfEdges } = buildHalfEdgeStructure(splitSegments);
@@ -154,37 +156,39 @@ function collectBoundarySegments(levelPath: string): Segment[] {
   return segments;
 }
 
-// ─── T-junction splitting ───────────────────────────────
+// ─── Segment intersection splitting ─────────────────────
 
 /**
- * Pre-process segments to split at T-junctions.
- * When an endpoint of one segment falls on the interior of another segment,
- * split the longer segment at that point so the half-edge structure is correct.
+ * Pre-process segments so that the half-edge topology will be correct:
+ *
+ *   1. **T-junctions**: when an endpoint of segment B falls on the interior
+ *      of segment A, split A at that point.
+ *   2. **Proper crossings**: when two segments cross in each other's interior
+ *      (neither touches the other's endpoint), split BOTH at the computed
+ *      intersection point.
+ *
+ * Both passes run in the same loop: every segment collects all of its split
+ * points from both sources, then is broken into sub-segments in one shot.
+ * The outer `while (changed)` loop handles cascading splits (a new sub-segment
+ * may become a T-junction target for yet another segment).
  */
-function splitAtTJunctions(segments: Segment[]): Segment[] {
-  // Collect all unique endpoints
-  const endpoints: { x: number; y: number }[] = [];
-  for (const seg of segments) {
-    endpoints.push({ x: seg.startX, y: seg.startY });
-    endpoints.push({ x: seg.endX, y: seg.endY });
-  }
-
-  // For each segment, find endpoints from OTHER segments that fall on its interior
+function splitAtIntersections(segments: Segment[]): Segment[] {
   let result = [...segments];
   let changed = true;
 
   while (changed) {
     changed = false;
-    const nextResult: Segment[] = [];
+
     const allEndpoints: { x: number; y: number }[] = [];
     for (const seg of result) {
       allEndpoints.push({ x: seg.startX, y: seg.startY });
       allEndpoints.push({ x: seg.endX, y: seg.endY });
     }
 
-    for (const seg of result) {
-      // Find all points that split this segment (excluding its own endpoints)
-      const splitPoints: { x: number; y: number; t: number }[] = [];
+    const nextResult: Segment[] = [];
+
+    for (let i = 0; i < result.length; i++) {
+      const seg = result[i];
       const dx = seg.endX - seg.startX;
       const dy = seg.endY - seg.startY;
       const lenSq = dx * dx + dy * dy;
@@ -193,14 +197,15 @@ function splitAtTJunctions(segments: Segment[]): Segment[] {
         continue;
       }
 
+      const splitPoints: { x: number; y: number; t: number }[] = [];
+
+      // (a) T-junction: endpoints of OTHER segments that land on seg's interior.
       for (const ep of allEndpoints) {
-        // Skip if this is one of the segment's own endpoints
         if (Math.abs(ep.x - seg.startX) < TOLERANCE && Math.abs(ep.y - seg.startY) < TOLERANCE) continue;
         if (Math.abs(ep.x - seg.endX) < TOLERANCE && Math.abs(ep.y - seg.endY) < TOLERANCE) continue;
 
-        // Project point onto segment
         const t = ((ep.x - seg.startX) * dx + (ep.y - seg.startY) * dy) / lenSq;
-        if (t <= TOLERANCE || t >= 1 - TOLERANCE) continue; // not in interior
+        if (t <= TOLERANCE || t >= 1 - TOLERANCE) continue;
 
         const closestX = seg.startX + t * dx;
         const closestY = seg.startY + t * dy;
@@ -210,20 +215,50 @@ function splitAtTJunctions(segments: Segment[]): Segment[] {
         }
       }
 
+      // (b) Proper crossings: solve seg ∩ other as line-line intersection,
+      // require BOTH parameters to be strictly in the interior. If `other`
+      // touches seg at an endpoint (s ≈ 0 or 1), branch (a) handles it already.
+      for (let j = 0; j < result.length; j++) {
+        if (j === i) continue;
+        const other = result[j];
+        const ox = other.endX - other.startX;
+        const oy = other.endY - other.startY;
+
+        // det = (dx,dy) × (ox,oy); 0 → parallel / colinear (unsupported here).
+        const det = dx * oy - dy * ox;
+        if (Math.abs(det) < 1e-12) continue;
+
+        // Solve: seg.start + t·(dx,dy) = other.start + s·(ox,oy)
+        const rx = other.startX - seg.startX;
+        const ry = other.startY - seg.startY;
+        const t = (rx * oy - ry * ox) / det;
+        const s = (rx * dy - ry * dx) / det;
+
+        if (t <= TOLERANCE || t >= 1 - TOLERANCE) continue;
+        if (s <= TOLERANCE || s >= 1 - TOLERANCE) continue;
+
+        splitPoints.push({
+          x: seg.startX + t * dx,
+          y: seg.startY + t * dy,
+          t,
+        });
+      }
+
       if (splitPoints.length === 0) {
         nextResult.push(seg);
       } else {
         changed = true;
-        // Sort by t parameter
         splitPoints.sort((a, b) => a.t - b.t);
-        // Remove duplicates
+
+        // Dedup near-coincident split points (e.g. endpoint-on-interior AND
+        // crossing hitting the same spot).
         const unique = [splitPoints[0]];
-        for (let i = 1; i < splitPoints.length; i++) {
-          if (Math.abs(splitPoints[i].t - unique[unique.length - 1].t) > TOLERANCE) {
-            unique.push(splitPoints[i]);
+        for (let k = 1; k < splitPoints.length; k++) {
+          if (Math.abs(splitPoints[k].t - unique[unique.length - 1].t) > TOLERANCE) {
+            unique.push(splitPoints[k]);
           }
         }
-        // Create sub-segments
+
         let prevX = seg.startX, prevY = seg.startY;
         for (const sp of unique) {
           nextResult.push({ startX: prevX, startY: prevY, endX: sp.x, endY: sp.y, id: seg.id });
@@ -233,6 +268,7 @@ function splitAtTJunctions(segments: Segment[]): Segment[] {
         nextResult.push({ startX: prevX, startY: prevY, endX: seg.endX, endY: seg.endY, id: seg.id });
       }
     }
+
     result = nextResult;
   }
 

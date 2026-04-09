@@ -1,6 +1,6 @@
 {
   "name": "bimdown-cli",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "An open-source, AI-native building data format using CSV and SVG.",
   "author": "NovaShang",
   "license": "MIT",
@@ -31,10 +31,18 @@
   ],
   "type": "module",
   "bin": {
-    "bimdown": "dist/index.js"
+    "bimdown": "dist/cli.js"
+  },
+  "main": "./dist/lib.js",
+  "types": "./dist/lib.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/lib.d.ts",
+      "import": "./dist/lib.js"
+    }
   },
   "scripts": {
-    "build": "tsup",
+    "build": "rm -rf dist && tsup",
     "dev": "tsup --watch",
     "test": "vitest run",
     "test:watch": "vitest"
@@ -44,6 +52,7 @@
     "commander": "^13.1.0",
     "fast-xml-parser": "^5.2.0",
     "fflate": "^0.8.2",
+    "jsts": "^2.12.1",
     "sharp": "^0.34.5",
     "yaml": "^2.7.0"
   },

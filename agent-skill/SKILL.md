@@ -74,18 +74,29 @@ project/
 
 ## Reference SOPs
 
-Before starting any building design or modeling task, **always read the relevant reference SOP**:
+**STOP — before writing a single file, you MUST read the matching reference SOP below.** These are not optional background material; they are the authoritative step-by-step procedures for the task.
 
-- **Designing a building from scratch** (from a user brief or requirements): Read [`references/building-design.md`](./references/building-design.md) for the full design-to-BIM workflow — from massing through MEP.
-- **Modeling from existing plans** (floor plan images, sketches, or known dimensions): Read [`references/bim-modeling.md`](./references/bim-modeling.md) for element creation order, dependencies, and best practices.
+- **If you need to DESIGN a building** (any request that starts from a brief, requirements, program, or "design me a ..."): **YOU MUST READ** [`references/building-design.md`](./references/building-design.md) — the full design-to-BIM workflow from massing through MEP.
+- **If you need to MODEL from existing plans** (floor plan images, sketches, known dimensions, or an existing building to replicate): **YOU MUST READ** [`references/bim-modeling.md`](./references/bim-modeling.md) — element creation order, dependencies, and best practices.
 
-These are step-by-step standard operating procedures. Read the relevant one **before writing any files**.
+Do not guess the workflow from memory. Do not start writing CSV/SVG before the relevant SOP has been read in full.
 
 ## CLI Tools & Best Practices
 
 1. **`bimdown query <dir> <sql> --json`**: Runs DuckDB SQL across all tables, including SVG-derived virtual columns.
    - **Example**: `bimdown query ./proj "SELECT id, length FROM wall WHERE length > 5.0" --json`
 2. **`bimdown render <dir> [-l level] [-o output.png] [-w width]`**: Renders a level into a PNG blueprint image (default 2048px wide). Use `.svg` extension for SVG output. **Always render after modifying geometry and view the PNG to visually verify the result.**
+   - **Color legend** (memorize this so you can interpret your own renders):
+     - **Walls**: dark navy `#1a1a2e` (structural walls are slate `#4a4e69`)
+     - **Columns**: dark solid fill (structural columns slightly lighter)
+     - **Slabs**: light grey translucent
+     - **Spaces / rooms**: blue translucent with room name label
+     - **Stairs**: orange
+     - **Beams**: purple
+     - **DOORS**: **bold red `#e63946`** lines cutting across the host wall — clearly visible
+     - **WINDOWS**: **bold teal `#2a9d8f`** lines cutting across the host wall — clearly visible
+     - **MEP** — ducts: cyan, pipes: light blue, cable tray: green, conduit: teal, equipment: red fill, terminals: orange fill
+   - If a door or window is missing from the render, it usually means its `host_id` or `position` is wrong — check the CSV before blaming the renderer.
 3. **`bimdown build <dir>`**: Validates the project, checks geometry (wall connectivity, hosted element bounds), and computes space boundaries (generates `space.svg`). **Run this EVERY TIME after modifying CSV or SVG files!** Also available as `bimdown validate` (alias).
 4. **`bimdown schema [table]`**: Prints the full schema for any element type. Use this to look up fields before creating elements.
 5. **`bimdown diff <dirA> <dirB>`**: Emits a `+`, `-`, `~` structural difference between project snapshots.

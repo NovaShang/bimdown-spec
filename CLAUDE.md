@@ -27,7 +27,7 @@
 
 ## Testing
 - CLI tests: `cd cli && npm test` (vitest)
-- Tests use `sample_data/snowdon/` for fixture data
+- Tests use `sample_data/rac_advanced/` for fixture data
 
 ### Revit Tests
 - Test framework: TUnit with `Nice3point.TUnit.Revit` (integration tests inside Revit process)
@@ -40,7 +40,7 @@
   2. `powershell -Command "Stop-Process -Id <parent_PID> -Force"`
 
 ## Sample Data
-- `sample_data/snowdon/` contains merged CSV/SVG exports from Revit sample models
+- `sample_data/rac_advanced/` is the reference CSV/SVG dataset exported from Revit (5 levels, includes doors/windows hosted on global curtain walls — exercises the renderer's global-wall lookup and hydrate's height fallback)
 - Source Revit projects: `SourceRevitModels/*.rvt` (gitignored)
 
 ## Git Commits
