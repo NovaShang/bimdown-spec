@@ -67,11 +67,13 @@ public class OpeningTableExporter : ITableExporter
             try
             {
                 var innerLoops = GetSlabInnerLoops(element);
-                foreach (var loop in innerLoops)
+                for (var i = 0; i < innerLoops.Count; i++)
                 {
                     var row = elementExtractor.Extract(element);
+                    // Synthetic ID to avoid collision with the host Floor's UniqueId
+                    row["id"] = $"{element.UniqueId}:opening:{i}";
                     row["host_id"] = element.UniqueId;
-                    row["points"] = GeometryUtils.SerializePolygon(loop);
+                    row["points"] = GeometryUtils.SerializePolygon(innerLoops[i]);
                     rows.Add(row);
                 }
             }
