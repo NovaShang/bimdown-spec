@@ -235,7 +235,7 @@ The following Revit scenarios fall outside BimDown's scope and will be exported 
 ## Related Projects
 
 - **[bimdown-editor](https://github.com/nicepkg/bimdown-editor)** — browser-based 2D/3D building editor
-- **[BimClaw](https://bimclaw.com)** — SaaS platform with hosted AI agent, real-time collaboration, and domain-specific analysis tools
+- **[BimClaw](https://bim-claw.com)** — SaaS platform with hosted AI agent, real-time collaboration, and domain-specific analysis tools
 
 ## License
 
